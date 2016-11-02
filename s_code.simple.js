@@ -1984,8 +1984,10 @@ s3.linkTrackEvents="None"
 /* uncomment below to use doPlugins */
 s3.usePlugins=true
 function s_doPlugins(s3) {
-	
+
 s3.pageName = dd.pageName;
+s3.eVar25 = s3.marketingCloudVisitorID;
+
 // use implementation plug-ins that are defined below
 // in this section. For example, if you copied the append
 // list plug-in code below, you could call:
@@ -2071,7 +2073,7 @@ s3.pt=new Function("x","d","f","a",""
 
 // track a page load
 s3.w_trackPage = function (details) {
-	//s3.contextData.dd = JSON.stringify(dd).replace(/\./g, '.'); // replace dots here to fix bug in Omniture debugger context data display
+	s3.contextData.dd = JSON.stringify(dd).replace(/\./g, '.'); // replace dots here to fix bug in Omniture debugger context data display
 	s3.t();
 }
 

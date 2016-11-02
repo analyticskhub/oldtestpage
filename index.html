@@ -1042,7 +1042,7 @@
 						var collServer=(s3.ssl?s3.trackingServerSecure:s3.trackingServer);
 						testTracking.setText(document.getElementById('req-coll-server'),collServer+',');
 						testTracking.setText(document.getElementById('req-rsid'),s3.account+',');
-						//testTracking.setText(document.getElementById('req-visitor-id'),(s3.visitorID||s3.c_rr('s_vi')||'(s_vi cookie on coll. server)')+',');
+						testTracking.setText(document.getElementById('req-visitor-id'),(s3.visitorID||s3.c_rr('s_vi')||'(s_vi cookie on coll. server)')+',');
 						testTracking.setText(document.getElementById('req-experience'),window.dd.experience+',');
 						
 						testTracking.setText(document.getElementById('scode-date'),'(Updated '+/\d{8}/.exec(dd.analyticsVersion)+')');
