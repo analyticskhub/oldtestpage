@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<!-- Version: 20160920 -->
+		
+		<!-- DNS prefetching -->
+		<link rel="dns-prefetch" href="//www.westpac.com.au">
+		<link rel="dns-prefetch" href="//metrics.westpac.com.au">
+		<link rel="dns-prefetch" href="//smetrics.westpac.com.au">
+		<link rel="dns-prefetch" href="//www.digitalpulse.omniture.com">
+		
+		<!-- Call s_code script in head for testing -->
+		<script>
+			//(function(a,c){function b(d,j,g,h,i){var f=c.getElementsByTagName('script')[0],e=c.createElement('script');if(c.getElementById(j)){return}e.id=j;e.type='text/javascript';e.async=(g||true);e.defer=(h||true);if(e.readyState){e.onreadystatechange=function(){if(e.readyState==='loaded'||e.readyState==='complete'){e.onreadystatechange=null;i()}}}else{e.onload=function(){i()}}e.src=d;f.parentNode.insertBefore(e,f)}b('s_code_dev.js','omniture-scode',true,true,function(){s3.w_trackPage()})}(window,document));
+		</script>
+		
+		<!-- local copy of Westpac jQuery for testing -->
+		<script type="text/javascript" src="common\jquery-1.4.3.min.js"></script>
+		
+		<!-- jsonlint bits -->
+		<script type="text/javascript" src="common\jsonlint.js"></script>
+		<script type="text/javascript" src="common\jsonlintformat.js"></script>
+		
+		<title>Tracking test page v3</title>
+		<style>
+			body {font-family:Verdana;font-size:11px;background-color:#EEE;margin:0;line-height:1.4}
+			select {font-family:Verdana;font-size:11px;margin:0;line-height:1.4}
+			.container {padding:10px 12px}
+			a {margin-right:9px}
+			h4, p {font-size:11px;margin:0}
+			h4 span {font-weight:normal}
+			ol, li  {float:left;margin:0 30px 0 0}
+			li a {margin-right:0}
+			.heading-with-detail{float:left;margin-right:10px}
+			.details {margin-top:15px;clear:both}
+			a#store {font-weight:bold}
+			.no-pad {margin-right:0px}
+			.pad {margin-right:9px}
+			input, textarea, #test-tracking-pagename, #test-tracking-formname, #jsonlint-error-output {font-size:inherit;font-family:inherit;width:98%;line-height:1.25;border:1px solid #999;padding:5px 8px}
+			#test-tracking-url {padding:8px 8px 10px 8px}
+			#test-tracking-details {font-size:inherit;height:380px}
+			#test-contextdata-details {font-size:inherit;height:380px}
+			#test-tracking-formname {border:transparent;background-color:#ddd;padding:8px}
+			#test-tracking-pagename {border:transparent;padding:8px}
+			#section-sample {border-collapse:collapse;margin-top:8px;max-width:99%}
+			#section-sample td {border:1px solid #BBB;padding:2px 8px;vertical-align:top}
+			.comment {margin:0px 0 0 0px;color:#666}
+			.emphasis {font-weight:bold}
+			.active-mode {background-color:#9FF}
+			.errMsg{color:red;font-weight:bold;background:yellow}
+			.to-do {background-color:#FCC}
+			.omni-pixel {background-color:#EEE;width:10px;color:#555}
+			.display-none {display:none}
+			.inner-node {border-bottom:3px double blue}
+			
+			.input-flash{
+				color:#FFB;
+				background:#FFB;
+				/*
+				transition-property:color,background;
+				transition-delay:0.2s;
+				transition-duration:0.3s;
+				transition-timing-function: ease-in;
+				-webkit-transition-property:color,background;
+				-webkit-transition-duration:0.3s;
+				-webkit-transition-timing-function: ease-in;
+				-webkit-transition-delay:0.2s;
+				*/
+			}
+			.input-default{
+				color:black;
+				background:white;
+				/*
+				transition-property:color,background;
+				transition-duration:0.7s;
+				transition-timing-function: ease-out;
+				-webkit-transition-property:color,background;
+				-webkit-transition-duration:0.7s;
+				-webkit-transition-timing-function: ease-out;
+				*/
+			}
+			.output-flash-page{
+				color:black;
+				background:#FB5;
+				/*
+				transition-property:color,background;
+				transition-delay:0.5s;
+				transition-duration:0.5s;
+				transition-timing-function: ease-in;
+				-webkit-transition-property:color,background;
+				-webkit-transition-duration:0.5s;
+				-webkit-transition-timing-function: ease-in;
+				*/
+			}
+			.output-flash-link{
+				color:black;
+				background:#6F3;
+				/*
+				transition-property:color,background;
+				transition-delay:0.5s;
+				transition-duration:0.5s;
+				transition-timing-function: ease-in;
+				-webkit-transition-property:color,background;
+				-webkit-transition-duration:0.5s;
+				-webkit-transition-timing-function: ease-in;
+				*/
+			}
+			.output-default{
+				color:black;
+				background:#FFB;
+				/*
+				transition-property:color,background;
+				transition-delay:0.5s;
+				transition-duration:1s;
+				transition-timing-function: ease-out;
+				-webkit-transition-property:color,background;
+				-webkit-transition-duration:1s;
+				-webkit-transition-timing-function: ease-out;
+				*/
+			}
+		</style>
+		<!--[if IE]>
+			<style>
+				body {font-size:10px}
+				h4, p {font-size:10px}
+			</style>
+		<![endif]-->
+	</head>
+	
+	<!-- testing data-attributes -->
+	<body> 
+		<script>
+			//$("body").attr('data-analytics-test-j-query-attr');
+			//$("body").attr('data-analytics-test-j-query-attr', 'new att val');
+			//alert('data: ' + $("body").data('analyticsTestJQueryAttr'));
+			//alert('attr: ' + $("body").attr('data-analytics-test-j-query-attr'));
+			//alert(JSON.stringify($("body").data(), null, 4));
+		</script>
+		<div id="tagsent" style="float:left;height:8px;width:8px;border-radius:8px"></div>
+		<div class="container">
+			<div id="no-cookie-support" class="errMsg"></div>
+			<div id="no-localstorage" class="errMsg"></div>
+			
+			<!-- Page code test details -->
+			<h4 class="heading-with-detail">Test URL:</h4>
+			
+			
+			<input id="test-tracking-url" class="input-default" spellcheck="false">
+			
+			<div style="float:left;margin:0 0 15px">
+				<p class="comment" style="float:left">Code groups:</p> 
+				
+				<span style="float:right" class="">
+					<!-- 
+					<a href="index.html" onclick="s3.c_wr('s_script-via','jquery')" id="script-via-jquery" class="no-pad">jQuery</a> 
+					<a href="index.html" onclick="s3.c_wr('s_script-via',0,new Date(0))" id="script-via-js" class="no-pad">js</a> 
+					<a href="index.html" onclick="s3.c_wr('s_script-via','analytics')" id="script-via-analytics" class="no-pad">analytics.js</a> 
+					<a href="index.html" onclick="s3.c_wr('s_script-via','stg')" id="script-via-stg" class="no-pad">StG</a><a href="#" id="stgfile" title="(Select StG to view s_code location)">^</a> 
+					-->
+					
+					s_code/via: 
+					<select id="code-via" style="max-width:150px" class="">
+						<option value="plain js">plain JS onReady (Domino/Oregon)</option>
+					</select>
+					<a href="#" id="code-via-view">View</a>
+					
+				</span> 
+				
+				<ol style="padding-left:30px" class="comment" data-analytics-nav="code-groups" id="error-message"><!-- testNavTacking and errorLinks for form validation -->
+					<li>
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://banking.westpac.com.au/secure/banking/overview/dashboard')">OTP</a> 
+						<!-- <a href="index.html" onclick="localStorage.setItem('testTrackingUrl','https://banking.westpac.com.au/secure/banking/search?query=interest')">OLB search</a>-->
+					<li>
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://www.westpac.com.au/business-banking/credit-cards/')">www</a>, 
+						<a href="index.html" id="www-mob" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://www.westpac.com.au/mobile/products/business-bank-accounts/')">www mob</a>, 
+						<a href="index.html" id="wwwsearch" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://search.westpac.com.au/search/search.cgi?collection=westpac&amp;query=loan');testTracking.setDetails({'pageName':'','pageType':'sitesearch','formName':''})">search</a> 
+					<li>
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://forms.westpac.com.au/forms/personalloans.nsf/frmmain?readform&amp;page=applicanteligibility&amp;loantype=unsecured')">forms A</a> 
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://forms.westpac.com.au/forms/personalloans.nsf/all/1b4942fa006ea685ca257bb0000d1004?opendocument&page=loandetails')">B</a> 
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://online.westpac.com.au/dforms/forms/secure/mobilesavingtransshort.nsf')">C</a> 
+					<li>
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://online.westpac.com.au/cust/wps/portal/pol/creditcard/creditcardapplication?funcReqd=NewAppl&amp;source=PL&amp;cardSelection=ALB&amp;referrer=http%3A%2F%2Fwww.westpac.com.au%2Fbusiness-banking%2Fcredit-cards%2Fall%2F')">online A</a> 
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://online.westpac.com.au/cust/wps/portal/pol/!ut/p/c1/04_SB8K8xLLM9MSSzPy8xBz9CP0os3ifEI_QIE8TIwOLECc3A093kwDjMIMQA4NAM6B8JB55E5J0G7gHORoYmQcEewcaeAO5RgR0h4Nci992FHks5qPIuxtYAAUNQ8w9nE2dDA0MTPT9PPJzU_ULckMjDDID0gGg7Os6/dl2/d1/L0lDU0NTSUpKZ0EhIS9JTlJBQUlnb0FNek1xc0EhL1lCSkp3NDU0NTAtNUZ3ISEvN19MVEhVUkk0MjAwRkYzMElEOFQ3SDdGMDBRMC9JX19fXzE!/')">B</a> 
+					<li>
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://info.westpac.com.au/personalloans-lp/flexiLoan-lp/')" class="">info</a>, 
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://rubyconnection.com.au/articles/archive-articles/2013/march/ruby-of-the-month-cate-blanchett.aspx')" class="">ruby</a>, 
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://www.davidsoninstitute.edu.au/learning-centre/personal/online-courses/shares-and-the-sharemarket')" class="">dav</a> 
+					<li>
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://hlc1.westpac.com.au/hlc/hlc/BorrowingPowerStart.do?command=clear')">hlc1</a>, 
+					<li>
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://www.stgeorge.com.au/personal/bank-accounts/savings-accounts/incentive-saver')">St.G.</a>, 
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://ibanking.stgeorge.com.au/')">St.G. OLB</a> 
+					<li>
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://banking-ipad.westpac.com.au/contact-us')">apps</a> 
+					<li>
+						<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://agency.corp.westpac.com.au/A01.asp')">COL</a> 
+				</ol>
+			</div>
+			
+			<!-- Content -->
+			<h4 class="details">Interaction examples:</h4>
+			<p id="content" data-analytics-nav="content"><!-- testNavTacking -->
+				<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://banking.westpac.com.au/wbc/banking/handler');
+					testTracking.setDetails({
+					'pageName':'enter your customer id',
+					'pageType':'login',
+					'formName':'olb login',
+					'pageStep':'start',
+					'experience':'',
+					'siteVersion':'1.4.1'
+					},true);">Log in form</a> 
+				<!-- 
+				<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://banking.westpac.com.au/wbc/banking/handler');
+					testTracking.setDetails({
+					'pageName':'account locked...',
+					'pageType':'login',
+					'formName':'olb login',
+					'pageStep':'lockout',
+					'experience':'',
+					'siteVersion':'1.4.1'
+					},true);">Log in lockout</a> 
+				-->
+				<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://banking.westpac.com.au/wbc/banking/handler');
+					testTracking.setDetails({
+					'pageName':'multiple sessions...',
+					'pageType':'login',
+					'formName':'olb login',
+					'experience':'',
+					'siteVersion':'1.4.1'
+					},true);">Log in problem</a> 
+				<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://banking.westpac.com.au/secure/banking/welcome');
+					testTracking.setDetails({
+					'pageName':'welcome to olb...',
+					'pageType':'login',
+					'formName':'olb login',
+					'pageStep':'firsttime',
+					'experience':'',
+					'siteVersion':'1.4.1'
+					},true);" title="Once per customer">First-time login*</a> 
+				<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://banking.westpac.com.au/secure/banking/overview/dashboard');
+					testTracking.setDetails({
+					's_pageName':'wbc:banking:olb:overview:dashboard',
+					'pageType':'login',
+					'formName':'olb login',
+					'pageStep':'complete',
+					'experience':'',
+					'siteVersion':'1.4.1',
+					'modules':'mod-A,mod-B,mod-C,mod-D',
+					'moduleKey':'mod-A=,mod-B=modb,mod-C=modc',
+					'moduleLayout':'grid'
+					},true);
+					s3.c_wr('s_wbc-ti','TRACKING-ID-XXXXXXXXXXXXXXXX-'+(Math.random()*10).toFixed(0));
+					s3.c_wr('s_wbc-ses','SESSION-ID-XXXXXXXXXXXXXXXX-'+(Math.random()*10).toFixed(0));
+					s3.c_wr('s_wbc-pi','PROFILE-ID-XXXXXXXXXXXXXXXX-'+(Math.random()*10).toFixed(0));
+					//s3.c_wr('s_wbc-seg','SEGMENT-NAME-XXXX-'+(Math.random()*6).toFixed(0))
+					s3.c_wr('s_wbc-seg',['A','B','C','D','E','Z'][(Math.random()*5).toFixed(0)])
+					" title="First landing in session only">Dashboard (Log in complete*)</a> <!-- confirm cookie names for testing -->
+				<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://banking.westpac.com.au/secure/banking/overview/dashboard');
+					testTracking.setDetails({
+					'experience':'',
+					'siteVersion':'1.4.1',
+					'modules':'mod-A,mod-B,mod-C,mod-D',
+					// moduleKey intentionally missing
+					'moduleLayout':'grid'
+					},true);">Dashboard (normal)</a> 
+				<a href="index.html" onclick="testTracking.setDetails({
+					'pageType':'logout',
+					'pageName':'logout',
+					'experience':'',
+					'siteVersion':'1.4.1'
+					});
+					window.localStorage && localStorage.setItem('testTrackingUrl','https://banking.westpac.com.au/wbc/banking/handler?TAM_OP=logout');
+					s3.c_wr('s_wbc-ti',0,new Date(0));
+					s3.c_wr('s_wbc-ses',0,new Date(0));
+					s3.c_wr('s_wbc-pi',0,new Date(0));
+					s3.c_wr('s_wbc-seg',0,new Date(0));
+					s3.c_w('ses',0,new Date(0));
+					s3.c_w('pi',0,new Date(0));
+					s3.c_w('seg',0,new Date(0));
+					">Log out/timeout</a> <!-- confirm cookie names for testing -->
+				<a href="index.html" class="no-pad">Standard page link</a> 
+				<a href="#top" id="topanchor" title="Anchor on current page">#</a> 
+				<!-- (option with partial update) <a href="#" onclick="(function(){var stepDetails=prompt('pageDetails for the previous/next step to be revealed:','{&quot;formName&quot;:&quot;FlexiLoan&quot;,&quot;pageType&quot;:&quot;application&quot;,&quot;pageStep&quot;:&quot;complete&quot;}'),fullDetails=confirm('Full details (OK), Partial details (Cancel)');if(stepDetails){s3.w_trackPage(JSON.parse(stepDetails),(!fullDetails));alert('Step is revealed, and tracking function called:\ns3.w_trackPage('+stepDetails+(fullDetails?'':','+(!fullDetails))+');')}}())">Multi-step page view</a> -->
+				<a href="#" onclick="(function(){var stepDetails=prompt('pageDetails for the previous/next step to be revealed:','{&quot;formName&quot;:&quot;FlexiLoan&quot;,&quot;pageType&quot;:&quot;application&quot;,&quot;pageStep&quot;:&quot;complete&quot;}');if(stepDetails){s3.w_trackPage(JSON.parse(stepDetails));alert('Step is revealed, and tracking function called:\ns3.w_trackPage('+JSON.stringify(JSON.parse(stepDetails))+');\n- or -\nwa(\'page\','+JSON.stringify(JSON.parse(stepDetails))+');')}}())">SPA page view</a> 
+				<a href="http://www.westpac.com.au/" target="_blank" onclick="(function(){
+					var linkName,linkType,linkDetails;
+					linkName=prompt('Link name:','application:complete');
+					if(linkName){
+						linkType=prompt('Link type (o,e,d):','o');
+						linkDetails=prompt('s object:',
+							'{&quot;events&quot;:&quot;event46,event5=100,event53&quot;,&quot;eVar23&quot;:&quot;custom details&quot;,&quot;prop23&quot;:&quot;D=v23&quot;}');
+						
+						if(linkDetails){
+							s3.w_trackLinkCustom(event,linkName,linkType,JSON.parse(linkDetails));
+							alert('Custom tracking fired:\ns3.w_trackLinkCustom(this, \''+linkName+'\', \''+linkType+'\', \''+linkDetails+'\');')
+						}
+					}
+					}())">Full custom link</a> 
+				<br>
+				
+				<a href="index.html" id="intsearch" onclick="testTracking.setDetails({
+					'pageType':'sitesearch',
+					'siteVersion':'funnelback-20130524',
+					'pageNumber':''+Math.ceil(Math.random()*10)
+					},true);
+					window.localStorage && localStorage.setItem('testTrackingUrl','http://search.westpac.com.au/search/search.cgi?collection=westpac&amp;query=loan')" 
+					class="" data-analytics-rank="7">Int. search, result click</a> 
+				<a href="#index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://www.westpac.com.au/faq/results/?query=change+address&amp;widgetkey=FAQSearch&amp;Go=SearchFAQ');
+					testTracking.setDetails({
+					'pageType':'faqsearch',
+					'searchTerm':Math.floor(Math.random()*1000)+['a','b','c','d','e','f','g','h','i','j'][Math.floor(Math.random()*10)],
+					'searchResults':''+Math.floor(Math.random()*100),
+					'pageNumber':''+Math.ceil(Math.random()*10)
+					},true);
+					s3.w_trackPage(pageDetails);
+					alert('Results displayed, and tracking function called:\ns3.w_trackPage('+localStorage.getItem('testTrackingDetails')+');')" class="">FAQ search</a> 
+				<a href="index.html" id="faqpage" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://www.westpac.com.au/faq/swift-codes/');testTracking.setDetails({'pageType':'faq','itemName':'Where can I get the SWIFT codes from?'},true)">FAQ page</a> 
+				<a href="index.html" id="branchsearchpage" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://www.westpac.com.au/locateus/');testTracking.setDetails({},true)">Branch search page</a> 
+				<a href="#index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://www.westpac.com.au/locateus/');
+					testTracking.setDetails({
+					'pageType':'branchsearch',
+					'searchTerm':Math.floor(Math.random()*1000)+['a','b','c','d','e','f','g','h','i','j'][Math.floor(Math.random()*10)],
+					'searchFilters':'Branches>OpenSaturdays>Agribusiness|ATMs>AcceptsDeposits>DisabledAccess',
+					'searchResults':''+Math.floor(Math.random()*100)
+					},true);
+					s3.w_trackPage(pageDetails);
+					alert('Results displayed, and tracking function called after loading:\ns3.w_trackPage('+window.localStorage && localStorage.getItem('testTrackingDetails')+');')" class="">Branch search results load</a> 
+				<a href="index.html" id="branchdetail" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://www.westpac.com.au/branch/nsw/sydney/kingcastlereaghsts');testTracking.setDetails({'pageType':'branchdetail'},true)">Branch detail</a> 
+				<a href="index.html" id="atmdetail" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://www.westpac.com.au/atm/nsw/sydney/-33.865088:151.206451');testTracking.setDetails({'pageType':'atmdetail','itemName':'Australia Square:ATM15224'},true)">ATM detail</a> 
+				<a href="index.html" id="tool" onclick="testTracking.setDetails({
+					'pageType':'tool',
+					'formName':'Currency Converter'
+					},true);
+					window.localStorage && localStorage.setItem('testTrackingUrl','http://www.westpac.com.au/personal-banking/services/fx-calculator-rates/')" class="">Tool</a> 
+				<a href="#" data-analytics-error="err-1" onclick="(function(){var detail=prompt('Error code/form fields (blank to count error-message length):','X123');s3.w_trackError(detail);alert('Tracking function called:\ns3.w_trackError('+(detail?'\''+detail+'\'':detail)+');')}())" class="">Page code error (passed, or auto)</a> 
+				<a href="#" data-analytics-error="err-2" onclick="(function(){var detail=prompt('Errors detected:',1);if(detail){s3.w_trackErrorCount(+detail);alert('Tracking function called:\ns3.w_trackErrorCount('+detail+');')}}())" class="">Page code error count</a> 
+				<a href="index.html" id="servererror" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','http://www.westpac.com.au/personal/cards/non-existent-page');testTracking.setDetails({'pageType':'servererror','errorCode':'404','experience':'','siteVersion':'1.2'},true)">Server error</a>
+				<br> 
+				
+				<!-- <a href="#" class="to-do track-personalisation" data-analytics-action="add" data-analytics-name="BT Super for Life" data-analytics-extSiteName="BT">Personalise page</a> --><!-- is this format required anymore? --> 
+				
+				<a href="#download.file.pdf" data-analytics-link="download" id="downloadfile">Download <span><span><span><span><span id="inner-target-node-1" class="inner-node">file</span></span></span></span></span></a> <!-- testing node target -->
+				
+				<a href="#/files/pds/download-PDS.pdf" id="t-and-c" class="disclosure">Terms and Conditions (or *pds.pdf)</a> 
+				<a href="#print.html" id="print" class="track-interaction" data-analytics-link="print" title="Print this page">Print</a><!-- interaction data-attribute --> 
+				<a onclick="return false;" href="mailto:test@example.com?subject=Test%20subject&amp;body=Test%20%20body%0Acontent&test=test%20extra" id="email-mailto" title="Email this page" class="no-pad">Email (mailto:)</a><!-- interaction data-attribute --> 
+				<a href="#email.html" class="track-interaction" id="email-attr" data-analytics-link="email:test2@example.com" title="Email this page">(data-attr)</a><!-- using interaction data-attribute if required --> 
+				
+				<a href="tel:1800 123 1234" target="nothing" id="click-to-call-TEL-LINK" class="" onclick="return false;">Click-to-call (tel:<span id="inner-target-node-2" class="inner-node">)</span></a> 
+				<!-- <a href="#callFunction();" data-analytics-link="call:18001231234" class="">(data-attr)</a> --> <!-- this format won't track phone number. s3.w_trackClickToCall function should be adjusted to pass phone number as parameter -->
+				
+				<a href="#" id="live-chat" title="Chat to us now" onclick="s3.w_trackLiveChat(event,{'detail':'{LivePerson event type}','session':'{LivePerson session ID}'})" class="">LiveChat</a> 
+				<a href="index.html" id="nps-survey" title="" onclick="window.localStorage && localStorage.setItem('testTrackingUrl','https://forms.westpac.com.au/forms/NPSSurvey.nsf/all/38C8C097D1AD3E3FCA257B82007F0F1D?opendocument&amp;page=NPSsurveyThankyou');
+					testTracking.setDetails({
+					'pageName':'Thank you',
+					'formName':'Online NPS:{origin}',
+					'pageType':'survey',
+					'pageStep':'complete',
+					'surveyScore':''+Math.round(Math.random()*10)
+					},true);
+					//s3.w_trackPage(); // fires tracking onclick as well as page load (when details are displayed in test page)
+				" class="">NPS survey</a> 
+				
+				<a href="#" onclick="(function(){var detail=prompt('Promo code displayed:','banner-a');s3.w_trackImpression(detail);alert('Impression stored:\ns3.w_trackImpression(\''+detail+'\');')}())">Post-load impression</a> 
+				
+				<a href="index.html" id="pid-click" onclick="window.localStorage && localStorage.setItem('testTrackingUrl',testTracking.switchQueryParams('','pid','int-tracking-code'))" class="no-pad">pid click</a> 
+				<a href="index.html?pid=test-hidden" class="no-pad" style="display:none" id="test-hidden-pid">(hidden pid test)</a> 
+				<a href="index.html?pid=test-hidden-2" class="display-none no-pad" id="test-hidden-pid-2">(hidden pid test 2)</a> 
+				<a href="#/targetmarketing/&pid=mob:pid:1/Other data" onclick="(function(){var mobLoc='https://banking.westpac.com.au/secure/banking/overview/dashboard'+document.getElementById('mob-pid-link1').getAttribute('href');localStorage.setItem('testTrackingUrl',mobLoc);var el=document.getElementById('test-tracking-url');el.value=mobLoc;testTracking.location=testTracking.updateUrl(testTracking.location,mobLoc);s3.w_trackPage()}())" id="mob-pid-link1" class="no-pad">#1</a> 
+				<a href="#pid=mob:pid:2/Other data" onclick="(function(){var mobLoc='https://banking.westpac.com.au/secure/banking/overview/dashboard'+document.getElementById('mob-pid-link2').getAttribute('href');localStorage.setItem('testTrackingUrl',mobLoc);var el=document.getElementById('test-tracking-url');el.value=mobLoc;testTracking.location=testTracking.updateUrl(testTracking.location,mobLoc);s3.w_trackPage()}())" id="mob-pid-link2" class="no-pad">#2</a> 
+				<a href="?pid=mob:pid:3#Other data" onclick="(function(){var mobLoc='https://banking.westpac.com.au/secure/banking/overview/dashboard/'+document.getElementById('mob-pid-link3').getAttribute('href');localStorage.setItem('testTrackingUrl',mobLoc);var el=document.getElementById('test-tracking-url');el.value=mobLoc;testTracking.location=testTracking.updateUrl(testTracking.location,mobLoc)}())" id="mob-pid-link3" class="no-pad">#3</a> 
+				<a href="?test=4&pid=mob:pid:4#Other data" onclick="(function(){var mobLoc='https://banking.westpac.com.au/secure/banking/overview/dashboard/'+document.getElementById('mob-pid-link4').getAttribute('href');localStorage.setItem('testTrackingUrl',mobLoc);var el=document.getElementById('test-tracking-url');el.value=mobLoc;testTracking.location=testTracking.updateUrl(testTracking.location,mobLoc)}())" id="mob-pid-link4" class="no-pad">#4</a> 
+				<a href="#test=5&pid=mob:pid:5#Other data" onclick="(function(){var mobLoc='https://banking.westpac.com.au/secure/banking/overview/dashboard/'+document.getElementById('mob-pid-link5').getAttribute('href');localStorage.setItem('testTrackingUrl',mobLoc);var el=document.getElementById('test-tracking-url');el.value=mobLoc;testTracking.location=testTracking.updateUrl(testTracking.location,mobLoc);s3.w_trackPage()}())" id="mob-pid-link5">#5</a> 
+				
+				<a href="#index.html?pid=pid:from:link:4#anchorname" id="pid-dismiss" onclick="s3.w_trackBannerDismiss('pid:from:link:1')" class="" style="display:inline">pid dismiss</a> 
+				<a href="#interaction" id="linkonce" data-analytics-link="trackonce:custom link name" class="" style="display:inline">link trackonce</a> <!-- if data-analytics-link attribute value starts with 'trackonce:', the link tracking will only fire once per page load/SPA screen render -->
+				<br> 
+				
+				<!-- <a href="index.html" onclick="localStorage.setItem('testTrackingUrl',testTracking.switchQueryParams('','from','nav-menu-id'))">Navigation menu ID (from)</a> --> <!-- captured by data-attrs -->
+				<!-- <a href="index.html" onclick="localStorage.setItem('testTrackingUrl',testTracking.switchQueryParams('','FeatureID','feature-id-a'))" class="to-do">FeatureID</a> --> <!-- now fid -->
+				<!-- <a href="index.html" onclick="localStorage.setItem('testTrackingUrl',testTracking.switchQueryParams(testTracking.switchQueryParams('','pid','int-code-from-ext-site'),'ref','e.g.-stgeorge'))">pid+ref (from other group sites)</a> -->
+				<!-- <a href="#index.html?pid=pid:from:link:1" data-analytics-pid="dismiss:banner:1" class="pid-dismiss to-do">pid dismiss 1</a> 
+				<a href="#index.html?pid=pid:from:link:2" data-analytics-pid="dismiss:banner:2"  class="to-do" onclick="s3.w_trackBannerDismiss(event)">pid dismiss 2 (onclick)</a> -->
+				<a href="index.html" id="fid" onclick="window.localStorage && localStorage.setItem('testTrackingUrl',testTracking.switchQueryParams('','fid','fid-id-b'))" class="no-pad">fid</a>/<a href="index.html" id="wbcfrom" onclick="localStorage.setItem('testTrackingUrl',testTracking.switchQueryParams('','wbcfrom','wbcfrom-cta-a'))" class="" title="temporary fid alternative">wbcfrom</a> 
+				<a href="index.html" id="ref" onclick="window.localStorage && localStorage.setItem('testTrackingUrl',testTracking.switchQueryParams('','ref','ruby-campaign-a1'))" class="" title="For links from other sites. Will not stack or override cid/pid">ref</a> 
+				<a href="index.html" id="cid" onclick="window.localStorage && localStorage.setItem('testTrackingUrl',testTracking.switchQueryParams('','cid','ext-tracking-code'))">cid</a> 
+				<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl',testTracking.switchQueryParams('','cid','none'))">Natural search (reqs. referrer with keyword)</a> 
+				<a href="index.html" onclick="window.localStorage && localStorage.setItem('testTrackingUrl',testTracking.switchQueryParams('','cid','sem:abc:def:ghi'))">Paid search (reqs. referrer with keyword)</a> 
+				<a href="https://www.facebook.com/Westpac" id="exit-social" target="social-window" onclick="return false;">Exit (social)</a> <!-- block popups for accurate selenium testing -->
+				<a href="http://www.stgeorge.com.au/?test=a&amp;test=b" id="exit-non-social" target="non-social-window" onclick="return false;">Exit (non-social)</a>  <!-- block popups for accurate selenium testing -->
+			</p>
+			
+			<!-- Page code test details -->
+			<div data-analytics-nav="footer"><!-- testNavTacking -->
+				<table width="100%">
+					<tr>
+						<td width ="50%">
+							<h4 class="details">pageDetails: </h4>
+							<textarea id="test-tracking-details" class="input-default" spellcheck="false" wrap="off"></textarea>
+						</td>
+						<td>
+							<h4 class="details">context data: </h4>
+							<textarea id="test-contextdata-details" class="input-default" spellcheck="false" wrap="off"></textarea>
+						</td>
+					<tr>
+				</table>			
+				<p>
+					<!-- Test actions -->
+					<a href="index.html" id="store">Load test URL with these details</a> 
+					<a href="index.html" id="empty">Load without details</a> 
+					
+					<a href="#" onclick="
+						var el=document.getElementById('test-tracking-url'),
+						val=(el.value||'');
+						window.localStorage && localStorage.setItem('testTrackingUrl',val);
+						
+						el=document.getElementById('test-tracking-details'),
+						val=(el.value||'');
+						try{
+							var parseTest=JSON.parse(val);
+						}catch(e){
+							if(el){
+								el.style.backgroundColor='pink';
+							}
+						}
+						window.localStorage && localStorage.setItem('testTrackingDetails', JSON.stringify(JSON.parse(val)));
+						
+						document.location='index.html?testUrl='+encodeURIComponent(window.localStorage && localStorage.getItem('testTrackingUrl'))+
+							'&amp;testDetails='+encodeURIComponent(JSON.stringify(JSON.parse(window.localStorage && localStorage.getItem('testTrackingDetails'))));
+						">Link to these details</a> 
+						
+					<a href="index.html" id="reset">Reset test</a> 
+				</p>
+				
+				<!-- jsonlint -->
+				<div id="jsonlint-error" class="display-none">
+					<h4 class="details">Raja Lint =</h4>
+					<pre id="jsonlint-error-output" class="output-default" style="font:1em/1.5 monospace,courier new;margin-top:0px;background-color:pink;color:#C00;border:solid 1px #C00">(No errors)</pre>
+				</div>
+				<!-- jsonlint -->
+				
+				<!-- Form name -->
+				<h4 class="details">Form name =</h4>
+				<p id="test-tracking-formname" class="output-default">&nbsp;</p>
+				
+				<!-- Page / interaction name -->
+				<h4 id="tag-type" class="details">&nbsp;</h4>
+				<p id="test-tracking-pagename" class="output-default">&nbsp;</p>
+				
+				<table id="section-sample">
+					<tr class="comment emphasis">
+						<td>Brand (v6)</td>
+						<!-- <td class="to-do">Experience (v7)</td> -->
+						<td>Site (v1)</td>
+						<td>Site section (v2)</td>
+						<td>Sub section (v3)</td>
+						<td>Sub sub section (v4)</td>
+						<td>Sub sub sub section (v5)</td>
+					</tr>
+					<tr style="background:#FFB">
+						<td id="pagename-part-v6">&nbsp;</td>
+						<!-- <td id="pagename-part-v7" class="to-do"></td> -->
+						<td id="pagename-part-v1"></td>
+						<td id="pagename-part-v2"></td>
+						<td id="pagename-part-v3"></td>
+						<td id="pagename-part-v4"></td>
+						<td id="pagename-part-v5"></td>
+					</tr>
+				</table>
+				
+				<h4 class="details">
+					Collection server = <span id="req-coll-server"> </span> 
+					RSID = <span id="req-rsid"></span> 
+					Visitor ID = <span id="req-visitor-id"></span> 
+					Experience = <span id="req-experience"></span> 
+					JSON: <input type="text" id="pagedetails-json" class="omni-pixel" value=""> 
+					<!-- last pixel sent -->
+					Pixel: <input type="text" id="omni-pixel" class="omni-pixel" value=""> 
+					regex: <input type="text" id="omni-pixel-regex" class="omni-pixel" value=""> 
+					Selenium: <input type="text" id="omni-pixel-selenium" class="omni-pixel" value=""> 
+					<!-- Selenium B: <input type="text" id="omni-pixel-selenium2" class="omni-pixel" value=""> --> <!-- encoded version for IE regex issues, but seems not required -->
+				</h4>
+				<p class="details">
+					<!-- latest debugger doesnt display products in table in IE -->
+					<a href="javascript:(function(){dpwin=window.open('','dp_debugger','width=800,height=700,location=0,menubar=0,status=1,toolbar=0,resizable=1,scrollbars=1');dpwin.document.write('<script%20language=&quot;JavaScript&quot;%20id=&quot;dbg&quot;%20src=&quot;https://www.adobetag.com/d1/digitalpulsedebugger/live/DPD.js?auto_refresh=0&quot;></script>');setTimeout('dpwin.document.close()',3000);})();" class="no-pad">Omniture debugger</a> 
+					<a href="javascript:(function(){var s3=window.s3||{};
+						function textAlert(txt){
+							var d=document,
+								popup=d.createElement('textarea');
+							popup=d.getElementsByTagName('body')[0].appendChild(popup);
+							popup.id='popup';
+							popup.style.cssText='display:block;font-size:11px;font-family:Arial,Helvetica;border:20px solid #ffc;position:fixed;top:20px;left:20px;z-index:9999;width:850px;height:450px';
+							popup.setAttribute('onkeyup','if(event.keyCode==27){var el=document.getElementById(\'popup\');el.parentNode.removeChild(el)}');
+							popup.setAttribute('onkeyup','if(event.keyCode==27){var el=document.getElementById(\'popup\');el.parentNode.removeChild(el)}');
+							popup.value=txt;
+						}
+						if(s3.kb){
+						textAlert(decodeURIComponent(s3.kb.replace(/\?/,'\n').replace(/&/g,'\n')));}})()" id="pixel-src" class="no-pad">pixel bm</a> 
+					<!-- 
+					The parameter values at end of string are optional for testing (between &s= and AQE=1) as string is truncated in IE at 2047 chars.
+					Generate the base test regex from a browser with all values in full length string
+					
+					This should match the regex in the output text field.
+					-->
+					<a href="javascript:(function(){var s3=window.s3||({}),
+						requestCount=(s3.kb.length),pixel,regex;
+						function textAlert(txt){
+							var d=document,
+								popup=d.createElement('textarea');
+							popup=d.getElementsByTagName('body')[0].appendChild(popup);
+							popup.id='popup';
+							popup.style.cssText='display:block;font-size:11px;font-family:Arial,Helvetica;border:20px solid #ffc;position:fixed;top:20px;left:20px;z-index:9999;width:850px;height:450px';
+							popup.setAttribute('onkeyup','if(event.keyCode==27){var el=document.getElementById(\'popup\');el.parentNode.removeChild(el)}');
+							popup.value=txt;
+						}
+						if(s3&&requestCount){pixel=window['s_i_'+s3.account].src;
+						if(s3&&requestCount){
+						/*pixel=s3.kb;*/
+						regex=pixel
+							.replace(/\/b\/ss\/westpac-.+?\//g, '\/b\/ss\/westpac-.+?\/')
+							.replace(/\?/g, '\?')
+							.replace(/\/s\d+?\?AQB=/, '\/s\\d+?\\?AQB=')
+							.replace(/&t=.+?&/, '&t=.+?&')
+							.replace(/&ts=\d+?&/, '&ts=\\d+?&')
+							.replace(/&fid=.{16}-.{16}&/, '&fid=.{16}-.{16}&')
+							.replace(/(&r=.+?)?(&c\.&.+&\.c)?&cc=/g, '(&r=.+?)?(&c\\.&.+&\\.c)?&cc=')
+							.replace(/%252Cevent26%253A\w{20}(?=%252C|&)/, '(%252Cevent26%253A\\w{20})?')
+							.replace(/%252Cevent27%253A\w{20}(?=%252C|&)/, '(%252Cevent27%253A\\w{20})?')
+							.replace(/%252Cevent28%253A\w{20}(?=%252C|&)/, '(%252Cevent28%253A\\w{20})?')
+							.replace(/%252Cevent29%253A\w{20}(?=%252C|&)/, '(%252Cevent29%253A\\w{20})?')
+							.replace(/%252Cevent50%253D\d{1,5}(?=%252C|&)/, '(%252Cevent50%253D\\d{1,5})?')
+							.replace(/&c8=(application|sitesearch)%253A\d{1,3}&/, '&c8=(application|sitesearch)%253A\\d{1,3}&')
+							.replace(/&v8=\d{1,3}(%2520%2528ext.%2529)?&/, '&v8=\\d{1,3}(%2520%2528ext.%2529)?&')
+							.replace(/&v10=(Mon|Tue|Wed|Thu|Fri|Sat|Sun)%2520[0-2][0-9]%253A(00|30)&/, '&v10=(Mon|Tue|Wed|Thu|Fri|Sat|Sun)%2520[0-2][0-9]%253A(00|30)&')
+							.replace(/&c13=.+?(?=&)/g, '(&c13=.+?)?')
+							.replace(/&v14=keywords%252Fbranch%2520name%252Fpostcode-\d{4}%2523%2523&/g, '&v14=keywords%252Fbranch%2520name%252Fpostcode-\\d{4}%2523%2523&')
+							.replace(/&c15=.+?&/g, '&c15=.+?&')
+							.replace(/&v28=(\d{1,2}|zero)&/g, '&v28=(\\d{1,2}|zero)&')
+							.replace(/&v29=(First%2520Visit|zero|\d{1,3})(%2520%2528ext.%2529)?&/, '&v29=(First%2520Visit|zero|\\d{1,3})(%2520%2528ext.%2529)?&')
+							.replace(/&v30=sitesearch%253A\d{1,3}&/, '&v30=sitesearch%253A\\d{1,3}&')
+							.replace(/&v31=\d{1,2}(\.\d{1,2})?%2520(secs|mins)&/, '&v31=\\d{1,2}(\\.\\d{1,2})?%2520(secs|mins)&')
+							.replace(/&v32=\d{1,2}(\.\d{1,2})?%2520(secs|mins)&/, '&v32=\\d{1,2}(\\.\\d{1,2})?%2520(secs|mins)&')
+							.replace(/&v33=\d{1,2}(\.\d{1,2})?%2520(secs|mins)&/, '&v33=\\d{1,2}(\\.\\d{1,2})?%2520(secs|mins)&')
+							.replace(/&v36=(Aware|Engaged|Converted|Retained)(%2520%2528ext.%2529)?&/g, '&v36=(Aware|Engaged|Converted|Retained)(%2520%2528ext.%2529)?&')
+							.replace(/&c39=D%253D%2522H\.\d\d(?:\.\d)?%2520\d{8}\.?%2520.+?%2520%2522%252BHost(%252B%2522%2520%2528with%2520override%2529%2522)?&/, '&c39=D%253D%2522H\\.\\d\\d(?:\\.\\d)?%2520\\d{8}.?%2520.+?%2520%2522%252BHost(%252B%2522%2520%2528with%2520override%2529%2522)?&')
+							.replace(/&c43=D%253Dv43&v43=t%253A(0|1|2|255)%257Cr%253A(\d{1,2}|na)%257Cs%253A(\d\.\d|10%252B)(?=&)/, '(&c43=D%253Dv43&v43=t%253A(0|1|2|255)%257Cr%253A(\\d{1,2}|na)%257Cs%253A(\\d\\.\\d|10%252B))?')
+							.replace(/& - ABOVE, WITH HOOKS TO ALWAYS INSERT, BUT DOESNT TEST C40 VALUE - c40=.+?(?=&)(&v40=.+?(?=&))?(&c43=D%253Dv43&v43=t%253A(0|1|2|255)%257Cr%253A\d{1,2}%257Cs%253A(\d\.\d|10%252B)(?=&))?/, '&c40=.+?(&v40=.+?)?(&c43=D%253Dv43&v43=t%253A(0|1|2|255)%257Cr%253A\\d{1,2}%257Cs%253A(\\d\\.\\d|10%252B))?')
+							.replace(/&v47=PROFILE-ID-XXXXXXXXXXXXXXXX-\d{1,2}&/g, '&v47=PROFILE-ID-XXXXXXXXXXXXXXXX-\\d{1,2}&')
+							.replace(/&v48=SESSION-ID-XXXXXXXXXXXXXXXX-\d{1,2}&/g, '&v48=SESSION-ID-XXXXXXXXXXXXXXXX-\\d{1,2}&')
+							.replace(/&c50=(A|B|C|D|E|Z)&/g, '&c50=(A|B|C|D|E|Z)&')
+							.replace(/&v50=(A|B|C|D|E|Z)&/g, '&v50=(A|B|C|D|E|Z)&')
+							.replace(/&v52=.+?(?=&)/g, '&v52=.+?') /* - - - this format is ideal - - - */
+							.replace(/(&c59=.+?)?&c63=(en|cn)&/g, '(&c59=.+?)?&c63=(en|cn)&')
+							.replace(/&c69=\d{2,4}(%252B)?&/, '&c69=\\d{2,4}(%252B)?&')
+							.replace(/&pev1=.+?&/g, '&pev1=.+?&')
+							.replace(/&pev2=.+?&/g, '&pev2=.+?&')
+							.replace(/&s=\d{1,5}x\d{1,5}(?=&)/g, '(&s=\\d{1,5}x\\d{1,5})?')
+							.replace(/&c=\d{1,2}(?=&)/g, '(&c=\\d{1,2})?')
+							.replace(/&j=.+?(?=&)/g, '(&j=.+?)?')
+							.replace(/&v=(Y|N)(?=&)/g, '(&v=(Y|N))?')
+							.replace(/&k=(Y|N)(?=&)/g, '(&k=(Y|N))?')
+							.replace(/&bw=\d{1,5}(?=&)/g, '(&bw=\\d{1,5})?')
+							.replace(/&bh=\d{1,5}(?=&)/g, '(&bh=\\d{1,5})?')
+							.replace(/(&p=.+?(?=&))?(&ct=.+?&hp=(Y|N)(?=&))?(&p(i)d=.+?&pidt=1&oid=.+?_\d{1,3}&oidt=1&ot=A&oi=1(?=&))?&AQE=1/g, '(&p=.+?)?(&ct=.+?&hp=(Y|N))?(&p(i)d=.+?&pidt=1&oid=.+?_\\d{1,3}&oidt=1&ot=A&oi=1)?(&AQE=1)?')
+							.replace(/\//g,'\\/')
+							;
+							/* testStr='/'+regex.replace(/\\/g,'\\\\')+'/.test(window[\'s_i_\'+window.s3._in+\'_\'+window.s3.visitorNamespace+((window.s3.rc?window.s3.rc[window.s3.visitorNamespace]:0)>1?\'_\'+((window.s3.rc?window.s3.rc[window.s3.visitorNamespace]:0)-1):\'\')].getAttribute('src'));'; */
+							/* testStr='/'+regex.replace(/\\/g,'\\\\')+'/.test(window.s3.w_pixels[window.s3.w_pixels.length - 1]);'; */
+							textAlert(regex);}}})()" id="selenium-link" class="no-pad">selenium bm</a> 
+					<a href="http://www.diffchecker.com/" id="" target="_blank" class="">differ</a> 
+					<a href="s_code_dev.js" target="_blank" class="no-pad">s_code_dev.js</a> <span id="scode-date" class="pad">&nbsp;</span> 
+					
+					<a href="asyncOnePager.html" target="_blank" class="no-pad">One pager</a> <a href="asyncTrackingScript.html" target="_blank">(full)</a> 
+					<a href="javascript:(function(){s3.c_wr('s3_pers_wp_dev','testing cookie');}())" class="pad" title="Sets cookie to enable console logging">Dev cookie</a>
+					<!-- <a href="test-sites.html" target="_blank" style="margin-right:40px">Test site links</a> --><!-- outdated links -->
+					
+					<a href="responsive2.html" target="_blank" class="analytics-experience-ZZZ" id="responsive-element">responsive demo</a>
+					<a href="funnelbacksearch 20150914.js" target="_blank">funnelbacksearch.js</a>
+					<!-- <a href="analytics.js" target="_blank">analytics.js (code cop)</a> -->
+					<a href="othertests.html" target="_blank">(Other tests)</a> 
+					<a href="changelog.html" target="_blank">Change Log</a> 
+					<!-- <a href="#" onclick="(function(){var el=document.getElementById('code-groups');el.style.display=(el.style.display=='block'?'none':'block')}())">Code groups</a>--> 
+				</p>
+			</div>
+			
+			<!-- Omniture JS on-page code -->
+			<script>
+				// page code example/default object
+				// all values will be set as string in OTP (e.g. via data-attributes on the body tag)
+				var pageDetails = {
+					"pageKey": "key",
+					"pageNamePrefixes": " | ",
+					"pageName": "Thank you",
+					"dialogTitle": "confirm amount",
+					"formName": "eSaver",
+					//"formName": "Singapore Airlines Westpac Platinum Visa Card and Singapore Airlines Westpac Platinum American Express® Card", // old formNames on Oregon
+					"formType": "", // may be blank, custom type, or 'checkurl' to refer to logged-in directory in URL 
+					"pageType": "application",
+					"pageStep": "complete",
+					"formStatus": "approved",
+					//"productID":[{"prod":"term deposit","events":"deposit:approved=1200"},{"cat":"","prod":"flexiloan","qty":"2","total":"","events":"loan:declined=7000","merch":"options=Deposit book+eStatements+Insurance|eVarX=other merch if reqd."}], // sample showing status (approved/declined) for individual products, and additional custom merch eVars
+					"productID":[{"prod":"term deposit","events":"deposit=1200"},{"cat":"","prod":"flexiloan","qty":"2","total":"","events":"loan=7000","merch":"options=Deposit book+eStatements+Insurance","crossSell":"true"}],
+					//"productID-legacy": "term deposit,flexiloan",
+					"transactionID": "[CID:Vbd35zOmL7F-YJFmiLJ-20120101 12:15],012345", // e.g. Domino and OTP
+					//"transactionID-Random": (+new Date())+" (20 char. max for purchaseID)",
+					//"transactionID-Oregon": "o_123456789 ???",
+					//"transactionID-Voyager?": "v_123456789 ???",
+					"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -":"",
+					"transactionType": "deposit", // deposit, loan, or others such as bpay, address book
+					"transactionAmount": ''+(Math.random()*251000).toFixed(0)+'.00', // will be supplied by page code (as string in OTP)
+					"transactionQty": '4', // for multiple payments - number of items in a multiple transaction
+					"transactionDetails": 'Recurring', // for any other transaction details. Use as per product options in applications.
+					//"businessABN": "Z-ABN-123", // not required
+					//"businessAuthType": "Online",
+					"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -":"",
+					"searchTerm": "keywords/branch name/postcode"+'-'+(+new Date+'').slice(-6),
+					"searchFilters":"Branches>MigrantServices>NightSafe>CashExchangeMachine|ATMs>Open24Hours>AudioATM",
+					"searchResults": ''+(Math.random()*100).toFixed(0), // will be supplied by page code
+					"pageNumber":''+Math.ceil(Math.random()*10),
+					"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -":"",
+					"siteVersion": "1.3.1234.0",
+					"src": "testpage",
+					"subSite": "", // used for corporate online where some pages needed to sit in a different hierarchy to the original sub-domains
+					"subSiteSeparator": "", // dash '-' is default when not set. COL uses ':'
+					"experience":"",
+					"language": "en",
+					"modules": "Cash,Investment,Accounts.ShareMarketUpdateWidget,Payments.UpcomingPaymentsWidget,Accounts.ResumeSavedResearchWidget,Accounts.WelcomeWidget,Accounts.DashboardCoreFooterWidget",
+					"moduleKey": "Cash=csh,Investment=invstmnt,Accounts.ShareMarketUpdateWidget=shrMktWdgt,Payments.UpcomingPaymentsWidget=upcmgPmntWdgt,Accounts.ResumeSavedResearchWidget=rsmSvdSrchWdgt,Accounts.WelcomeWidget=wlcmWdgt,Accounts.DashboardCoreFooterWidget=dashFootr",
+					"moduleLayout": "grid",
+					"surveyScore": ''+Math.round(Math.random()*10),<!-- required ??? -->
+					"externalSiteName": "agg:bt/rams/stgeorge",<!-- required ??? -->
+					"errorCode": "404",
+					"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -":"",
+					"trackAsLink":"false",
+					"s_linkUrl-TEST":"http://www.testtest.com/",
+					"s_linkName-TEST":"test link",
+					"s_linkType-TEST":"o",
+					"s_linkTrackVars-TEST":"prop2,prop6,eVar2",
+					"s_linkTrackEvents-TEST":"event1,event6,event7",
+					"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -":"",
+					"selfserviceDetail":"selfservicedetail-on-complete-step-only",
+					"- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -":"",
+					"s_eVar2-TEST":"test",
+					"s_abort-TEST":"", // should be able to set this per-page from the CMS/RESX
+					"trackOnce":"false", // for single page forms - where concertina screens should not be re-tracked every time they open and close within a single window load
+					"trackDedupe":"false", // for any page, where the pageName shouldn't be re-sent if two repeat views in a row
+					"reset":"false", // clear the pageDetails object after tracking
+					"addEvents":"event46", // to add extra events to the normal process (instead of complete override)
+					"trackInlineStats":"true",
+					//"resxVersion":"desktop:20131018", // not captured, only set on desktop+mobile login page for reference
+					"sendDelay":"",
+					"autoImpr":"", // collect link pid's by default. 'false' disables auto link scan if incorrect data would be gathered. Passed pid's are always collected
+					"XoriginNameKeyDrop":"comma separated list of name keys to drop from anywhere on same origin", // comma separated list of full nameKeys to drop from an origin
+					"XoriginPageNameReplace": [{"exp":"","flags":"gi","subs":""}], // array of replace objects - find, flag, replace
+					"XoriginProductsReplace": [{"exp":"","flags":"gi","subs":""}], // array of replace objects - find, flag, replace
+					//"pageNameRemove":"", // now pageNameReplace
+					"XpageNameReplace": [{"exp":"","flags":"gi","subs":""}],
+					"XproductsReplace": [{"exp":"","flags":"gi","subs":""}],
+					"XchangeIf": [
+						{
+							"item":"pageName",
+							"like":"^a\\.b{1,2}",
+							"and": {
+								"item": "(location)",
+								"like": "zzz"
+							},
+							"then":"formName",
+							"equals":"ccc",
+							"replace": {
+								"exp":"",
+								"flags":"gi",
+								"subs":""
+							}
+						},
+						{
+							"item":"(location)",
+							"like":"\\?a=b$",
+							"then":"newProp",
+							"equals":"ccc:ddd"
+						}
+					] // array of changeIf objects
+				};
+				
+				// testing calling script in pageDetails block
+				/*
+				jQuery(window).load(function(){
+					jQuery.ajax({
+						type: 'GET',
+						dataType: 'script',
+						mimeType: 'text/javascript; charset=utf-8',
+						cache: true,
+						url: 's_code_dev.js',
+						success: function(){
+							s3.w_trackPage();
+						}
+					});
+				});
+				*/
+
+			</script>
+			
+			<!-- Omniture noscript -->
+			<noscript>
+				<!-- requires collection server and report suite updated, and URL and cachebuster inserted server-side for production -->
+				<img alt="" border="0" width="1" height="1" style="border:0" src="https://smetrics.westpac.com.au/b/ss/westpac-dev/1/H.25.4--NS/&lt;%25+Cachebuster+OR+0+%25&gt;?ce=UTF-8&amp;cdp=3&amp;cc=AUD&amp;gn=noscript&amp;g=%3C%25%20URL%20without%20querystring%20OR%20http%3A%2F%2Fwww.westpac.com.au%2F%20%25%3E&amp;h1=D%3Dgn&amp;c25=D%3Ds_vi&amp;v25=D%3Ds_vi&amp;c26=D%3Dg&amp;v26=D%3DReferer&amp;c39=D%3D%22H.25.4--NS%2020130418%20www%20%22%2BHost&amp;events=event1&amp;c7=noscript"> 
+			</noscript>
+		</div>
+
+		<!-- Test page JS code -->
+		<script>
+			// code for test page only
+			/**
+			 * Helper Function for Caret positioning
+			 * Gratefully borrowed from the Masked Input Plugin by Josh Bush
+			 * http://digitalbush.com/projects/masked-input-plugin
+			 **/
+			if (window.jQuery) {
+				jQuery.fn.caret = function (begin, end) {
+					if (this.length === 0) {
+						return;
+					}
+					if (typeof begin === 'number') {
+						end = (typeof end === 'number') ? end : begin;
+						return this.each(function () {
+							if (this.setSelectionRange) {
+								this.focus();
+								this.setSelectionRange(begin, end);
+							} else if (this.createTextRange) {
+								var range = this.createTextRange();
+								range.collapse(true);
+								range.moveEnd('character', end);
+								range.moveStart('character', begin);
+								range.select();
+							}
+						});
+					} else {
+						if (this[0].setSelectionRange) {
+							begin = this[0].selectionStart;
+							end = this[0].selectionEnd;
+						} else if (document.selection && document.selection.createRange) {
+							var range = document.selection.createRange();
+							begin = -range.duplicate().moveStart('character', -100000);
+							end = begin + range.text.length;
+						}
+						return {
+							"begin" : begin,
+							"end" : end
+						};
+					}
+				};
+			}
+			
+			// clear old cookies - renamed to differ between dev+prod
+			//s3.c_wr('s3_sess_wp',0,new Date(0));
+			//s3.c_wr('s3_pers_wp',0,new Date(0));
+			
+			var testTracking={
+				"location":window.location,
+				"init":function(){
+					// localStorage required
+					if(navigator.cookieEnabled){
+						var parseError,
+							testTrackingUrl,
+							testTrackingDetails,
+							contextTrackingDetails,
+							noJson='Please use JSON-capable browser for testing (IE8+ etc.) JSON.stringify is required just for this demo page.';
+						
+						// link details
+						var linkTestParams,linkTestUrl=false,linkTestDetails=false, contextTestDetails = false;
+						
+						var linkTestParams=/(?:\?testUrl=)(.*?)(?:&|$)/.exec(location.href);
+						if(linkTestParams&&linkTestParams[1]){
+							linkTestUrl=decodeURIComponent(linkTestParams[1]);
+						}
+						var linkTestParams=/(?:&testDetails=)(.*?)(?:&|$)/.exec(location.href);
+						if(linkTestParams&&linkTestParams[1]){
+							linkTestDetails=decodeURIComponent(linkTestParams[1]);
+						}
+						
+						// get test details
+						if(window.localStorage){
+							testTrackingUrl = linkTestUrl || localStorage.getItem('testTrackingUrl');
+							testTrackingDetails = linkTestDetails || localStorage.getItem('testTrackingDetails');
+							contextTrackingDetails = contextTestDetails || localStorage.getItem('contextTrackingDetails');
+						}
+						
+						// set test details
+						if(!testTrackingDetails){
+							// default object from page
+							if(typeof window.JSON!=='undefined'){
+								testTrackingDetails=JSON.stringify((window.pageDetails||{}));
+								contextTrackingDetails=JSON.stringify((window.dd||{}));
+							}else{
+								testTrackingDetails=noJson;
+							}
+							if(window.localStorage){
+								localStorage.setItem('testTrackingDetails',testTrackingDetails);
+								localStorage.setItem('contextTrackingDetails',contextTestDetails);
+							}
+							// Set of sample URLs to cycle through on reset
+							var arrUrls=[];
+							arrUrls.push('https://online.westpac.com.au/cust/wps/portal/pol/creditcard/creditcardapplication');
+							arrUrls.push('https://forms.westpac.com.au/forms/personalloans.nsf/frmmain?readform&page=applicanteligibility&loantype=unsecured');
+							arrUrls.push('http://www.westpac.com.au/personal-banking/solutions/protecting-my-future/protecting-my-lifestyle/i-travel-overseas/');
+							arrUrls.push('http://www.westpac.com.au/personal-banking/investments/sell-only-service/');
+							arrUrls.push('http://www.westpac.com.au/personal-banking/credit-cards/comparison?select-product-id=156200&select-product-id=156673');
+							arrUrls.push('http://www.westpac.com.au/business-banking/international-trade/export-services/export-collections/export-lodgement-form-instruct/');
+							arrUrls.push('http://www.westpac.com.au/business-banking/bank-accounts/tools-calculators-rates/choose');
+							arrUrls.push('http://www.westpac.com.au/business-banking/international-trade/cashflow/telegraphic-transfers/');
+							arrUrls.push('http://www.westpac.com.au/corporate-banking/commercial-cards/');
+							arrUrls.push('http://www.westpac.com.au/corporate-banking/rates-calculators-tools/credit-debit-rates/');
+							arrUrls.push('http://www.westpac.com.au/corporate-banking/international-trade-corp/cashflow/');
+							arrUrls.push('http://www.westpac.com.au/about-westpac/investor-centre/shareholder-information/shareholder-newsletter/');
+							arrUrls.push('http://www.westpac.com.au/about-westpac/investor-centre/shareholder-information/financial-calendar/');
+							arrUrls.push('http://www.westpac.com.au/about-westpac/global-locations/westpac-in-asia/migrant-banking/');
+							
+							testTrackingUrl=arrUrls[Math.floor(Math.random()*arrUrls.length)].split('/').slice(0,3+Math.floor(Math.random()*10)).join('/'); // get random slice of random URL
+							if(window.localStorage){
+								localStorage.setItem('testTrackingUrl',testTrackingUrl);
+							}
+						}
+						// parse test string into object for s_code
+						if(typeof window.JSON !== 'undefined'){
+							try{
+								//pageDetails=JSON.parse(testTrackingDetails);
+								
+								// zzzzz
+								pageDetails=jsonlint.parse(testTrackingDetails);
+								
+								// set experience mode in current live object to value from cookie
+								//var experience=/(s_experience(=|%3D))(.+?)(;|%7C|%3B|$)/.exec(document.cookie);
+								//if(experience&&experience[3]){
+									//alert('experience[3] = '+experience[3]);
+									//pageDetails.experience=experience[3];
+								//}
+								//else{
+									// defaults to desktop in scode if no value
+									//delete pageDetails.experience; // always have experience on page, to force change. e.g.: mob->desktop browsing
+								//}
+								
+								
+								// stringify for test page
+								//testTrackingDetails=JSON.stringify(pageDetails).replace(/{(?!})/g,'{\n').replace(/,"/g,',\n"').replace(/"variableOverride/,'\n"variableOverride').replace(/([^{])}/g,'$1\n}');
+								//testTrackingDetails=JSON.stringify(pageDetails).replace(/{(?!})/g,'{\n').replace(/,"/g,',\n"').replace(/([^{])}/g,'$1\n}');
+								//testTrackingDetails=unescape(JSON.stringify(pageDetails).replace(/\\u([\w\d]{4})/g,'%u$1')).replace(/{(?!})/g,'{\n').replace(/,"/g,',\n"').replace(/([^{])}/g,'$1\n}'); // unescape and unicode replace maintains unicode characters through stringify in IE
+								testTrackingDetails=unescape(JSON.stringify(pageDetails, null, 4).replace(/\\u([\w\d]{4})/g,'%u$1')); // unescape and unicode replace maintains unicode characters through stringify in IE
+								
+								// keep values that are objects on one line (remove new lines inserted after every value above)
+								//var subObjects=testTrackingDetails.match(/(?!^){[\s\S]*?}/g);
+								//if(subObjects){
+								//	for(var lp=0,len=subObjects.length;lp<len;lp++){
+								//		testTrackingDetails=testTrackingDetails.replace(subObjects[lp],subObjects[lp].replace(/\n/g,''))
+								//	}
+								//}
+								
+								document.getElementById('pagedetails-json').value = JSON.stringify(pageDetails);
+								
+							}catch(err){
+								parseError = true;
+								pageDetails = {};
+								//if(typeof console!=='undefined'){
+								//window.console && console.warn(err);
+								//window.console && console.warn('s_code: TEST PAGE ERROR - LOADING JSON -\n========================\n' + err + '\n========================');
+								
+								// jsonlint helper from - http://jsonlint.com/
+								// set error message
+								testTrackingDetails = jsl.format.formatJson(testTrackingDetails);
+								testTracking.jsonLintMessage = err.message;
+							}
+							
+						}else{
+							testTrackingDetails=noJson;
+						}
+						
+						// show final object in page
+						var el=document.getElementById('test-tracking-details');
+						//el.wrap='off'; // apply with js instead of attr
+						testTracking.setText(el,testTrackingDetails);
+						el.onkeydown=function(ev){
+							ev = ev || window.event;
+							if(ev.keyCode==13 && ev.ctrlKey){
+								var loadLink=document.getElementById('store');
+								if(loadLink){
+									loadLink.click();
+								}
+							}
+						}
+						if (testTracking.jsonLintMessage) {
+							// set message
+							testTracking.setText(document.getElementById('jsonlint-error-output'), testTracking.jsonLintMessage);
+							
+							// show error message div
+							var jsonLintErrorElem = document.getElementById('jsonlint-error');
+							jsonLintErrorElem.className = jsonLintErrorElem.className.replace(/\bdisplay\-none\b/gi, '');
+							
+							testTracking.jsonLintErrorHighlight(testTrackingDetails, testTracking.jsonLintMessage);
+						}
+						
+						el=document.getElementById('test-tracking-url');
+						el.value=testTrackingUrl;
+						// trigger page load tracking on pressing Enter
+						el.onkeydown=function(ev){
+							ev = ev || window.event;
+							if(ev.keyCode==13){
+								var loadLink=document.getElementById('store');
+								if(loadLink){
+									loadLink.click();
+								}
+							}
+						}
+						
+						// set URL details for testing or live
+						if(testTrackingUrl){
+							testTracking.location = testTracking.updateUrl(testTracking.location, (testTrackingUrl||window.location.href));
+						}else{
+							testTracking.location = window.location;
+						}
+						
+						// highlight pageDetails parse error
+						if (parseError || testTrackingDetails == noJson) {
+							var el = document.getElementById('test-tracking-details');
+							if (el) {
+								el.style.backgroundColor = 'pink';
+							}
+						}
+						
+					}
+				},
+				"testLinkTracking":function(){ // add test page link functions
+					var target;
+					
+					// flash recorded details
+					//testTracking.fireEvent('flash','test-tracking-url',testTracking.transition,{"run":0,"start":"input-flash","end":"input-default"});
+					//testTracking.fireEvent('flash','test-tracking-details',testTracking.transition,{"run":0,"start":"input-flash","end":"input-default"});
+					//testTracking.fireEvent('flash','test-tracking-pagename',testTracking.transition,{"run":0,"start":"output-flash-page","end":"output-default"});
+					
+					if(navigator.cookieEnabled){
+						target = document.getElementById('store');
+						if(target){
+							testTracking.addHandler(target,'click',function(){
+								var el=document.getElementById('test-tracking-url'),
+								val = (el.value || '');
+								window.localStorage && localStorage.setItem('testTrackingUrl',val);
+								
+								el=document.getElementById('test-tracking-details'),
+								val = el.value || '{}';
+								
+								try {
+									window.localStorage && localStorage.setItem('testTrackingDetails', JSON.stringify(JSON.parse(val)));
+								} catch (e) {
+									//window.console && console.warn('s_code: TEST PAGE ERROR - SETTING JSON -\n========================\n' + e + '\n========================');
+									window.localStorage && localStorage.setItem('testTrackingDetails', val);
+								}
+								
+								//alert(val);
+								// enable updating experience directly from pageDetails also (as well as querystring), only from desktop/none state
+								//if(JSON.parse(val).experience&&s3.c_r('s_experience')==='desktop'){
+								//	s3.c_w('s_experience',JSON.parse(val).experience);
+								//}
+							});
+						}
+						target = document.getElementById('empty');
+						if(target){
+							testTracking.addHandler(target,'click',function(){
+								var el=document.getElementById('test-tracking-url'),val=(el.value||'');
+								window.localStorage && localStorage.setItem('testTrackingUrl',val);
+								window.localStorage && localStorage.setItem('testTrackingDetails','{}');
+							});
+						}
+						target = document.getElementById('reset');
+						if(target){
+							testTracking.addHandler(target,'click',function(){
+								//testTracking.switchExperience('desktop'); // default experience
+								
+								// clean items and vars
+								window.localStorage && localStorage.removeItem('testTrackingUrl');
+								window.localStorage && localStorage.removeItem('testTrackingDetails');
+								//testTracking.location=''; 
+								pageDetails='';
+								
+								//s3.c_w('s_experience',0,new Date(0));
+								window.s3 && s3.c_w('s_vid',0,new Date(0));
+							});
+						}
+					}
+				},
+				"complete":function (s3){ // act on s object as at end of s.doPlugins
+					
+					/*
+					msg=[]; // testing s object properties zzzzz
+					for(o in s){
+						if( /link|lnk|pev|print.html|eo/gi.test(o) || /link|lnk|pev|print.html|eo/gi.test(s[o]) ){
+							if(typeof s[o] !== 'function'){
+								msg.push(o+'='+(s[o]+'').substring(0,120));
+							}
+						}
+					}
+					console.log(msg.join('\n'));
+					*/
+				
+					// set field values and flash fields captured
+					var requestCount=(window['s_i_' + s3.account]? window['s_i_' + s3.account].src.length:0),
+						typeEl=document.getElementById('tag-type'),
+						type,
+						valEl=document.getElementById('test-tracking-pagename'),
+						val,
+						details,
+						sampleEl=document.getElementById('section-sample');
+					
+					if(s3.linkType){
+						val=(s3.linkName?s3.linkName:'');
+						type='Link name =';
+						//details={"run":0,"start":"output-flash-link","end":"output-default"};
+						sampleEl.style.visibility='hidden';
+					}else{
+						if((!s3.eo)||(s3.eo=='')){
+							val=s3.pageName;
+							type='Page name =';
+							//details={"run":0,"start":"output-flash-page","end":"output-default"};
+							sampleEl.style.visibility='visible';
+						}
+					}
+					if(typeEl&&type&&valEl&&val&&!s3.abort){
+						if(requestCount>0){
+							//testTracking.fireEvent('flash','test-tracking-pagename',testTracking.transition,details);
+						}
+						testTracking.setText(valEl,val); // full pageName
+						testTracking.setText(typeEl,type); // tracking type
+						
+						// pageName detail for other vars
+						testTracking.setText(document.getElementById('pagename-part-v6'),window.dd.brand||'');
+						testTracking.setText(document.getElementById('pagename-part-v7'),window.dd.experience||'');
+						testTracking.setText(document.getElementById('pagename-part-v1'),window.dd.site||'');
+						testTracking.setText(document.getElementById('pagename-part-v2'),window.dd.section1||'');
+						testTracking.setText(document.getElementById('pagename-part-v3'),window.dd.section2||'');
+						testTracking.setText(document.getElementById('pagename-part-v4'),window.dd.section3||'');
+						testTracking.setText(document.getElementById('pagename-part-v5'),window.dd.section4||'');
+						testTracking.setText(document.getElementById('test-tracking-formname'),(dd.formName||String.fromCharCode(160)));
+						
+						// other request details for reference
+						var collServer=(s3.ssl?s3.trackingServerSecure:s3.trackingServer);
+						testTracking.setText(document.getElementById('req-coll-server'),collServer+',');
+						testTracking.setText(document.getElementById('req-rsid'),s3.account+',');
+						//testTracking.setText(document.getElementById('req-visitor-id'),(s3.visitorID||s3.c_rr('s_vi')||'(s_vi cookie on coll. server)')+',');
+						testTracking.setText(document.getElementById('req-experience'),window.dd.experience+',');
+						
+						testTracking.setText(document.getElementById('scode-date'),'(Updated '+/\d{8}/.exec(dd.analyticsVersion)+')');
+					}
+					
+					// set last pixel into field for test validation
+					// this function is running inside end of doPlugins, so have to set timeout to wait until pixel is actually fired
+					//if((!s3.eo)||(s3.eo=='')){
+						document.getElementById('omni-pixel').value='waiting for request...';
+						document.getElementById('omni-pixel-regex').value='waiting for request...';
+						document.getElementById('omni-pixel-selenium').value='waiting for request...';
+						
+						setTimeout(function(lastOmniRequest){
+							var pixel=window['s_i_'+s3.account],
+								regex,
+								selenium;
+							// get pixel from dom
+							
+							if(pixel){ // in case request is aborted
+								//document.getElementById('omni-pixel').value=pixel.src;
+								document.getElementById('omni-pixel').value=pixel.getAttribute('src');
+								
+								// pixel with details that change, such as cache buster, time, day parting replaced
+								//regex=pixel.src
+								regex=pixel.getAttribute('src')
+									.replace(/\/b\/ss\/westpac-.+?\//g, '\/b\/ss\/westpac-.+?\/') // escape question mark
+									.replace(/\?/g, '\?') // escape question mark
+									.replace(/\/s\d+?\?AQB=/, '\/s\\d+?\\?AQB=') // cachebuster
+									.replace(/&t=.+?&/, '&t=.+?&') // time
+									.replace(/&ts=\d+?&/, '&ts=\\d+?&') // mob timestamp
+									.replace(/&fid=.{16}-.{16}&/, '&fid=.{16}-.{16}&') // fid for off-domain
+									.replace(/(&r=.+?)?(&c\.&.+&\.c)?&cc=/g, '(&r=.+?)?(&c\\.&.+&\\.c)?&cc=') // referrer
+									.replace(/%2Cevent26%3A\w{20}(?=%2C|&)/, '(%2Cevent26%3A\\w{20})?') // serials
+									.replace(/%2Cevent27%3A\w{20}(?=%2C|&)/, '(%2Cevent27%3A\\w{20})?') // serials
+									.replace(/%2Cevent28%3A\w{20}(?=%2C|&)/, '(%2Cevent28%3A\\w{20})?') // serials
+									.replace(/%2Cevent29%3A\w{20}(?=%2C|&)/, '(%2Cevent29%3A\\w{20})?') // serials
+									.replace(/%2Cevent50%3D\d{1,5}(?=%2C|&)/, '(%2Cevent50%3D\\d{1,5})?') // load time
+									.replace(/&c8=(application|sitesearch)%3A\d{1,3}&/, '&c8=(application|sitesearch)%3A\\d{1,3}&') // pagination
+									.replace(/&v8=\d{1,3}(%20%28ext.%29)?&/, '&v8=\\d{1,3}(%20%28ext.%29)?&') // visit number
+									.replace(/&v10=(Mon|Tue|Wed|Thu|Fri|Sat|Sun)%20[0-2][0-9]%3A(00|30)&/, '&v10=(Mon|Tue|Wed|Thu|Fri|Sat|Sun)%20[0-2][0-9]%3A(00|30)&') // day part
+									.replace(/&c13=.+?(?=&)/g, '(&c13=.+?)?') // src not captured in IE6-10 - makes pixel too long
+									.replace(/&v14=keywords%2Fbranch%20name%2Fpostcode-\d{4}%23%23&/g, '&v14=keywords%2Fbranch%20name%2Fpostcode-\\d{4}%23%23&') // random segment values
+									.replace(/&c15=.+?&/g, '&c15=.+?&') // previous page
+									.replace(/&v28=(\d{1,2}|zero)&/g, '&v28=(\\d{1,2}|zero)&') // survey score
+									.replace(/&v29=(First%20Visit|zero|\d{1,3})(%20%28ext.%29)?&/, '&v29=(First%20Visit|zero|\\d{1,3})(%20%28ext.%29)?&') // days since last visit
+									.replace(/&v30=sitesearch%3A\d{1,3}&/, '&v30=sitesearch%3A\\d{1,3}&') // search results count type
+									.replace(/&v31=\d{1,2}(\.\d{1,2})?%20(secs|mins)&/, '&v31=\\d{1,2}(\\.\\d{1,2})?%20(secs|mins)&') // time to complete
+									.replace(/&v32=\d{1,2}(\.\d{1,2})?%20(secs|mins)&/, '&v32=\\d{1,2}(\\.\\d{1,2})?%20(secs|mins)&') // time to complete
+									.replace(/&v33=\d{1,2}(\.\d{1,2})?%20(secs|mins)&/, '&v33=\\d{1,2}(\\.\\d{1,2})?%20(secs|mins)&') // time to complete
+									.replace(/&v36=(Aware|Engaged|Converted|Retained)(%20%28ext.%29)?&/g, '&v36=(Aware|Engaged|Converted|Retained)(%20%28ext.%29)?&') // random segment values
+									.replace(/&c39=D%3D%22H\.\d\d(?:\.\d)?%20\d{8}\.?%20.+?%20%22%2BHost(%2B%22%20%28with%20override%29%22)?&/, '&c39=D%3D%22H\\.\\d\\d(?:\\.\\d)?%20\\d{8}.?%20.+?%20%22%2BHost(%2B%22%20%28with%20override%29%22)?&') // code version
+									.replace(/&c43=D%3Dv43&v43=t%3A(0|1|2|255)%7Cr%3A(\d{1,2}|na)%7Cs%3A(\d\.\d|10%2B)(?=&)/, '(&c43=D%3Dv43&v43=t%3A(0|1|2|255)%7Cr%3A(\\d{1,2}|na)%7Cs%3A(\\d\\.\\d|10%2B))?') // page load time
+									.replace(/&v47=PROFILE-ID-XXXXXXXXXXXXXXXX-\d{1,2}&/g, '&v47=PROFILE-ID-XXXXXXXXXXXXXXXX-\\d{1,2}&') // random segment values
+									.replace(/&v48=SESSION-ID-XXXXXXXXXXXXXXXX-\d{1,2}&/g, '&v48=SESSION-ID-XXXXXXXXXXXXXXXX-\\d{1,2}&') // random segment values
+									.replace(/&c50=(A|B|C|D|E|Z)&/g, '&c50=(A|B|C|D|E|Z)&') // random segment values
+									.replace(/&v50=(A|B|C|D|E|Z)&/g, '&v50=(A|B|C|D|E|Z)&') // random segment values
+									.replace(/&v52=.+?(?=&)/g, '&v52=.+?') // site version changes in analytics.js
+									.replace(/(&c59=.+?)?&c63=(en|cn)&/g, '(&c59=.+?)?&c63=(en|cn)&') // nav area
+									.replace(/&c69=\d{2,4}(%2B)?&/, '&c69=\\d{2,4}(%2B)?&') // previous pixel length
+									.replace(/&pev1=.+?&/g, '&pev1=.+?&')
+									.replace(/&pev2=.+?&/g, '&pev2=.+?&')
+									.replace(/&s=\d{1,5}x\d{1,5}(?=&)/g, '(&s=\\d{1,5}x\\d{1,5})?') // screen size
+									.replace(/&c=\d{1,2}(?=&)/g, '(&c=\\d{1,2})?') // colours
+									.replace(/&j=.+?(?=&)/g, '(&j=.+?)?') // javascript
+									.replace(/&v=(Y|N)(?=&)/g, '(&v=(Y|N))?') // java
+									.replace(/&k=(Y|N)(?=&)/g, '(&k=(Y|N))?') // cookies
+									.replace(/&bw=\d{1,5}(?=&)/g, '(&bw=\\d{1,5})?') // browser width
+									.replace(/&bh=\d{1,5}(?=&)/g, '(&bh=\\d{1,5})?') // browser height
+									.replace(/(&p=.+?(?=&))?(&ct=.+?&hp=(Y|N)(?=&))?(&p(i)d=.+?&pidt=1&oid=.+?_\d{1,3}&oidt=1&ot=A&oi=1(?=&))?&AQE=1/g, '(&p=.+?)?(&ct=.+?&hp=(Y|N))?(&p(i)d=.+?&pidt=1&oid=.+?_\\d{1,3}&oidt=1&ot=A&oi=1)?(&AQE=1)?') // clickmap
+									
+									.replace(/\//g,'\\/') // escape slashes for regex
+									;
+									
+								// standard js pixel regex
+								document.getElementById('omni-pixel-regex').value = regex;
+								
+								// selenium assertEval/waitForEval regex
+								selenium = '/'+regex
+									.replace(/\\/g,'\\\\')+ // double escape slashes to match selenium for easy diff
+									//'/.test(window[\'s_i_\'+window.s._in+\'_\'+window.s.visitorNamespace+((window.s.rc?window.s.rc[window.s.visitorNamespace]:0)>1?\'_\'+((window.s.rc?window.s.rc[window.s.visitorNamespace]:0)-1):\'\')].getAttribute(\'src\'));';
+									'/.test(window.s.w_pixels[window.s.w_pixels.length - 1]);';
+								document.getElementById('omni-pixel-selenium').value = selenium;
+								//console.log(selenium);
+								
+								
+								// encoded version not required
+								/*
+								selenium2 = 'new RegExp(decodeURIComponent(\'' + 
+									encodeURIComponent(regex.replace(/\\/g,'\\')) + '\')' +
+									').test(window[\'s_i_\'+window.s._in+\'_\'+window.s.visitorNamespace+((window.s.rc?window.s.rc[window.s.visitorNamespace]:0)>1?\'_\'+((window.s.rc?window.s.rc[window.s.visitorNamespace]:0)-1):\'\')].getAttribute('src'));';
+								document.getElementById('omni-pixel-selenium2').value = selenium2;
+								*/
+								
+							}
+						},100);
+					//}
+					/*ABU
+					// check if hybrid visitorID set
+					var hybVisID = /^.{1,4}/.exec(s3.c_r('s_vid'));
+					var el = document.getElementById('hybrid-' + (hybVisID ? (hybVisID == 'dev_' ? 'dev' : 'prod') : 'none'));
+					if(el&&(!/(^|\s)active-mode(\s|$)/.test(el.className))){
+						el.className+=' active-mode';
+					}
+					// highlight current experience mode
+					//var el=document.getElementById('experience-'+(s3.c_r('s_experience')||'desktop'));
+					//var el=document.getElementById('experience-'+s3.c_r('s_experience'));
+					var el=document.getElementById('experience-'+s3.eVar7);
+					if(el&&(!/(^|\s)active-mode(\s|$)/.test(el.className))){
+						(el.className+=' active-mode');
+					}
+					// highlight current script mode
+					var el=document.getElementById('script-via-'+(s3.c_rr('s_script-via')||'js'));
+					if(el&&(!/(^|\s)active-mode(\s|$)/.test(el.className))){
+						(el.className+=' active-mode');
+					}
+					// highlight webview mode
+					var el=document.getElementById('appversion-'+(s3.c_rr('AppVersion')?'on':'off'));
+					if(el&&(!/(^|\s)active-mode(\s|$)/.test(el.className))){
+						(el.className+=' active-mode');
+					}
+					
+					// highlight appAction mode
+					//var el=document.getElementById('appActionExit-' + ((/(\?|&)appAction\=exit/).test(testTracking.location.href) ? 'on' : (s3.c_r('s_exitapp') ? 'off' : 'none')));
+					var el=document.getElementById('appActionExit-' + (s3.c_r('s_exitapp') ? 'on' : 'off'));
+					if(el&&(!/(^|\s)active-mode(\s|$)/.test(el.className))){
+						(el.className+=' active-mode');
+					}*/
+					
+					var cookieMsg='(Cookies not enabled'+(location.protocol=='file:'?' on file://':'')+')';
+					if(document.cookie.indexOf('s3_sess')==-1){
+					//if(!s3.c_rr('s3_pers'+s3.w_ckExt)){ // TODO zzzzz confirm cookie names required by s_code
+						el=document.getElementById('no-cookie-support');
+						testTracking.setText(el,cookieMsg);
+					}
+					var localStorageMsg = '(localStorage not enabled)'; // for IE7 zzzzz
+					if(!window.localStorage){
+						el=document.getElementById('no-localstorage');
+						testTracking.setText(el, localStorageMsg);
+					}
+					
+					if((!s3.linkObject)||(s3.linkObject=='')){ //ABU if((!s3.eo)||(s3.eo=='')){
+						el=document.getElementById('tagsent');
+						el.style.backgroundColor = 'red';
+						setTimeout(function(){
+							el.style.backgroundColor = '';
+						}, 750);
+					}
+				},
+				"setText":function(el,val){
+					if(el){
+						if(typeof el.textContent!=='undefined'){
+							el.textContent=val;
+						}else{
+							el.innerText=val;
+						}
+					}
+				},
+				"setDetails":function(details,fullDetails){
+					if(details){
+						if(fullDetails){ 
+							// replace and track as per new pageDetails object
+							window.pageDetails=details;
+						}else{
+							// only partial update to existing pageDetails object
+							for(var param in details){
+								if(details.hasOwnProperty(param)){
+									window.pageDetails[param]=details[param];
+								}
+							}
+						}
+						window.localStorage && localStorage.setItem('testTrackingDetails', JSON.stringify(window.pageDetails));
+					}
+				},
+				"addHandler":function(element,event,handler){
+					// handler for event listening
+					if(element.addEventListener){
+						element.addEventListener(event,handler,false);
+					}else{
+						if(element.attachEvent){
+							element.attachEvent('on'+event,handler);
+						}
+					}
+				},
+				"fireEvent":function(eventName,elementId,func,details){
+					if(window.CustomEvent){
+						var custEvent=new CustomEvent(eventName);
+						var target = document.getElementById(elementId);
+						target.addEventListener(eventName,func,false);
+						target.details=details;
+						target.dispatchEvent(custEvent);
+						target.removeEventListener(eventName,func,false);
+					}
+				},
+				"transition":function(e){
+					var elem=e.target;
+					if(!elem.details.run){
+						elem.details.run=1;
+						elem.className=elem.className.replace(new RegExp('\\b('+elem.details.end+')\\b','g'),'');
+						elem.className=elem.className.replace(new RegExp('\\b('+elem.details.start+')\\b','g'),'');
+						elem.addEventListener("transitionend",testTracking.transition,false);
+						elem.addEventListener("webkitTransitionEnd",testTracking.transition,false);
+						if(elem&&(!new RegExp('/(^|\s)'+elem.details.start+'(\s|$)/').test(elem.className))){
+							elem.className+=' '+elem.details.start;
+						}
+					}else{
+						if(elem.details.run==1){
+							elem.details.run=2;
+							elem.removeEventListener("transitionend",testTracking.transition,false);
+							elem.removeEventListener("webkitTransitionEnd",testTracking.transition,false);
+							elem.className=elem.className.replace(new RegExp('\\b('+elem.details.start+')\\b','g'),elem.details.end);
+						}
+					}
+					return true;
+				},
+				"switchExperience":function(experience){
+					// experience now defined in pageDetails only
+					//var newLoc=testTracking.switchQueryParams('','s_experience',experience);
+					//testTracking.location=testTracking.updateUrl(testTracking.location,newLoc);
+					//localStorage.setItem('testTrackingUrl',newLoc);
+					
+					/*
+					if(experience==='none'){
+						s3.c_w('s_experience',0,new Date(0));
+					}else{
+						s3.c_w('s_experience',experience,new Date(+new Date()+365*24*60*60*1000));
+					}
+					*/
+				},
+				"switchQueryParams":function(loc, key, val){
+					var replaceRgx = new RegExp('(\\?|&)(' + key + '=.*?)(?=&|$)','ig'), // this break in IE due to multiple call position reference. Subsequent test below doesn't find match and adds param again
+						testRgx = new RegExp('(\\?|&)' + key + '=.*?(?=&|$)','i');
+					
+					//console.log(replaceRgx);
+					
+					// default location to refer to
+					if(!loc) {
+						loc = testTracking.location.href;
+					}
+					
+					loc = loc.replace(/\?+/g, '?').replace(/&+/g, '&'); // replace any multiple separators with singles for uniformity
+					
+					if(val === 'none'){
+						loc = loc.replace(replaceRgx, '$1'); // Retain leading separator - ? or &. Leave like '/page/?&appAction' then replace '?&' with '?' or '&&' with '&'
+						loc = loc.replace(/\?&/g, '?'); // remove double joins where params removed
+						loc = loc.replace(/&&/g, '&'); // remove double joins where params removed
+						loc = loc.replace(/\?$|&$/, ''); // remove trailing joins
+					} else {
+						loc = loc.replace(replaceRgx, '$1' + key + '=' + val);
+						
+						//console.clear();
+						//console.log('test 1 = ' + replaceRgx.test(testTracking.location.href));
+						//console.log('test 2 = ' + testRgx.test(testTracking.location.href));
+						
+						if(!testRgx.test(loc)){
+							loc = loc + (/\?/.test(loc) ? '&' : '?') + key + '=' + val;
+						}
+					}
+					testTracking.location = testTracking.updateUrl(testTracking.location, loc); // updates var instantly and is accessible to doPlugins on click
+					//localStorage.setItem('testTrackingUrl',loc); // orig way to set URL in localStorage then reload, but click grabs values and overrides before load...
+					return loc;
+				},
+				"updateUrl":function(origUrl, newUrl){
+					var el=document.createElement('a');
+					el.href=newUrl;
+					origUrl.location={
+						"href":el.href.replace(/^file:(\/)+/,'file://'), // remove multiple slashes to normalise for filesystem browsing, also in s_getObjectID for ClickMap link URLs
+						"protocol":el.protocol,
+						"hostname":(el.hostname||el.href.replace(/.*?:((\/)+)(.+?)(\/).*/,'$3')), // add hostname to normalise for filesystem browsing
+						"pathname":el.pathname.replace(/^\/?/,'/'), // add leading slash to pathname to normalise anchor element DOM
+						"search":el.search,
+						"hash":el.hash
+					};
+					return origUrl.location;
+				},
+				"textAlert": function(txt){
+					var d=document,
+						popup=d.createElement('textarea');
+					popup=d.getElementsByTagName('body')[0].appendChild(popup);
+					popup.id='popup';
+					popup.style.cssText='display:block;font-size:11px;font-family:Arial,Helvetica;border:20px solid #ffc;position:fixed;top:20px;left:20px;z-index:9999;width:850px;height:450px';
+					popup.setAttribute('onkeyup','if(event.keyCode==27){var el=document.getElementById(\'popup\');el.parentNode.removeChild(el)}');
+					popup.value=txt;
+				},
+				"selectItem": function(elem, val){
+					for (var i = 0; i < elem.options.length; i++) {
+						if (elem.options[i].innerHTML === val) {
+							elem.selectedIndex = i;
+							break;
+						}
+					}
+				},
+				"scriptViaElement" : document.getElementById('code-via'),
+				"getNthPos" : function (searchStr, char, pos) {
+					var i,
+					charCount = 0,
+					strArr = searchStr.split(char);
+					if (pos === 0) {
+						return 0;
+					}
+					for (i = 0; i < pos; i++) {
+						if (i >= strArr.length) {
+							return -1;
+						}
+						// +1 because we split out some characters
+						charCount += strArr[i].length + char.length;
+					}
+					return charCount;
+				},
+				"jsonLintErrorHighlight" : function (input, err) {
+					lineMatches = err.match(/line ([0-9]*)/);
+					if (lineMatches && typeof lineMatches === 'object' && lineMatches.length > 1) {
+						lineNum = parseInt(lineMatches[1], 10);
+						if (lineNum === 1) {
+							lineStart = 0;
+						} else {
+							lineStart = testTracking.getNthPos(input, '\n', lineNum - 1);
+						}
+						lineEnd = input.indexOf('\n', lineStart);
+						if (lineEnd < 0) {
+							lineEnd = input.length;
+						}
+						// caret function provided above
+						jQuery('#test-tracking-details').focus().caret(lineStart, lineEnd);
+					}
+				}
+			};
+			testTracking.init();
+			testTracking.addHandler(window,'load',testTracking.testLinkTracking);
+			
+			(function () {
+				testTracking.addHandler(testTracking.scriptViaElement, 'change', function(){
+					var selectedOption = testTracking.scriptViaElement.options[testTracking.scriptViaElement.selectedIndex].innerHTML;
+					if(selectedOption === 'plain JS onReady (Domino/Oregon)'){
+						window.s && s3.c_wr('s_script-via', 0, new Date(0));
+					}else{
+						window.s && s3.c_wr('s_script-via', selectedOption);
+					}
+					document.location = 'index.html';
+				});
+				testTracking.addHandler(document.getElementById('code-via-view'), 'click', function(){
+					var selectedOption = testTracking.scriptViaElement.options[testTracking.scriptViaElement.selectedIndex].value;
+					if(selectedOption !== 'plain js'){
+						window.open(selectedOption);
+					}
+					return false;
+				});
+			}());
+			
+			testTracking.scodeAdded = false;
+			
+			//if(/\bs_jquery=yes\b/i.test(document.cookie)){
+			if(/\bs_script-via=jQuery/i.test(document.cookie)){
+				testTracking.scodeAdded = true;
+				testTracking.selectItem(testTracking.scriptViaElement, 'jQuery (www)');
+				
+				// Use jQuery if required/available
+				//console.log('jQuery method');
+				//alert('jQuery method');
+				
+				if(!window.jQuery){
+					alert('jQuery method selected, but jQuery not available');
+				}
+				
+				// preference is for plain JS instead of jquery due to ajax cross-domain issues
+				jQuery(window).load(function(){ 
+					
+					// set a timeout after load to avoid spinner in Chrome/Safari
+					//window.analytics = {
+					//	onReadyTime : +new Date()  // record load time for browsers without native support
+					//};
+					
+					jQuery.ajax({
+						type: 'GET',
+						dataType: 'script',
+						mimeType: 'text/javascript; charset=utf-8',
+						cache: true,
+						url: 's_code_dev.js',
+						//url: 's_code_www.txt',
+						//url: 'http://10.120.103.105/analytics/s_code_dev.js',
+						success: function(){
+							s3.w_trackPage();
+							//alert('jquery');
+						}
+					});
+				});
+				
+			} else {
+				// option for when jQuery unavailable (Domino and Oregon forms)
+				
+				//console.log('plainjs method');
+				//alert('plainjs method');
+				
+				(function (w,d) {
+					// addHandler used if attaching to window load event for performance constraints (avoid Gomez measurement)
+					function addHandler(element, event, handler) {
+						if (element.addEventListener) {
+							element.addEventListener(event, handler, false);
+						} else {
+							if (element.attachEvent) {
+								element.attachEvent('on' + event, handler);
+							}
+						}
+					}
+					// attach file once per unique element ID (2nd argument) -
+					function loadScript(url, id, async, defer, callback) {
+						// insert before
+						//var sibling=d.getElementsByTagName('script')[0], el=d.createElement('script');
+						// insert after
+						var scripts = d.getElementsByTagName('script'),
+							sibling = scripts[scripts.length - 1],
+							el = d.createElement('script');
+						if (d.getElementById(id)) {
+							// prevent loading same script element ID twice
+							return;
+						}
+						el.id = id;
+						el.type = 'text/javascript';
+						el.async = async;
+						el.defer = defer;
+						if (el.readyState) {
+							//window.console && console.log('AAA'); // zzzzz testing timing issues i think?
+							el.onreadystatechange = function () {
+								//if (el.readyState === 'loaded' || el.readyState === 'complete') {
+								if(/loaded|complete/.test(el.readyState)) { // zzzzz maybe need readyCheck like in analytics js?
+									el.onreadystatechange = null;
+									callback();
+								}
+							};
+						} else {
+							//window.console && console.log('BBB'); // zzzzz testing timing issues i think?
+							// could use listener for load event here...
+							addHandler(el, 'load', callback);
+							//el.onload = function () {
+							//	callback();
+							//};
+						}
+						el.src = url;
+						// insert before
+						//sibling.parentNode.insertBefore(el,sibling);
+						// insert after
+						sibling.parentNode.insertBefore(el, sibling.nextSibling);
+					}
+					// use onReady to attach at window.load (or after) if required to reduce impact on load time (delay load script), or to track navigation timing data
+					function onReady(func) {
+						if(/complete/.test(d.readyState)) { // fire/attach immediately in case window load has already occured
+							//window.console && console.log('readyState');
+							func();
+						} else {
+							//window.console && console.log('addHandler');
+							//addHandler(w, 'load', func); // fire/attach when window loads
+							addHandler(w, 'load', function () { // fire/attach just after window loads to avoid spinners
+									setTimeout(func, 4);
+								}
+							);
+						}
+					}
+					
+					if(/\bs_script-via=analytics.js/i.test(document.cookie)){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'analytics.js (mactel)');
+						
+						//onReady(function () { // i.e. wait until window load to attach script // zzzzz testing why this doesn't fire after loading - maybe timing with s3.w_trackPage not ready?
+							loadScript('analytics.js', 'analytics-js', false, false, function () {
+								// mactel analytics.js fires automatically
+							});
+							
+						//});
+					}
+					if(/\bs_script-via=analytics_info.js/i.test(document.cookie)){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'analytics_info.js (mactel async)');
+						
+						// attach analytics js
+						(function(a,e,f,g,b,h){var c,d;a.AFSAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};
+						a[b].config={};a[b].config.ls=h?+new Date:0;c=e.createElement(f);d=e.getElementsByTagName(f)[0];c.async=1;
+						a.setTimeout(function(){c.src=g;d.parentNode.insertBefore(c,d)},25)})
+						(window,document,"script","analytics_info.js","wa",1);
+						
+						// send a call
+						wa('page', pageDetails);
+					}
+					if(/\bs_script-via=analytics_banking_forms.js/i.test(document.cookie)){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'analytics_banking_forms.js');
+						
+						// attach analytics js
+						(function(a,e,f,g,b,h){var c,d;a.AFSAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};
+						a[b].config={};a[b].config.ls=h?+new Date:0;c=e.createElement(f);d=e.getElementsByTagName(f)[0];c.async=1;
+						a.setTimeout(function(){c.src=g;d.parentNode.insertBefore(c,d)},25)})
+						(window,document,"script","analytics_banking_forms.js","wa",1);
+						
+						// send a call
+						wa('page', pageDetails);
+					}
+					if(/\bs_script-via=analytics_corp.js/i.test(document.cookie)){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'analytics_corp.js');
+						
+						/*
+						onReady(function () { // i.e. wait until window load to attach script
+							loadScript('analytics_corp_mob.js', 'analytics-corp-mob-js', false, false, function () {
+								console.log(pageDetails);
+								// for testing purposes, simulate function being called from page after analytics_corp_mob.js script reference
+								//analytics.corp_trackPage(pageDetails);
+								wa('page', pageDetails);
+							});
+						});
+						*/
+						
+						// attach analytics js
+						(function(a,e,f,g,b,h){var c,d;a.AFSAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};
+						a[b].config={};a[b].config.ls=h?+new Date:0;c=e.createElement(f);d=e.getElementsByTagName(f)[0];c.async=1;
+						a.setTimeout(function(){c.src=g;d.parentNode.insertBefore(c,d)},25)})
+						(window,document,"script","analytics_corp.js","wa",1);
+					}
+					if(/\bs_script-via=analytics_corp_mob.js/i.test(document.cookie)){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'analytics_corp_mob.js');
+						
+						/*
+						onReady(function () { // i.e. wait until window load to attach script
+							loadScript('analytics_corp_mob.js', 'analytics-corp-mob-js', false, false, function () {
+								console.log(pageDetails);
+								// for testing purposes, simulate function being called from page after analytics_corp_mob.js script reference
+								//analytics.corp_trackPage(pageDetails);
+								wa('page', pageDetails);
+							});
+						});
+						*/
+						
+						// attach analytics js
+						(function(a,e,f,g,b,h){var c,d;a.AFSAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};
+						a[b].config={};a[b].config.ls=h?+new Date:0;c=e.createElement(f);d=e.getElementsByTagName(f)[0];c.async=1;
+						a.setTimeout(function(){c.src=g;d.parentNode.insertBefore(c,d)},25)})
+						(window,document,"script","analytics_corp_mob.js","wa",1);
+						
+						// send a call
+						wa('page', pageDetails);
+					}
+					// St. George version for testing
+					if(/\bs_script-via=St\.%20George\b/i.test(document.cookie)){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'St. George');
+						
+						//onReady(function () { // i.e. wait until window load to attach script
+							var stgScript = 'https://www.stgeorge.com.au/resources/sgb/js/reporting/s_code.js';
+							
+							// add process to jhighlight the JS version
+							//var el=document.getElementById('script-via-stg');
+							//if(el&&(!/(^|\s)active-mode(\s|$)/.test(el.className))){
+							//	el.className+=' active-mode';
+							//}
+							//var el=document.getElementById('stgfile');
+							//if(el){
+							//	el.title = stgScript;
+							//	el.href = stgScript;
+							//}
+							
+							loadScript(stgScript, 'stg-js', false, false, function () {
+								// align function names with new code in test page
+								s3.c_wr = s3.c_w;
+								s3.c_rr = s3.c_r;
+								
+								// set test page defaults
+								s3.pageURL = window.localStorage && localStorage.getItem('testTrackingUrl');
+								s3.linkInternalFilters += 'tel:,javascript:,mailto:,westpac.com.au,' + location + ',' + location.hostname;
+								s3.getPageName=function(u){var s=this,v=u?u:""+s3.pageURL,x=v.indexOf(":"),y=v.indexOf("/",x+4),z=v.indexOf("?"),c=s3.pathConcatDelim,e=s3.pathExcludeDelim,g=s3.queryVarsList,d=s3.siteID,n=d?d:"",q=z<0?"":v.substring(z+1),p=v.substring(y+1,q?z:v.length);z=p.indexOf("#");p=z<0?p:s3.fl(p,z);x=e?p.indexOf(e):-1;p=x<0?p:s3.fl(p,x);p+=!p||p.charAt(p.length-1)=="/"?s3.defaultPage:"";y=c?c:"/";while(p){x=p.indexOf("/");x=x<0?p.length:x;z=s3.fl(p,x);if(!s3.pt(s3.pathExcludeList,",","p_c",z))n+=n?y+z:z;p=p.substring(x+ 1)}y=c?c:"?";while(g){x=g.indexOf(",");x=x<0?g.length:x;z=s3.fl(g,x);z=s3.pt(q,"&","p_c",z);if(z){n+=n?y+z:z;y=c?c:"&"}g=g.substring(x+1)}return n};
+								
+								// apply the data
+								var item;
+								for (item in pageDetails) {
+									s3[item] = pageDetails[item];
+								}
+								
+								// fire
+								s3.un = 'test-suite';
+								s3.t();
+								
+								testTracking.setText(document.getElementById('test-tracking-pagename'),'(Use debugger for St. George testing)');
+								window.console && console.info('s_code: St. George tracking not logged in console');
+							});
+						//});
+					}
+					if(/\bs_script-via=analytics_asia.js/i.test(document.cookie)){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'analytics_asia.js');
+						
+						// attach analytics js
+						/*
+						(function(a,c,e,f,b,d){a.AFSAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};
+						a[b].config={};a[b].config.ls=d?+new Date:0;d=c.createElement(e);
+						//c=c.getElementsByTagName(e)[0];d.async=1;d.src=f;c.parentNode.insertBefore(d,c)})
+						c=c.getElementsByTagName(e)[0];d.async=1;
+						d.onerror=function(){document.cookie='s_script-via=; path=/';alert('File not found. Reload for default.')}; // zzzzz THIS LINE ONLY FOR TEST PAGE
+						d.src=f;c.parentNode.insertBefore(d,c)}) // orig
+						(window,document,"script","analytics_asia.js","wa",1);
+						*/
+						// testing spinning off the script to load async, so a script black hole doesn't make the page look like it never finishes loading
+						// only analytics_asia.js in the test page uses this new setTimeout
+						(function(a,e,f,g,b,h){var c,d;a.AFSAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};
+						a[b].config={};a[b].config.ls=h?+new Date:0;c=e.createElement(f);d=e.getElementsByTagName(f)[0];c.async=1;
+						a.setTimeout(function(){c.src=g;d.parentNode.insertBefore(c,d)},25)})
+						(window,document,"script","analytics_asia.js","wa",1);
+						
+						// send a call
+						wa('page', pageDetails);
+					}
+					if(/\bs_script-via=analytics_btpanorama.js/i.test(document.cookie)){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'analytics_btpanorama.js');
+						
+						(function(a,e,f,g,b,h){var c,d;a.AFSAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};
+						a[b].config={};a[b].config.ls=h?+new Date:0;c=e.createElement(f);d=e.getElementsByTagName(f)[0];c.async=1;
+						a.setTimeout(function(){c.src=g;d.parentNode.insertBefore(c,d)},25)})
+						(window,document,"script","analytics_btpanorama.js","wa",0);
+						
+						// send a call
+						wa('page', pageDetails);
+					}
+					if(/\bs_script-via=analytics_btfg.js/i.test(document.cookie)){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'analytics_btfg.js');
+						
+						(function(a,e,f,g,b,h){var c,d;a.AFSAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};
+						a[b].config={};a[b].config.ls=h?+new Date:0;c=e.createElement(f);d=e.getElementsByTagName(f)[0];c.async=1;
+						a.setTimeout(function(){c.src=g;d.parentNode.insertBefore(c,d)},25)})
+						(window,document,"script","analytics_btfg.js","wa",0);
+						
+						// send a call
+						wa('page', pageDetails);
+					}
+					if(/\bs_script-via=analytics_www.js/i.test(document.cookie)){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'analytics_www.js');
+						
+						(function(a,e,f,g,b,h){var c,d;a.AFSAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};
+						a[b].config={};a[b].config.ls=h?+new Date:0;c=e.createElement(f);d=e.getElementsByTagName(f)[0];c.async=1;
+						a.setTimeout(function(){c.src=g;d.parentNode.insertBefore(c,d)},25)})
+						(window,document,"script","analytics_www.js","wa",0);
+						
+						// send a call
+						wa('page', pageDetails);
+					}
+					
+					
+					if(!testTracking.scodeAdded){
+						testTracking.scodeAdded = true;
+						testTracking.selectItem(testTracking.scriptViaElement, 'plain JS onReady (Domino/Oregon)'); // Oregon only after load? zzzzz
+						
+						onReady(function () { // i.e. wait until window load to attach script // Oregon only after load? zzzzz
+							
+							// load time not capured by normal/legacy script attach methods
+							//w['AFSAnalyticsObject'] = 'wa';
+							//w[w['AFSAnalyticsObject']].config = {
+							//	onReadyTime : +new Date() // test recorded load time for browsers without native support (pages not using analytics.js)
+							//};
+							
+							//window.analytics = {
+							//	onReadyTime : +new Date() // test recorded load time for browsers without native support (pages not using analytics.js)
+							//};
+							
+							
+							loadScript('s_code.simple.js', 'omniture-scode', true, true, function () { // TODO - update file location
+							//loadScript('s_code_www.txt', 'omniture-scode', true, true, function () { // TODO - update file location
+							//loadScript('http://10.120.103.105/analytics/s_code_dev.js', 'omniture-scode', true, true, function () { // TODO - update file location
+								
+								s3.w_trackPage();
+								
+								var el=document.getElementById('test-contextdata-details'),
+								val = (el.value || '');
+								//alert(JSON.stringify(window.dd));
+								//val = window.dd;
+								//el.value = JSON.stringify(window.dd);
+								el.value = jsl.format.formatJson(JSON.stringify(window.dd));
+								val = JSON.stringify(window.dd);
+								try {
+									window.localStorage && localStorage.setItem('test-contextdata-details', JSON.stringify(JSON.parse(val)));
+								} catch (e) {
+									//window.console && console.warn('s_code: TEST PAGE ERROR - SETTING JSON -\n========================\n' + e + '\n========================');
+									window.localStorage && localStorage.setItem('test-contextdata-details', val);
+								}
+						
+								
+								// test impressions fired just before/after page tracking
+								/*
+								pageDetails.Xs_abort='true';
+								s3.w_trackImpression('1 aaa');
+								s3.w_trackImpression('1 bbb');
+								s3.w_trackImpression('1 bbb');
+								s3.w_trackImpression('1 ccc');
+								s3.w_trackImpression('1 mob:pid:1');
+								s3.w_trackPage({"Xs_abort":"true"});
+								s3.w_trackImpression('2 aaa');
+								s3.w_trackImpression('2 mob:pid:1');
+								s3.w_trackImpression('2 bbb');
+								s3.w_trackImpression('2 ccc');
+								s3.w_trackImpression('2 ccc');
+								s3.w_trackImpression('2 ddd');
+								
+								s3.w_trackPage();
+								s3.w_trackImpression('aaa');
+								s3.w_trackImpression('bbb');
+								s3.w_trackImpression('mob:pid:1');
+								s3.w_trackImpression('ccc');
+								s3.w_trackImpression('ccc');
+								s3.w_trackImpression('ddd');
+								*/
+								
+							});
+						});
+					}
+				}(window,document));
+				
+				// minified versions of above, provided to Oregon and Domino team. Reference to script file needs to be updated -
+				
+				// original version with addHandler
+				//(function(a,e){function c(d,g,f){if(d.addEventListener){d.addEventListener(g,f,false)}else{if(d.attachEvent){d.attachEvent('on'+g,f)}}}function b(d,j,g,h,i){if(e.getElementById(j)){return}var f=e.createElement('script');f.id=j;f.type='text/javascript';f.async=(g||true);f.defer=(h||true);if(f.readyState){f.onreadystatechange=function(){if(f.readyState==='loaded'||f.readyState==='complete'){f.onreadystatechange=null;i()}}}else{f.onload=function(){i()}}f.src=d;e.body.appendChild(f)}c(a,'load',function(){b('s_code_dev.js','omniture-scode',true,true,function(){s3.w_trackPage()})})}(window,document));
+				
+				// without addHandler waiting for window load (avoids long delay of marketing tag loading) -
+				// using appendChild
+				//(function(a,c){function b(d,i,f,g,h){if(c.getElementById(i)){return}var e=c.createElement('script');e.id=i;e.type='text/javascript';e.async=(f||true);e.defer=(g||true);if(e.readyState){e.onreadystatechange=function(){if(e.readyState==='loaded'||e.readyState==='complete'){e.onreadystatechange=null;h()}}}else{e.onload=function(){h()}}e.src=d;c.body.appendChild(e)}b('s_code_dev.js','omniture-scode',true,true,function(){s3.w_trackPage()})}(window,document));
+				
+				// using insertBefore
+				//(function(a,c){function b(d,j,g,h,i){var f=c.getElementsByTagName('script')[0],e=c.createElement('script');if(c.getElementById(j)){return}e.id=j;e.type='text/javascript';e.async=(g||true);e.defer=(h||true);if(e.readyState){e.onreadystatechange=function(){if(e.readyState==='loaded'||e.readyState==='complete'){e.onreadystatechange=null;i()}}}else{e.onload=function(){i()}}e.src=d;f.parentNode.insertBefore(e,f)}b('s_code_dev.js','omniture-scode',true,true,function(){s3.w_trackPage()})}(window,document));
+			}
+			
+			// to hide popups with escape press
+			testTracking.addHandler(document.body, 'keyup', function(evt){
+				if(evt.keyCode==27){
+					var el=document.getElementById('popup');
+					el && el.parentNode.removeChild(el)
+				}
+			});
+			
+			/*
+			* md5Hash function based on: https://github.com/wbond/md5-js
+			*
+			* Copyright 1999-2010, Joseph Myers, Paul Johnston, Greg Holt, Will Bond <will@wbond.net>
+			* http://www.myersdaily.org/joseph/javascript/md5-text.html
+			* http://pajhome.org.uk/crypt/md5
+			*
+			* Released under the BSD license
+			* http://www.opensource.org/licenses/bsd-license
+			*/
+			(function(){function c(n,p){var o=n[0],m=n[1],r=n[2],q=n[3];o=a(o,m,r,q,p[0],7,-680876936);q=a(q,o,m,r,p[1],12,-389564586);r=a(r,q,o,m,p[2],17,606105819);m=a(m,r,q,o,p[3],22,-1044525330);o=a(o,m,r,q,p[4],7,-176418897);q=a(q,o,m,r,p[5],12,1200080426);r=a(r,q,o,m,p[6],17,-1473231341);m=a(m,r,q,o,p[7],22,-45705983);o=a(o,m,r,q,p[8],7,1770035416);q=a(q,o,m,r,p[9],12,-1958414417);r=a(r,q,o,m,p[10],17,-42063);m=a(m,r,q,o,p[11],22,-1990404162);o=a(o,m,r,q,p[12],7,1804603682);q=a(q,o,m,r,p[13],12,-40341101);r=a(r,q,o,m,p[14],17,-1502002290);m=a(m,r,q,o,p[15],22,1236535329);o=h(o,m,r,q,p[1],5,-165796510);q=h(q,o,m,r,p[6],9,-1069501632);r=h(r,q,o,m,p[11],14,643717713);m=h(m,r,q,o,p[0],20,-373897302);o=h(o,m,r,q,p[5],5,-701558691);q=h(q,o,m,r,p[10],9,38016083);r=h(r,q,o,m,p[15],14,-660478335);m=h(m,r,q,o,p[4],20,-405537848);o=h(o,m,r,q,p[9],5,568446438);q=h(q,o,m,r,p[14],9,-1019803690);r=h(r,q,o,m,p[3],14,-187363961);m=h(m,r,q,o,p[8],20,1163531501);o=h(o,m,r,q,p[13],5,-1444681467);q=h(q,o,m,r,p[2],9,-51403784);r=h(r,q,o,m,p[7],14,1735328473);m=h(m,r,q,o,p[12],20,-1926607734);o=e(o,m,r,q,p[5],4,-378558);q=e(q,o,m,r,p[8],11,-2022574463);r=e(r,q,o,m,p[11],16,1839030562);m=e(m,r,q,o,p[14],23,-35309556);o=e(o,m,r,q,p[1],4,-1530992060);q=e(q,o,m,r,p[4],11,1272893353);r=e(r,q,o,m,p[7],16,-155497632);m=e(m,r,q,o,p[10],23,-1094730640);o=e(o,m,r,q,p[13],4,681279174);q=e(q,o,m,r,p[0],11,-358537222);r=e(r,q,o,m,p[3],16,-722521979);m=e(m,r,q,o,p[6],23,76029189);o=e(o,m,r,q,p[9],4,-640364487);q=e(q,o,m,r,p[12],11,-421815835);r=e(r,q,o,m,p[15],16,530742520);m=e(m,r,q,o,p[2],23,-995338651);o=k(o,m,r,q,p[0],6,-198630844);q=k(q,o,m,r,p[7],10,1126891415);r=k(r,q,o,m,p[14],15,-1416354905);m=k(m,r,q,o,p[5],21,-57434055);o=k(o,m,r,q,p[12],6,1700485571);q=k(q,o,m,r,p[3],10,-1894986606);r=k(r,q,o,m,p[10],15,-1051523);m=k(m,r,q,o,p[1],21,-2054922799);o=k(o,m,r,q,p[8],6,1873313359);q=k(q,o,m,r,p[15],10,-30611744);r=k(r,q,o,m,p[6],15,-1560198380);m=k(m,r,q,o,p[13],21,1309151649);o=k(o,m,r,q,p[4],6,-145523070);q=k(q,o,m,r,p[11],10,-1120210379);r=k(r,q,o,m,p[2],15,718787259);m=k(m,r,q,o,p[9],21,-343485551);n[0]=d(o,n[0]);n[1]=d(m,n[1]);n[2]=d(r,n[2]);n[3]=d(q,n[3])}function j(u,o,n,m,r,p){o=d(d(o,u),d(m,p));return d((o<<r)|(o>>>(32-r)),n)}function a(o,n,u,r,m,q,p){return j((n&u)|((~n)&r),o,n,m,q,p)}function h(o,n,u,r,m,q,p){return j((n&r)|(u&(~r)),o,n,m,q,p)}function e(o,n,u,r,m,q,p){return j(n^u^r,o,n,m,q,p)}function k(o,n,u,r,m,q,p){return j(u^(n|(~r)),o,n,m,q,p)}function i(p){if(/[\x80-\xFF]/.test(p)){p=unescape(encodeURI(p))}var r=p.length,q=[1732584193,-271733879,-1732584194,271733878],o;for(o=64;o<=p.length;o+=64){c(q,l(p.substring(o-64,o)))}p=p.substring(o-64);var m=[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];for(o=0;o<p.length;o++){m[o>>2]|=p.charCodeAt(o)<<((o%4)<<3)}m[o>>2]|=128<<((o%4)<<3);if(o>55){c(q,m);for(o=0;o<16;o++){m[o]=0}}m[14]=r*8;c(q,m);return q}function l(n){var o=[],m;for(m=0;m<64;m+=4){o[m>>2]=n.charCodeAt(m)+(n.charCodeAt(m+1)<<8)+(n.charCodeAt(m+2)<<16)+(n.charCodeAt(m+3)<<24)}return o}var g='0123456789abcdef'.split('');function f(p){var o='',m=0;for(;m<4;m++){o+=g[(p>>(m*8+4))&15]+g[(p>>(m*8))&15]}return o}function b(m){for(var n=0;n<m.length;n++){m[n]=f(m[n])}return m.join('')}md5Hash=function(m){return b(i(m))};function d(n,m){return(n+m)&4294967295}if(md5Hash('hello')!='5d41402abc4b2a76b9719d911017c592'){function d(m,p){var o=(m&65535)+(p&65535),n=(m>>16)+(p>>16)+(o>>16);return(n<<16)|(o&65535)}}})();
+		</script>
+		<!-- Omniture s_code - original inline script tag as used on Domino prototype -->
+		<!-- <script src="s_Xcode.js"></script> -->
+		
+		<!-- <img src="//www.example.com/delay.gif" style="display:none" alt=""> --> <!-- test latency/blackhole content performance testing -->
+	</body>
+</html>
