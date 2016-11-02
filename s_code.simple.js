@@ -590,6 +590,7 @@ pdPageNumber = pageDetails.pageNumber,
 pdSubSite = cleanText(pageDetails.subSite),
 pdPageNamePrefixPair = cleanText(pageDetails.pageNamePrefixes).split('|'),
 pdPageNamePrefix,
+pdFeaturedContent,
 formTypeOverride,
 getValueOnce = util.getValOnce,
 getQuerystringParam = util.getQueryParam, 
@@ -1632,10 +1633,11 @@ util.siteID = dd.site;
 
 		// Featured content - fid/wbcfrom - for secondary promo tracking (Patrick)
 		//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-		dd.featuredContent= getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 'feat', 30, 'm');
+		pdFeaturedContent = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 'feat', 30, 'm');
 		//s2.eVar60 = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 'feat', 30, 'm');
 		//}
-		if (dd.featuredContent) {
+		if (pdFeaturedContent) {
+			dd.featuredContent = pdFeaturedContent;
 			appendEvent(dd,'featuredContent');
 			//appendEvent(66);
 			//s2.prop60 = dVar(60);

@@ -1376,9 +1376,9 @@
 				testTracking.addHandler(testTracking.scriptViaElement, 'change', function(){
 					var selectedOption = testTracking.scriptViaElement.options[testTracking.scriptViaElement.selectedIndex].innerHTML;
 					if(selectedOption === 'plain JS onReady (Domino/Oregon)'){
-						window.s && s3.c_wr('s_script-via', 0, new Date(0));
+						window.s2 && s3.c_wr('s_script-via', 0, new Date(0));
 					}else{
-						window.s && s3.c_wr('s_script-via', selectedOption);
+						window.s2 && s3.c_wr('s_script-via', selectedOption);
 					}
 					document.location = 'index.html';
 				});
