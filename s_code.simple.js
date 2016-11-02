@@ -2073,7 +2073,10 @@ s3.pt=new Function("x","d","f","a",""
 
 // track a page load
 s3.w_trackPage = function (details) {
-	s3.contextData.dd = JSON.stringify(dd).replace(/\./g, '.'); // replace dots here to fix bug in Omniture debugger context data display
+s3.contextData = dd;
+//s3.contextData['dd'] = dd;
+//s3.contextData.dd = JSON.stringify(dd);
+	//s3.contextData.dd = JSON.stringify(dd).replace(/\./g, '.'); // replace dots here to fix bug in Omniture debugger context data display
 	s3.t();
 }
 
