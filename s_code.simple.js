@@ -6,7 +6,7 @@ util.pathExcludeList=''; // elements to exclude from the path - index.html? defa
 util.pathExcludeDelim = ';'; // portion of the path to exclude - was ;
 util.siteID= '';  //s.siteID set in doPlugins to allow changing to 'app' based on visitorID cookie from apps
 util.version = 'U0.01';
-util.codeVers = 'Visitor 1.9.0'+':'+ 'AppMeasurement 1.7.0'+':'+"ActivityMap:"+ util.version
+util.codeVers = 'V 1.9.0'+':'+ 'AppM 1.7.0'+':'+"AMap:"+ util.version
 util.location = window.location
 util.addHandler = function (element, event, handler) {
 	if (element.addEventListener) {
@@ -536,7 +536,7 @@ util.moduleLookup = function (mods, modKey) {
 };
 
 var _tempContext = {},
-dd={},
+digital={},
 pageBrand='',
 pageSite='',
 notSet = '(not set)', // to identify missing values
@@ -592,6 +592,7 @@ pdPageNamePrefixPair = cleanText(pageDetails.pageNamePrefixes).split('|'),
 pdPageNamePrefix,
 pdFeaturedContent,
 formTypeOverride,
+lastSentPage = util.cookieRead('lastPg'),
 getValueOnce = util.getValOnce,
 getQuerystringParam = util.getQueryParam, 
 pdPreImprs = pageDetails.preImprs;
@@ -645,9 +646,9 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 
 // Set values for microsites. This may be commented out for other domains
 /*ABU: TODO Other domain*/
-dd.brand= pageBrand
-dd.site = pageBrand + ':' + pageSite + (pdSubSite ? (pageDetails.subSiteSeparator || '-') + pdSubSite : ''); // with subSite like APPS - brand:site-subSite:section.
-util.siteID = dd.site;
+digital['dd.brand']= pageBrand
+digital['dd.site'] = pageBrand + ':' + pageSite + (pdSubSite ? (pageDetails.subSiteSeparator || '-') + pdSubSite : ''); // with subSite like APPS - brand:site-subSite:section.
+util.siteID = digital['dd.site'];
 		// switch short/long forms based on in/out of session URLs
 		if (pdFormType === 'checkurl') {
 			pdFormType = pdInSession ? 'short' : 'long';
@@ -757,7 +758,7 @@ util.siteID = dd.site;
 		// common event58 for branchdetail, atmdetail, teamdetail pages
 		if (/^(?:branch|atm|team)detail$/.test(pdPageType)) {
 			//s.events = s.apl(s.events, 'event58', ',', 2); // using shorter function call like appendEvent(58);
-			appendEvent(dd,'branchATMdetail');
+			appendEvent(digital,'branchATMdetail');
 			//appendEvent(58);
 		}
 
@@ -770,18 +771,18 @@ util.siteID = dd.site;
 		switch (pdPageType) {
 		case 'form':
 			if (pdPageStep && pdTransactionId) {
-				dd.applicationID = dd.transactionID = pdPageStep + '_' + pdTransactionId;
+				digital['dd.applicationID'] = digital['dd.transactionID'] = pdPageStep + '_' + pdTransactionId;
 				//s2.transactionID = pdPageStep + '_' + pdTransactionId;
 				//s2.eVar39 = 'D=xact';
 			}
 			if (pdPageStep === 'save') {
 				//s.transactionID = pdTransactionId ? 'save_' + pdTransactionId : '';
 				//s.eVar39 = 'D=xact';
-				appendEvent(dd,'formSave');
+				appendEvent(digital,'formSave');
 				//appendEvent(73);
 			}
 			if (pdPageStep === 'retrieve') {
-				appendEvent(dd,'formRetrieve');
+				appendEvent(digital,'formRetrieve');
 				//appendEvent(74);
 			}
 			break;
@@ -789,8 +790,8 @@ util.siteID = dd.site;
 			//s.eVar23 = 'tool:'+pdFormName; // remove all these from switch cases, capture once for all forms
 			//s.prop23 = 'D=v23';
 			//s.eVar62 = lowerCaseVal(pdFormName,1);
-			dd.toolName= pdFormName || notSet;
-			appendEvent(dd,'toolUsage');
+			digital['dd.toolName']= pdFormName || notSet;
+			appendEvent(digital,'toolUsage');
 			
 			//s2.eVar62 = pdFormName || notSet;
 			//s2.prop62 = dVar(62);
@@ -811,8 +812,8 @@ util.siteID = dd.site;
 			}
 			 */
 			if (pdPageStep === 'complete') {
-				dd.score = util.fixZero(pageDetails.surveyScore) || notSet;
-				appendEvent(dd,'surveyResponse');
+				digital['dd.score'] = util.fixZero(pageDetails.surveyScore) || notSet;
+				appendEvent(digital,'surveyResponse');
 				//s2.eVar28 = s2.w_fixZero(pageDetails.surveyScore) || notSet;
 				//appendEvent(64);
 			}
@@ -821,36 +822,36 @@ util.siteID = dd.site;
 			//s.eVar23 = 'selfserv:'+pdFormName;
 			//s.prop23 = 'D=v23';
 			//s.eVar38 = lowerCaseVal(pdFormName,1);
-			dd.selfserviceName = pdFormName || notSet;
+			digital['dd.selfserviceName'] = pdFormName || notSet;
 			//s2.eVar38 = pdFormName || notSet;
 			//s2.prop38 = dVar(38);
 			
-			dd.ExtAcct = lowerCaseVal(pageDetails.externalSiteName);
+			digital['dd.ExtAcct'] = lowerCaseVal(pageDetails.externalSiteName);
 			//s2.eVar64 = lowerCaseVal(pageDetails.externalSiteName);
 
 			switch (pdPageStep) {
 			case 'start':
-				appendEvent(dd,'selfServiceStart');
+				appendEvent(digital,'selfServiceStart');
 				//appendEvent(35);
 				break;
 			case 'complete':
-				appendEvent(dd,'selfServiceComplete');
+				appendEvent(digital,'selfServiceComplete');
 				//appendEvent(36);
 				if (pdSelfserviceDetails) {
-					dd.selfserviceDetails= pdSelfserviceDetails || notSet;
+					digital['dd.selfserviceDetails']= pdSelfserviceDetails || notSet;
 					//s2.eVar46 = pdSelfserviceDetails || notSet;
 					//s2.prop46 = dVar(46);
 					// self service detail var to capture type of self service, introduced as part of Nov 16E1  Wlive release  *au
 				}
 				break;
 			case 'forgotpasswordstart':
-				appendEvent(dd,'forgotPassword');
-				appendEvent(dd,'selfServiceStart');
+				appendEvent(digital,'forgotPassword');
+				appendEvent(digital,'selfServiceStart');
 				//appendEvent(48);
 				//appendEvent(35);
 				break;
 			case 'forgotpasswordcomplete':
-				appendEvent(dd,'selfServiceComplete');
+				appendEvent(digital,'selfServiceComplete');
 				//appendEvent(36);
 				break;
 			}
@@ -867,25 +868,25 @@ util.siteID = dd.site;
 
 			//s.eVar14 = getValueOnce(lowerCaseVal(getQuerystringParam('query','',fullLocObj.href)).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
 			//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
-			dd.searchTerm = getValueOnce(util.srchTerm(pdSearchTerm), 'stv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
+			digital['dd.searchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 'stv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
 			//s2.eVar14 = getValueOnce(s2.w_srchTerm(pdSearchTerm), 'stv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
 			
-			if (dd.searchTerm) {
+			if (digital['dd.searchTerm']) {
 				//s2.prop14 = dVar(14); //Not required
 				// split search term into keywords
-				dd.list1 = cleanText(dd.searchTerm.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
+				digital['dd.list1'] = cleanText(digital['dd.searchTerm'].replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
 				//s2.list1 = cleanText(s2.eVar14.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
 				//s.eVar15 = pageBrand + ':' + (pageSite==='banking'?'secure':'public'); // OTP doesnt have site search
-				appendEvent(dd,'intSearch');
+				appendEvent(digital,'intSearch');
 				//appendEvent(14);
 				//s.eVar30 = 'sitesearch:' + pdSearchResults; // use pdPageType here in place of text sitesearch string
-				dd.itemCount = pdPageType + ':' + pdSearchResults;
+				digital['dd.itemCount'] = pdPageType + ':' + pdSearchResults;
 				//s2.eVar30 = pdPageType + ':' + pdSearchResults;
 				//if(s.eVar30==='sitesearch:0'){
 				//console.log(pdSearchResults);
 				//if (s.eVar30 === pdPageType + ':0') {
 				if (pdSearchResults === '0') {
-					appendEvent(dd,'intSearchZeroResults');
+					appendEvent(digital,'intSearchZeroResults');
 					//appendEvent(16);
 				}
 			} //else{
@@ -895,14 +896,14 @@ util.siteID = dd.site;
 			break;
 		case 'faqsearch':
 			// pageDetails passed from function call on faq search result div load
-			dd.faqSearchTerm = getValueOnce(util.srchTerm(pdSearchTerm), 'faq', 30, 'm');
+			digital['dd.faqSearchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 'faq', 30, 'm');
 			//s2.eVar58 = getValueOnce(s2.w_srchTerm(pdSearchTerm), 'faq', 30, 'm');
-			if (dd.faqSearchTerm) {
+			if (digital['dd.faqSearchTerm']) {
 				//s2.prop58 = dVar(58);
-				appendEvent(dd,'faqSearch');
+				appendEvent(digital,'faqSearch');
 				//appendEvent(65);
 				//s.eVar30 = 'faqsearch:' + pdSearchResults;
-				dd.itemCount = pdPageType + ':' + pdSearchResults;
+				digital['dd.itemCount'] = pdPageType + ':' + pdSearchResults;
 				//s2.eVar30 = pdPageType + ':' + pdSearchResults;
 			}
 			break;
@@ -913,21 +914,21 @@ util.siteID = dd.site;
 			//if(s.w_pgLoad){ // getValOnce would be cleared on every page click/doPlugins in this pageType case
 			//s.eVar44 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_brnch',0); // hash numbers, postcodes
 			//s.eVar44 = getValueOnce(s.w_srchTerm(),'s_brnch',0); // hash numbers, keep postcodes in function
-			dd.branchSearchLocation = util.srchTerm(pdSearchTerm); // hash numbers, keep postcodes. not val once, every time
+			digital['dd.branchSearchLocation'] = util.srchTerm(pdSearchTerm); // hash numbers, keep postcodes. not val once, every time
 			//s2.eVar44 = s2.w_srchTerm(pdSearchTerm); // hash numbers, keep postcodes. not val once, every time
-			if (dd.branchSearchLocation) {
+			if (digital['dd.branchSearchLocation']) {
 				//s2.prop44 = dVar(44);
-				dd.branchSearchFilters = pageDetails.searchFilters || notSet;
-				appendEvent(dd,'branchSearch');
+				digital['dd.branchSearchFilters'] = pageDetails.searchFilters || notSet;
+				appendEvent(digital,'branchSearch');
 				//s2.prop45 = pageDetails.searchFilters || notSet;
 				//appendEvent(57);
 				//s.eVar30 = 'branchsearch:' + pdSearchResults;
-				dd.itemCount = pdPageType + ':' + pdSearchResults;
+				digital['dd.itemCount'] = pdPageType + ':' + pdSearchResults;
 				//s2.eVar30 = pdPageType + ':' + pdSearchResults;
 				//if(s.eVar30==='branchsearch:0'){
 				//if (s.eVar30 === pdPageType + ':0') {
 				if (pdSearchResults === '0') {
-					appendEvent(dd,'intSearchZeroResults');
+					appendEvent(digital,'intSearchZeroResults');
 					//appendEvent(16);
 				}
 			}
@@ -953,11 +954,11 @@ util.siteID = dd.site;
 			//s.eVar45 = lowerCaseVal(pdFormName,1); // should brand and external site name be included here?
 			switch (pdPageStep) {
 			case 'start':
-				appendEvent(dd,'registrationStart');
+				appendEvent(digital,'registrationStart');
 				//appendEvent(51);
 				break;
 			case 'complete':
-				appendEvent(dd,'registrationComplete');
+				appendEvent(digital,'registrationComplete');
 				//appendEvent(52);
 				//appendEvent(46); // this should be set automatically by session/cookie server-side process in OTP/online banking
 				break;
@@ -967,14 +968,14 @@ util.siteID = dd.site;
 			//s.products = ';' + (pageDetails.productID||notSet).replace(/,/g,',;');
 			switch (pdPageStep) {
 			case 'view':
-				appendEvent(dd,'customProdView');
+				appendEvent(digital,'customProdView');
 				//appendEvent(13);
 				break;
 				//case 'selection': // product selection event/page not applicable/required
 				//	appendEvent(32);
 				//	break;
 			case 'comparison':
-				appendEvent(dd,'prodCompare');
+				appendEvent(digital,'prodCompare');
 				//appendEvent(30);
 				break;
 			}
@@ -1006,7 +1007,7 @@ util.siteID = dd.site;
 
 			switch (pdPageStep) {
 			case 'start':
-				appendEvent(dd,'paymentStart');
+				appendEvent(digital,'paymentStart');
 				//appendEvent(38);
 				pdProductID = paymentProduct;
 				break;
@@ -1014,7 +1015,7 @@ util.siteID = dd.site;
 				//	appendEvent(42); // not used
 				//	break;
 			case 'complete':
-				appendEvent(dd,'paymentComplete');
+				appendEvent(digital,'paymentComplete');
 				//appendEvent(39);
 				pdProductID = paymentProduct;
 
@@ -1028,13 +1029,13 @@ util.siteID = dd.site;
 				break;
 			case 'businessstart':
 				// payment submitted/created, awating approval. business OTP 1.2
-				appendEvent(dd,'busPaymentStart');
+				appendEvent(digital,'busPaymentStart');
 				//appendEvent(42);
 				pdProductID = paymentProduct;
 				break;
 			case 'createpayment':
 				// payment submitted/created, awating approval. business OTP 1.2
-				appendEvent(dd,'busPaymentCreated');
+				appendEvent(digital,'busPaymentCreated');
 				//appendEvent(43);
 				pdProductID = paymentProduct;
 				break;
@@ -1042,19 +1043,19 @@ util.siteID = dd.site;
 				// intermediate approval step. business OTP 1.2
 				//s.eVar42 = lowerCaseVal(pageDetails.businessAuthType, 1); // not used
 				//s.prop42 = dVar(42);
-				appendEvent(dd,'busPaymentAuthorised');
+				appendEvent(digital,'busPaymentAuthorised');
 				//appendEvent(44);
 				pdProductID = paymentProduct;
 				break;
 			case 'effectpayment':
 				// final approval step, payment processed/scheduled. business OTP 1.2
-				appendEvent(dd,'busPaymentEffected');
+				appendEvent(digital,'busPaymentEffected');
 				//appendEvent(45);
 				pdProductID = paymentProduct;
 				break;
 			case 'bulkpaymentapproval':
 				// final bulk approval step. business OTP 1.2 step name also above, in setting paymentProduct
-				appendEvent(dd,'busBulkApprovals');
+				appendEvent(digital,'busBulkApprovals');
 				//appendEvent(37); // bulk payment approval completed step
 				pdProductID = paymentProduct;
 				break;
@@ -1086,14 +1087,14 @@ util.siteID = dd.site;
 			 */
 
 			if (pdPageStep === 'complete') {
-				appendEvent(dd,'login');
+				appendEvent(digital,'login');
 				//appendEvent(46);
 			}
 
 			break;
 		case 'logout':
 			//s.eVar23 = 'logout:'+s.eVar6+':'+pdFormName; // does the brand from the URL make sense here? Is it required, or should it be external site name?
-			dd.loginStatus = 'logged out';
+			digital['dd.loginStatus'] = 'logged out';
 			//s2.eVar40 = 'logged out';
 			//s.prop40 = 'D=v40';
 			break;
@@ -1116,21 +1117,21 @@ util.siteID = dd.site;
 			//s.products = (pageDetails.productID?';' + pageDetails.productID.replace(/,/g,',;'):'');
 			switch (pdPageStep) {
 			case 'start':
-				appendEvent(dd,'enqStart');
+				appendEvent(digital,'enqStart');
 				//appendEvent(53);
 				// serialise enquiry start
 				//Abu todo serialise event ZZZZ
 				//appendEvent('event28' + s2.w_serialise(eventSerialisationKey, pdPageStep));
 				break;
 			case 'complete':
-				appendEvent(dd,'enqComplete');
+				appendEvent(digital,'enqComplete');
 				//appendEvent(54);
 				// serialise enquiry complete
 				//Abu todo serialise event ZZZZ
 				//appendEvent('event29' + s2.w_serialise(eventSerialisationKey, pdPageStep));
 
 				//s.transactionID='enq_'+pdTransactionId; // prefix to avoid duplicates with other applications etc.
-				dd.applicationID  = dd.transactionID = pdTransactionId ? 'enq_' + pdTransactionId : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
+				digital['dd.applicationID']  = digital['dd.transactionID'] = pdTransactionId ? 'enq_' + pdTransactionId : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
 				//s2.transactionID = pdTransactionId ? 'enq_' + pdTransactionId : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
 				//s2.eVar39 = 'D=xact'; //ABU not sure 'D=xact' replacemint  ZZZ 
 
@@ -1189,14 +1190,14 @@ util.siteID = dd.site;
 			//eventSerialisationKey = eventSerialisationKey ? eventSerialisationKey + pdFormType : false; // without formType, the same product or form name in a different journeys could be deduped, e.g. skipping some start events. If prod and form are blank, dont use only formType - it could dedupe many other forms of the same type.
 
 			if (pdPageStep && pdTransactionId) {
-				dd.transactionID = dd.applicationID  = pdPageStep + '_' + pdTransactionId;
+				digital['dd.transactionID'] = digital['dd.applicationID']  = pdPageStep + '_' + pdTransactionId;
 				//s2.transactionID = pdPageStep + '_' + pdTransactionId;
 				//s2.eVar39 = 'D=xact';
 			}
 
 			switch (pdPageStep) {
 			case 'start':
-				appendEvent(dd,'appStart');
+				appendEvent(digital,'appStart');
 				//appendEvent(21);
 				//ABU todo serilize event ZZZZ
 				//appendEvent('event26' + s2.w_serialise(eventSerialisationKey, pdPageStep));
@@ -1206,21 +1207,21 @@ util.siteID = dd.site;
 
 				break;
 			case 'save':
-				appendEvent(dd,'appSaved');
+				appendEvent(digital,'appSaved');
 				//appendEvent(24);
 				break;
 			case 'retrieve':
-				appendEvent(dd,'appRetrieved');
+				appendEvent(digital,'appRetrieved');
 				//appendEvent(23);
 				break;
 			case 'complete':
-				appendEvent(dd,'appComplete');
+				appendEvent(digital,'appComplete');
 				//appendEvent(22);
 				// mark serial stamp as complete once hit. re-use same stamp if starting same form again if not completed, generate new serial if form has been completed (in the same origin)
 				//ABU todo serilize event ZZZZ
 				//appendEvent('event27' + s2.w_serialise(eventSerialisationKey, pdPageStep));
 				//console.log(eventSerialisationKey);
-				dd.transactionID = pdTransactionId;
+				digital['dd.transactionID'] = pdTransactionId;
 				//s2.transactionID = pdTransactionId;
 				//s.eVar39 = 'D=xact'; // if multiple transacation ID's, what happens on forms without productID? are there any without products? Have form txn ID + multi prod IDs?
 				//s.purchaseID = 'D=v39';
@@ -1234,10 +1235,10 @@ util.siteID = dd.site;
 				// always trim purchaseID to first 20 chars only
 				s.purchaseID = prchId.substring(0,20);
 				 */
-				dd.purchaseID = prchId; 
+				digital['dd.purchaseID'] = prchId; 
 				//s2.purchaseID = prchId; // confirm uniqueness
 				//s.events = s.apl(s.events,'purchase',',',2);
-				appendEvent(dd,'purchase');
+				appendEvent(digital,'purchase');
 				//appendEvent('purchase'); // only when approved? (not declined, referred, customer declined). Only really used for serialising, so maybe always fire?...
 
 				//s.eVar31 = 'stop';
@@ -1269,21 +1270,21 @@ util.siteID = dd.site;
 
 				//if (/^approved($|:upsell|:downsell$)/i.test(pdFormStatus)) {
 				if (/^approved(?!:downselldeclined)/i.test(pdFormStatus)) {
-					appendEvent(dd,'appApproved');
+					appendEvent(digital,'appApproved');
 					//appendEvent(18);
 				}
 				//if (pdFormStatus === 'declined') {
 				if (/^declined/i.test(pdFormStatus)) {
-					appendEvent(dd,'appDeclined');
+					appendEvent(digital,'appDeclined');
 					//appendEvent(19);
 				}
 				//if (pdFormStatus === 'referred') {
 				if (/^referred/i.test(pdFormStatus)) {
-					appendEvent(dd,'appReferred');
+					appendEvent(digital,'appReferred');
 					//appendEvent(20);
 				}
 				if (pdFormStatus === 'approved:downselldeclined') {
-					appendEvent(dd,'appCustDeclined');
+					appendEvent(digital,'appCustDeclined');
 					//appendEvent(25);
 				}
 
@@ -1297,7 +1298,7 @@ util.siteID = dd.site;
 			//console.log(sPageNameTemp);
 			pageNamePathArray = sPageNameTemp.split(':').slice(0, 4); // provide truncated path for section details, if error page (remove URL)
 			if (String(pageDetails.errorCode) === '404') {
-				dd.pageType = 'errorPage';
+				digital['dd.pageType'] = 'errorPage';
 				//s2.pageType = 'errorPage';
 			}
 			break;
@@ -1347,7 +1348,7 @@ util.siteID = dd.site;
 		//if (pageNamePathArray[2]) { // Site section
 
 
-		dd.section1 = pageNamePathArray.slice(0, 3).join(':');
+		digital['dd.section1'] = pageNamePathArray.slice(0, 3).join(':');
 		//s2.eVar2 = pageNamePathArray.slice(0, 3).join(':');
 		//s2.prop2 = dVar(2);
 		
@@ -1357,7 +1358,7 @@ util.siteID = dd.site;
 		//}
 		//}
 		//if (pageNamePathArray[3]) { // Sub section
-		dd.section2 = pageNamePathArray.slice(0, 4).join(':');
+		digital['dd.section2'] = pageNamePathArray.slice(0, 4).join(':');
 		//s2.eVar3 = pageNamePathArray.slice(0, 4).join(':');
 		//s2.prop3 = dVar(3);
 		//ABU Not required DynamicVariable
@@ -1366,7 +1367,7 @@ util.siteID = dd.site;
 		//}
 		//}
 		//if (pageNamePathArray[4]) { // Sub sub section
-		dd.section3 = pageNamePathArray.slice(0, 5).join(':');
+		digital['dd.section3'] = pageNamePathArray.slice(0, 5).join(':');
 		//s2.eVar4 = pageNamePathArray.slice(0, 5).join(':');
 		//s2.prop4 = dVar(4);
 		//ABU Not required DynamicVariable
@@ -1375,7 +1376,7 @@ util.siteID = dd.site;
 		//}
 		//}
 		//if (pageNamePathArray[5]) { // Sub sub sub section
-		dd.section4 = pageNamePathArray.slice(0, 6).join(':');
+		digital['dd.section4'] = pageNamePathArray.slice(0, 6).join(':');
 		//s2.eVar5 = pageNamePathArray.slice(0, 6).join(':');
 		//s2.prop5 = dVar(5);
 		//ABU Not required DynamicVariable
@@ -1386,7 +1387,7 @@ util.siteID = dd.site;
 
 		// server from full domain
 		//s.server = lowerCaseVal(fullLocObj.hostname);
-		dd.server = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(util.codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
+		digital['dd.server'] = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(util.codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
 		//s2.server = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(s2.w_codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
 
 		// experience from app/pageDetails
@@ -1394,7 +1395,7 @@ util.siteID = dd.site;
 		//s.eVar7 = s.linkName ? 'link' : pageExperience; // switch to 'link' for link tracking
 		// switch to '(link)' for link tracking where experience may not be set/available in pageDetails?
 		//s.eVar7 = s.linkName ? (pageExperience || '(link)') : pageExperience;
-		dd.experience = dd.channel = pageExperience;
+		digital['dd.experience'] = digital['dd.channel'] = pageExperience;
 		
 		//s2.eVar7 = pageExperience;
 		//s2.channel = dVar(7);
@@ -1404,16 +1405,16 @@ util.siteID = dd.site;
 		if (pdPageType && formNameAlt) {
 			//s.eVar23 = s.eVar6+':'+pdPageType+':'+formNameAlt; // excludes sub-domain, e.g. - wbc:application
 
-			dd.formName =util.siteID + ':' + pdPageType + ':' + formNameAlt; // includes sub-domain, e.g. - wbc:online:application // if this matches v3, D=v3 could be used here
+			digital['dd.formName'] =util.siteID + ':' + pdPageType + ':' + formNameAlt; // includes sub-domain, e.g. - wbc:online:application // if this matches v3, D=v3 could be used here
 			//s2.eVar23 = util.siteID + ':' + pdPageType + ':' + formNameAlt; // includes sub-domain, e.g. - wbc:online:application // if this matches v3, D=v3 could be used here
 			//s2.prop23 = dVar(23);
 
 			if (pdPageStep === 'start') {
-				appendEvent(dd,'formStart');
+				appendEvent(digital,'formStart');
 				//appendEvent(55);
 			}
 			if (pdPageStep === 'complete') {
-				appendEvent(dd,'formComplete');
+				appendEvent(digital,'formComplete');
 				//appendEvent(56);
 			}
 		}
@@ -1477,11 +1478,11 @@ util.siteID = dd.site;
 		pageTypeAlt='microsite'; // page types for mactel etc.?
 		}
 		 */
-		dd.pageType = pdPageType || pageTypeAlt;
+		digital['dd.pageType'] = pdPageType || pageTypeAlt;
 		//s2.prop7 = pdPageType || pageTypeAlt;
 
 		// track page number for search results etc.
-		dd.visitNumber = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
+		digital['dd.visitNumber'] = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
 		//s2.prop8 = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
 
 		// Visit number
@@ -1514,26 +1515,26 @@ util.siteID = dd.site;
 		// page status
 		//s.prop40 = pageStatus;
 		//s.prop40 = pdInSession ? 'secure' : 'unsecure'; // switching based on URL
-		dd.pageStatus = pdInSession ? 'logged in' : 'public'; // switching based on URL
+		digital['dd.pageStatus'] = pdInSession ? 'logged in' : 'public'; // switching based on URL
 		//s2.prop40 = pdInSession ? 'logged in' : 'public'; // switching based on URL
 
 		// site language from page if set
 		//s.eVar63 = lowerCaseVal(pageDetails.language||'en'); // only captured in prop63
-		dd.lang = lowerCaseVal(pageDetails.language || 'en');
+		digital['dd.lang'] = lowerCaseVal(pageDetails.language || 'en');
 		//s2.prop63 = lowerCaseVal(pageDetails.language || 'en');
 		//s.prop63 = 'D=v63';
 
 		// Day Of Week, Time Of Day
 		//var s_tpA = s.getTimeParting('s','+10');
 		//s.eVar10 = s_tpA[1]+'|'+s_tpA[2]; // Adobe orig converted format
-		dd.dayTime = util.timePart(); // local time in shorter format
+		digital['dd.dayTime'] = util.timePart(); // local time in shorter format
 		//s2.eVar10 = s2.w_timePart(); // local time in shorter format
 		//s2.prop10 = dVar(10);
 
 		// External Campaigns
 		//if(!s.campaign){
 		//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-		dd.campaign = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
+		digital['dd.campaign'] = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
 		//s2.campaign = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
 		//}
 
@@ -1548,45 +1549,45 @@ util.siteID = dd.site;
 		//console.log('pdPreImprs    = ' + pdPreImprs); // any other impressions passed for the current page after trackPage was called, but before it completed (and scanning links)
 		pdPreImprs = pdPreImprs ? pdPreImprs.split(',') : [];
 		for (prpty = 0; prpty < pdPreImprs.length; prpty++) {
-			dd.list2 = util.apl(dd.list2, pdPreImprs[prpty], ',', 2);
+			digital['dd.list2'] = util.apl(digital['dd.list2'], pdPreImprs[prpty], ',', 2);
 			//s2.list2 = s2.apl(s2.list2, pdPreImprs[prpty], ',', 2);
 		}
 		//console.log('NEW s.list2   = ' + s.list2); // combined list of impressions for previous page
 		
-		if (dd.list2) {
-			appendEvent(dd,'intImpressions');
+		if (digital['dd.list2']) {
+			appendEvent(digital,'intImpressions');
 			//s2.w_addEvt(11);
 		}
 
 		// Internal banner clicks
 		pidQuerystring = lowerCaseVal(getQuerystringParam('pid', '', fullLocObj.href));
 		//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-		dd.intCampaign  = getValueOnce(pidQuerystring, 'u_pid', 30, 'm');
+		digital['dd.intCampaign']  = getValueOnce(pidQuerystring, 'u_pid', 30, 'm');
 		//s2.eVar22 = getValueOnce(pidQuerystring, 's_pid', 30, 'm');
 		//}
 
 		// count every pid click for comparison to getValueOnce count
 		if (pidQuerystring) {
-			appendEvent(dd,'pidTotalClicks');
+			appendEvent(digital,'pidTotalClicks');
 			//appendEvent(10);
 		}
 
 		//if(s.eVar22&&!s.eVar65){
-		if (dd.intCampaign) {
-			appendEvent(dd,'intClickThroughs');
+		if (digital['dd.intCampaign']) {
+			appendEvent(digital,'intClickThroughs');
 			//appendEvent(12);
 			//ABU todo zzz`
 			//s2.eVar20 = crossVisitPrtcptn(s2.eVar22, 's_ev20', '30', '5', '>', 'event22');
 		}
 		//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-		dd.extSite  = getValueOnce(lowerCaseVal(getQuerystringParam('ref', '', fullLocObj.href)), 'refPrm', 30, 'm');
+		digital['dd.extSite']  = getValueOnce(lowerCaseVal(getQuerystringParam('ref', '', fullLocObj.href)), 'refPrm', 30, 'm');
 		//s2.eVar65 = getValueOnce(lowerCaseVal(getQuerystringParam('ref', '', fullLocObj.href)), 'refPrm', 30, 'm');
 		//}
 		// incoming links from AFS-group sites
 		//if(s.eVar22&&s.eVar65){
 		// ref is now just an additional parameter for tracking links from other sites
-		if (dd.extSite ) {
-			appendEvent(dd,'linkClicksAFS');
+		if (digital['dd.extSite'] ) {
+			appendEvent(digital,'linkClicksAFS');
 			//appendEvent(72);
 		}
 		//else{
@@ -1638,7 +1639,7 @@ util.siteID = dd.site;
 		//}
 		if (pdFeaturedContent) {
 			dd.featuredContent = pdFeaturedContent;
-			appendEvent(dd,'featuredContent');
+			appendEvent(digital,'featuredContent');
 			//appendEvent(66);
 			//s2.prop60 = dVar(60);
 		}
@@ -1708,7 +1709,7 @@ util.siteID = dd.site;
 		// search results clickthru event for auto suggest results only *au
 		wbcfromQuerystring = lowerCaseVal(getQuerystringParam('wbcfrom', '', fullLocObj.href));
 		if (/sitesearch:autosuggest:results/i.test(wbcfromQuerystring)) {
-			appendEvent(dd,'intSearchClickThru');
+			appendEvent(digital,'intSearchClickThru');
 			//s2.w_addEvt(15);
 			// clickthru event from "search results page" is triggered when prop16 is set
 		}
@@ -1720,7 +1721,7 @@ util.siteID = dd.site;
 		//}
 		// refactored and referencing lastPg cookie
 		//ABU TODO
-		//dd.previousPage= lastSentPage === sPageNameTemp ? pageNameDynamicVariable : lastSentPage;
+		if(lastSentPage) digital['dd.previousPage'] = lastSentPage;
 		//s2.prop15 = lastSentPage === sPageNameTemp ? pageNameDynamicVariable : lastSentPage;
 
 		// Previous pixel length
@@ -1740,18 +1741,18 @@ util.siteID = dd.site;
 		//s.prop27 = 'D=User-Agent'; // capture with proc rule to increase capture (non-JS), reduce JS size and reduce pixel length
 
 		// track scode version
-		dd.analyticsVersion = util.codeVers;
+		digital['dd.analyticsVersion'] = util.codeVers;
 		//s2.prop39 = s2.w_codeVers;
 
 		// track site + source data version/details + pageKey for page audit.
 		// dont capture in IE - makes pixel too long
 		//ABU TODO no if (!s.isie) { // as of s_code version H.26.2, s.isie == false in IE11 due to useragent change in IE 11 to distinguish its DOM compatibility vs. older versions
-			dd.pageAudit= pageSite + ':' + lowerCaseVal(pageDetails.src, 1) + ':' + lowerCaseVal(pageDetails.pageKey, 1);
+			digital['dd.pageAudit']= pageSite + ':' + lowerCaseVal(pageDetails.src, 1) + ':' + lowerCaseVal(pageDetails.pageKey, 1);
 			//s2.prop13 = pageSite + ':' + lowerCaseVal(pageDetails.src, 1) + ':' + lowerCaseVal(pageDetails.pageKey, 1);
 		//}
 
 		// Site release version - set on OTP pages, apps, public? etc.
-		dd.siteVersion = pageSite + ':' + lowerCaseVal(pageDetails.siteVersion, 1);
+		digital['dd.siteVersion'] = pageSite + ':' + lowerCaseVal(pageDetails.siteVersion, 1);
 		//s2.eVar52 = pageSite + ':' + lowerCaseVal(pageDetails.siteVersion, 1);
 		//s2.prop52 = dVar(52);
 
@@ -1823,7 +1824,7 @@ util.siteID = dd.site;
 
 		// populate s.pageName from local var
 		//s2.pageName = sPageNameTemp;
-		dd.pageName = sPageNameTemp;
+		digital['dd.pageName'] = sPageNameTemp;
 
 		/******** Don't set any variables after this line ********/
 
@@ -1987,7 +1988,9 @@ s3.linkTrackEvents="None"
 s3.usePlugins=true
 function s_doPlugins(s3) {
 
-s3.pageName = dd.pageName;
+s3.pageName = digital['dd.pageName'];
+s3.eVar21 ='D=pageName';
+
 s3.eVar25 = s3.marketingCloudVisitorID;
 
 // use implementation plug-ins that are defined below
@@ -2075,11 +2078,14 @@ s3.pt=new Function("x","d","f","a",""
 
 // track a page load
 s3.w_trackPage = function (details) {
-s3.contextData = dd;
+s3.contextData = digital;
 //s3.contextData['dd'] = dd;
 //s3.contextData.dd = JSON.stringify(dd);
 	//s3.contextData.dd = JSON.stringify(dd).replace(/\./g, '.'); // replace dots here to fix bug in Omniture debugger context data display
 	s3.t();
+	if (digital._drop) {
+		util.cookieWrite('lastPg', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
+	}
 }
 
 /****************************** MODULES *****************************/

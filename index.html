@@ -790,7 +790,7 @@
 							// default object from page
 							if(typeof window.JSON!=='undefined'){
 								testTrackingDetails=JSON.stringify((window.pageDetails||{}));
-								contextTrackingDetails=JSON.stringify((window.dd||{}));
+								contextTrackingDetails=JSON.stringify((window.digital||{}));
 							}else{
 								testTrackingDetails=noJson;
 							}
@@ -1029,23 +1029,23 @@
 						testTracking.setText(typeEl,type); // tracking type
 						
 						// pageName detail for other vars
-						testTracking.setText(document.getElementById('pagename-part-v6'),window.dd.brand||'');
-						testTracking.setText(document.getElementById('pagename-part-v7'),window.dd.experience||'');
-						testTracking.setText(document.getElementById('pagename-part-v1'),window.dd.site||'');
-						testTracking.setText(document.getElementById('pagename-part-v2'),window.dd.section1||'');
-						testTracking.setText(document.getElementById('pagename-part-v3'),window.dd.section2||'');
-						testTracking.setText(document.getElementById('pagename-part-v4'),window.dd.section3||'');
-						testTracking.setText(document.getElementById('pagename-part-v5'),window.dd.section4||'');
-						testTracking.setText(document.getElementById('test-tracking-formname'),(dd.formName||String.fromCharCode(160)));
+						testTracking.setText(document.getElementById('pagename-part-v6'),window.digital['dd.brand']||'');
+						testTracking.setText(document.getElementById('pagename-part-v7'),window.digital['dd.experience']||'');
+						testTracking.setText(document.getElementById('pagename-part-v1'),window.digital['dd.site']||'');
+						testTracking.setText(document.getElementById('pagename-part-v2'),window.digital['dd.section1']||'');
+						testTracking.setText(document.getElementById('pagename-part-v3'),window.digital['dd.section2']||'');
+						testTracking.setText(document.getElementById('pagename-part-v4'),window.digital['dd.section3']||'');
+						testTracking.setText(document.getElementById('pagename-part-v5'),window.digital['dd.section4']||'');
+						testTracking.setText(document.getElementById('test-tracking-formname'),(window.digital['dd.formName']||String.fromCharCode(160)));
 						
 						// other request details for reference
 						var collServer=(s3.ssl?s3.trackingServerSecure:s3.trackingServer);
 						testTracking.setText(document.getElementById('req-coll-server'),collServer+',');
 						testTracking.setText(document.getElementById('req-rsid'),s3.account+',');
 						testTracking.setText(document.getElementById('req-visitor-id'),(s3.marketingCloudVisitorID||'(s_vi cookie on coll. server)')+',');
-						testTracking.setText(document.getElementById('req-experience'),window.dd.experience+',');
+						testTracking.setText(document.getElementById('req-experience'),window.digital['dd.experience']+',');
 						
-						testTracking.setText(document.getElementById('scode-date'),'(Updated '+/\d{8}/.exec(dd.analyticsVersion)+')');
+						testTracking.setText(document.getElementById('scode-date'),'(Updated '+/\d{8}/.exec(digital['dd.analyticsVersion'])+')');
 					}
 					
 					// set last pixel into field for test validation
@@ -1172,7 +1172,7 @@
 					}*/
 					
 					var cookieMsg='(Cookies not enabled'+(location.protocol=='file:'?' on file://':'')+')';
-					if(document.cookie.indexOf('s3_sess')==-1){
+					if(document.cookie.indexOf('AMCV_3A4B7BAF56F01DA67F000101%40AdobeOrg')==-1){
 					//if(!s3.c_rr('s3_pers'+s3.w_ckExt)){ // TODO zzzzz confirm cookie names required by s_code
 						el=document.getElementById('no-cookie-support');
 						testTracking.setText(el,cookieMsg);
@@ -1716,8 +1716,8 @@
 								//alert(JSON.stringify(window.dd));
 								//val = window.dd;
 								//el.value = JSON.stringify(window.dd);
-								el.value = jsl.format.formatJson(JSON.stringify(window.dd));
-								val = JSON.stringify(window.dd);
+								el.value = jsl.format.formatJson(JSON.stringify(window.digital));
+								val = JSON.stringify(window.digital);
 								try {
 									window.localStorage && localStorage.setItem('test-contextdata-details', JSON.stringify(JSON.parse(val)));
 								} catch (e) {
