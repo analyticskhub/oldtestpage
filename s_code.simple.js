@@ -2106,6 +2106,18 @@ s3.pt=new Function("x","d","f","a",""
 +".substring(0,y);r=s[f](t,a);if(r)return r;z+=y+d.length;t=x.substri"
 +"ng(z,x.length);t=z<x.length?t:''}return'';");
 
+/*
+ * Plugin Utility: Replace v1.0
+ */
+s3.repl = function (x, o, n) {
+	var i = x.indexOf(o),
+	l = n.length;
+	while (x && i >= 0) {
+		x = x.substring(0, i) + n + x.substring(i + o.length);
+		i = x.indexOf(o, i + l);
+	}
+	return x;
+};
 
 // only set prop to dynamic copy if eVar has a value to reduce pixel length
 s3.w_dVar = function (id) {
