@@ -187,6 +187,19 @@ util.addCallback = function (scriptEl, readyCheck, callback) {
 	}
 }
 util.guidRgx = /\b\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\b/g;
+util.cleanJSON = function (JSONdata) {
+	JSONdata = JSONdata.replace(/\\n/g, "\\n")  
+				   .replace(/\\'/g, "\\'")
+				   .replace(/\\"/g, '\\"')
+				   .replace(/\\&/g, "\\&")
+				   .replace(/\\r/g, "\\r")
+				   .replace(/\\t/g, "\\t")
+				   .replace(/\\b/g, "\\b")
+				   .replace(/\\f/g, "\\f");
+	// remove non-printable and other non-valid JSON chars
+	JSONdata = JSONdata.replace(/[\u0000-\u0019]+/g,""); 
+	return JSONdata = JSON.parse(JSONdata);
+}
 
 util.cleanURL = function (loc, locType) {
 	var cleanedUrl = (loc || '')
@@ -582,7 +595,6 @@ visitorLifecycleAware = 'Aware',
 visitorLifecycleEngaged = 'Engaged',
 visitorLifecycleConverted = 'Converted',
 visitorLifecycleRetained = 'Retained',
-pageNameDynamicVariable = 'D=pageName', // zzzzz change to D.pageName to reduce pixel
 dateZero = new Date(0), // old date used to clear cookies
 datePlusOneYear = new Date(+new Date() + 31536000000), // 31536000000 = 365*24*60*60*1000 = 1 year
 pageNamePathArray,
@@ -595,9 +607,16 @@ formTypeOverride,
 lastSentPage = util.cookieRead('lastPg'),
 getValueOnce = util.getValOnce,
 getQuerystringParam = util.getQueryParam, 
-pdPreImprs = pageDetails.preImprs;
+pageNameDynamicVariable = 'D=pageName'; // zzzzz change to D.pageName to reduce pixel
+//pdPreImprs = cleanText(pageDetails.preImprs);
 
 //ABU dd.brand & dd.site for each brand 
+// Brand specific
+if (/(?:^|\.)bankofmelbourne\.com\.au$/i.test(util.getLoc().hostname)) {
+	pageBrand = 'bom';
+	pageSite = /(.+)(?:\.bankofmelbourne\.com\.au$)/i.exec(util.getLoc().hostname); // || [];
+	pageSite = pageSite ? pageSite[1] : notSet;
+}
 
 // Brand specific
 if (/(?:^|\.)stgeorge\.com\.au$/i.test(util.getLoc().hostname)) {
@@ -1331,6 +1350,8 @@ util.siteID = digital['dd.site'];
 		// now copying longest detail to all section vars for more accurate reporting on page views in/below that section
 		// -----------------------------------------------------------------------------------------------------------------------------
 		pageNamePathArray = pageNamePathArray || sPageNameTemp.split(':');
+		console.log(pageNamePathArray);
+		console.log(sPageNameTemp);
 		//s.w_pathArr = pageNamePathArray; // for use outside this function
 		// New version with experience removed from pageName -
 		
@@ -1543,11 +1564,11 @@ util.siteID = digital['dd.site'];
 			s2.eVar16 = 'D=v0';
 			s2.eVar17 = 'D=v0';
 			s2.eVar18 = crossVisitPrtcptn(s2.campaign, 's_ev18', '30', '5', '>', 'event22'); // this is cleared every time event22 fires. i.e. Application Complete step
-		}*/
+		}
 
 		//console.log('ORIG s.list2  = ' + s.list2); // impressions from banner cookie related to previous page, collected after it loaded
 		//console.log('pdPreImprs    = ' + pdPreImprs); // any other impressions passed for the current page after trackPage was called, but before it completed (and scanning links)
-		pdPreImprs = pdPreImprs ? pdPreImprs.split(',') : [];
+		pdPreImprs = pdPreImprs ? (pdPreImprs||'').split(',') : [];
 		for (prpty = 0; prpty < pdPreImprs.length; prpty++) {
 			digital['dd.list2'] = util.apl(digital['dd.list2'], pdPreImprs[prpty], ',', 2);
 			//s2.list2 = s2.apl(s2.list2, pdPreImprs[prpty], ',', 2);
@@ -1593,7 +1614,7 @@ util.siteID = digital['dd.site'];
 		//else{
 		//	s.eVar65='';
 		//}
-
+		*/
 		// Page modules shown on dashboard
 		// refer to widget name mapping in resx to lookup friendly names
 		//pdModules=lowerCaseVal((pageDetails.modules||'').replace(/\B[aeiou]\B|\s|widget/gi,'').replace(/accnts/gi,'acts').replace(/pymnts/gi,'pmts'));
@@ -1988,8 +2009,17 @@ s3.linkTrackEvents="None"
 s3.usePlugins=true
 function s_doPlugins(s3) {
 
+var crossVisitPrtcptn = s3.crossVisitParticipation,
+pdPreImprs = pageDetails.preImprs,
+channelManagerKeywords,
+channelManagerSearchType = false,
+dVar = s3.w_dVar,
+pidQuerystring;
+
 s3.pageName = digital['dd.pageName'];
-s3.eVar21 ='D=pageName';
+s3.eVar21 = pageNameDynamicVariable; // pageName eVar
+// hierarchy
+s3.hier1 = pageNameDynamicVariable;
 
 s3.eVar25 = s3.marketingCloudVisitorID;
 
@@ -2076,8 +2106,395 @@ s3.pt=new Function("x","d","f","a",""
 +".substring(0,y);r=s[f](t,a);if(r)return r;z+=y+d.length;t=x.substri"
 +"ng(z,x.length);t=z<x.length?t:''}return'';");
 
+
+// only set prop to dynamic copy if eVar has a value to reduce pixel length
+s3.w_dVar = function (id) {
+	return s3['eVar' + id] ? 'D=v' + id : '';
+};
+/*
+ * Cookie Combining Utility v.5
+ */
+
+if(!s3.__ccucr)
+{
+    s3.c_rr = s3.c_r;
+    s3.__ccucr = true;
+    function c_r(k)
+    {
+        var s = this, d = new Date, v = s3.c_rr(k), c = s3.c_rspers(), i, m, e;
+        if(v) return v; k = s3.escape ? s3.escape(k) : encodeURIComponent(k);
+        i = c.indexOf(' ' + k + '='); c = i < 0 ? s3.c_rr('s_sess') : c;
+        i = c.indexOf(' ' + k + '='); m = i < 0 ? i : c.indexOf('|', i);
+        e = i < 0 ? i : c.indexOf(';', i); m = m > 0 ? m : e;
+        v = i < 0 ? '' : s3.unescape ? s3.unescape(c.substring(i + 2 + k.length, m < 0 ? c.length : m)) : decodeURIComponent(c.substring(i + 2 + k.length, m < 0 ? c.length : m));
+        return v;
+    }
+    function c_rspers()
+    {
+        var s = this, cv = s3.c_rr("s_pers"), date = new Date().getTime(), expd = null, cvarr = [], vcv = "";
+        if(!cv) return vcv; cvarr = cv.split(";"); for(var i = 0, l = cvarr.length; i < l; i++)  { expd = cvarr[i].match(/\|([0-9]+)$/);
+        if(expd && parseInt(expd[1]) >= date) { vcv += cvarr[i] + ";"; } } return vcv;
+    }
+    s3.c_rspers = c_rspers;
+    s3.c_r = s3.cookieRead = c_r;
+}
+if(!s3.__ccucw)
+{
+    s3.c_wr = s3.c_w;
+    s3.__ccucw = true;
+    function c_w(k, v, e)
+    {
+        var s3 = this, d = new Date, ht = 0, pn = 's_pers', sn = 's_sess', pc = 0, sc = 0, pv, sv, c, i, t, f;
+        d.setTime(d.getTime() - 60000); if(s3.c_rr(k)) s3.c_wr(k, '', d); k = s3.escape ? s3.escape(k) : encodeURIComponent(k);
+        pv = s3.c_rspers(); i = pv.indexOf(' ' + k + '='); if(i > -1) { pv = pv.substring(0, i) + pv.substring(pv.indexOf(';', i) + 1); pc = 1; }
+        sv = s3.c_rr(sn); i = sv.indexOf(' ' + k + '='); if(i > -1) { sv = sv.substring(0, i) + sv.substring(sv.indexOf(';', i) + 1);
+        sc = 1; } d = new Date; if(e) { if(e == 1) e = new Date, f = e.getYear(), e.setYear(f + 5 + (f < 1900 ? 1900 : 0));
+        if(e.getTime() > d.getTime()) {  pv += ' ' + k + '=' + (s3.escape ? s3.escape(v) : encodeURIComponent(v)) + '|' + e.getTime() + ';';
+        pc = 1; } } else { sv += ' ' + k + '=' + (s3.escape ? s3.escape(v) : encodeURIComponent(v)) + ';';
+        sc = 1; } sv = sv.replace(/%00/g, ''); pv = pv.replace(/%00/g, ''); if(sc) s3.c_wr(sn, sv, 0);
+        if(pc) { t = pv; while(t && t.indexOf(';') != -1) { var t1 = parseInt(t.substring(t.indexOf('|') + 1, t.indexOf(';')));
+        t = t.substring(t.indexOf(';') + 1); ht = ht < t1 ? t1 : ht; } d.setTime(ht); s3.c_wr(pn, pv, d); }
+        return v == s3.c_r(s3.unescape ? s3.unescape(k) : decodeURIComponent(k));
+    }
+    s3.c_w = s3.cookieWrite = c_w;
+}
+
+
+/*
+ * Plugin channelManager v3.01 - Tracking External Traffic
+ */
+s3.channelManager = function (a, b, c, d, e, f, g) {
+	var s3 = this,
+	h = new Date,
+	i = 0,
+	j,
+	k,
+	l,
+	m,
+	n,
+	o,
+	p,
+	q,
+	r,
+	t,
+	u,
+	v,
+	w,
+	x,
+	y,
+	z,
+	A,
+	B,
+	C,
+	D,
+	E,
+	F,
+	G,
+	H,
+	I,
+	J,
+	K,
+	L,
+	M,
+	N,
+	O,
+	P,
+	Q,
+	R,
+	S,
+	T,
+	U,
+	V;
+	U = s3.getQueryParam ? 1 : 0;
+	V = s3.repl ? 1 : 0;
+	h.setTime(h.getTime() + 1800000);
+	if (e) {
+		i = 1;
+		if (s3.c_r(e))
+			i = 0;
+		if (!s3.c_w(e, 1, h))
+			s3.c_w(e, 1, 0);
+		if (!s3.c_r(e))
+			i = 0;
+		if (f && s3.c_r('s_tbm' + f))
+			i = 0;
+	}
+	j = s3.referrer ? s3.referrer : document.referrer;
+	j = decodeURIComponent(j.toLowerCase());
+	if (!j)
+		k = 1;
+	else {
+		l = j.indexOf('?') > -1 ? j.indexOf('?') : j.length;
+		m = j.substring(0, l);
+		n = j.split('/');
+		n = n[2].split('?');
+		o = n[0].toLowerCase();
+		p = s3.linkInternalFilters.toLowerCase();
+		p = p.split(',');
+		for (q = 0; q < p.length; q++) {
+			r = o.indexOf(p[q]) == -1 ? '' : j;
+			if (r)
+				break;
+		}
+	}
+	if (!r && !k) {
+		t = j;
+		u = o;
+		w = 'Other Natural Referrers';
+		v = w + ' ' + o;
+		x = s3.seList + '>' + s3._extraSearchEngines;
+		if (d == 1) {
+			m = V ? s3.repl(m, 'oogle', '%') : s3.replace(m, 'oogle', '%');
+			m = V ? s3.repl(m, 'ahoo', '^') : s3.replace(m, 'ahoo', '^');
+			j = V ? s3.repl(j, 'as_q', '*') : s3.replace(j, 'as_q', '*');
+		}
+		y = x.split('>');
+		for (z = 0; z < y.length; z++) {
+			A = y[z];
+			A = A.split('|');
+			B = A[0].split(',');
+			for (C = 0; C < B.length; C++) {
+				D = m.indexOf(B[C]);
+				if (D > -1) {
+					if (A[2])
+						E = v = A[2];
+					else
+						E = o;
+					if (d == 1) {
+						E = V ? s3.repl(E, '#', ' - ') : s3.replace(E, '#', ' - ');
+						j = V ? s3.repl(j, '*', 'as_q') : s3.replace(j, '*', 'as_q');
+						E = V ? s3.repl(E, '^', 'ahoo') : s3.replace(E, '^', 'ahoo');
+						E = V ? s3.repl(E, '%', 'oogle') : s3.replace(E, '%', 'oogle');
+					}
+					F = A[1].split(',');
+					for (G = 0; G < F.length; G++) {
+						if (j.indexOf(F[G] + '=') > -1 || j.indexOf('https://www.google.') == 0 || j.indexOf('http://r.search.yahoo.com') == 0)
+							H = 1;
+						I = U ? s3.getQueryParam(F[G], '', j).toLowerCase() : s3.Util.getQueryParam(F[G], j).toLowerCase();
+						if (H || I)
+							break;
+					}
+				}
+				if (H || I)
+					break;
+			}
+			if (H || I)
+				break;
+		}
+	}
+	if (!r || g != '1') {
+		J = a.split(',');
+		for (var q in J) {
+			if (J.hasOwnProperty(q)) {
+				if (U ? s3.getQueryParam(J[q]) : s3.Util.getQueryParam(J[q])) {
+					T = T ? T + b + (U ? s3.getQueryParam(J[q]) : s3.Util.getQueryParam(J[q])) : (U ? s3.getQueryParam(J[q]) : s3.Util.getQueryParam(J[q]));
+				}
+			}
+		}
+		if (T) {
+			v = T;
+			if (E)
+				w = 'Paid Search';
+			else
+				w = 'Unknown Paid Channel';
+		}
+		if (!T && E && H) {
+			w = 'Natural Search';
+			v = w + ' ' + E;
+		}
+	}
+	if (i && k && !T)
+		t = u = v = w = 'Typed/Bookmarked';
+	J = s3._channelDomain;
+	if (J && o && !r) {
+		K = J.split('>');
+		for (L = 0; L < K.length; L++) {
+			M = K[L] ? K[L].split('|') : '';
+			N = M[1] ? M[1].split(',') : '';
+			O = N.length;
+			for (P = 0; P < O; P++) {
+				Q = N[P].toLowerCase();
+				R = ('/' + o).indexOf(Q);
+				if (R > -1) {
+					w = M[0];
+					break;
+				}
+			}
+			if (R > -1)
+				break;
+		}
+	}
+	J = s3._channelParameter;
+	if (J) {
+		K = J.split('>');
+		for (L = 0; L < K.length; L++) {
+			M = K[L] ? K[L].split('|') : '';
+			N = M[1] ? M[1].split(',') : '';
+			O = N.length;
+			for (P = 0; P < O; P++) {
+				R = U ? s3.getQueryParam(N[P]) : s3.Util.getQueryParam(N[P]);
+				if (R) {
+					w = M[0];
+					break;
+				}
+			}
+			if (R)
+				break;
+		}
+	}
+	J = s3._channelPattern;
+	if (J) {
+		K = J.split('>');
+		for (L = 0; L < K.length; L++) {
+			M = K[L] ? K[L].split('|') : '';
+			N = M[1] ? M[1].split(',') : '';
+			O = N.length;
+			for (P = 0; P < O; P++) {
+				Q = N[P].toLowerCase();
+				R = T ? T.toLowerCase() : '';
+				S = R.indexOf(Q);
+				if (S == 0) {
+					w = M[0];
+					break;
+				}
+			}
+			if (S == 0)
+				break;
+		}
+	}
+	S = w ? T + u + w + I : '';
+	c = c ? c : 'c_m';
+	if (c != '0')
+		S = util.getValOnce(S, c, 0); //getValOnce move to util 
+	if (S) {
+		s3._campaignID = T ? T : 'n/a';
+		s3._referrer = t ? t : 'n/a';
+		s3._referringDomain = u ? u : 'n/a';
+		s3._campaign = v ? v : 'n/a';
+		s3._channel = w ? w : 'n/a';
+		s3._partner = E ? E : 'n/a';
+		s3._keywords = H ? I ? I : 'Keyword Unavailable' : 'n/a';
+		if (f && w != 'Typed/Bookmarked') {
+			h.setTime(h.getTime() + f * 86400000);
+			s3.c_w('s_tbm' + f, 1, h);
+		}
+	} else
+		s3._campaignID = s3._referrer = s3._referringDomain = s3._campaign = s3._channel = s3._partner = s3._keywords = '';
+}
+/* Top 130 - Grouped */
+s3.seList="google.,googlesyndication.com,.googleadservices.com|q,as_q|"
++"Google>bing.com|q|Bing>yahoo.com,yahoo.co.jp|p,va|Yahoo!>ask.jp,ask"
++".co|q,ask|Ask>search.aol.,suche.aolsvc.de|q,query|AOL>altavista.co,"
++"altavista.de|q,r|AltaVista>.mywebsearch.com|searchfor|MyWebSearch>w"
++"ebcrawler.com|q|WebCrawler>wow.com|q|Wow>infospace.com|q|InfoSpace>"
++"blekko.com|q|Blekko>dogpile.com|q|DogPile>alhea.com|q|Alhea>goduckg"
++"o.com|q|GoDuckGo>info.com|qkw|Info.com>contenko.com|q|Contenko>baid"
++"u.com|word,wd|Baidu>daum.net,search.daum.net|q|Daum>icqit.com|q|icq"
++">myway.com|searchfor|MyWay.com>naver.com,search.naver.com|query|Nav"
++"er>netscape.com|query,search|Netscape Search>reference.com|q|Refere"
++"nce.com>seznam|w|Seznam.cz>abcsok.no|q|Startsiden>tiscali.it,www.ti"
++"scali.co.uk|key,query|Tiscali>virgilio.it|qs|Virgilio>yandex|text|Y"
++"andex.ru>optimum.net|q|Optimum Search>search.earthlink.net|q|Earthl"
++"ink>search.comcast.net|q|Comcast>libero.it|query|libero.it>excite.c"
++"o|search|Excite>mail.ru|q|Mail.ru>isearch.avg.com|q|AVG>msn.com|q|M"
++"SN>seznam.cz|q|seznam.cz>so.com|q|so.com>ixquick.com|query|ixquick."
++"com>sogou.com|query|sogou.com>360.cn|q|360.cn";
+
+/*
+ * Plug-in: crossVisitParticipation v1.7
+ */
+s3.crossVisitParticipation = function (v, cn, ex, ct, dl, ev, dv) {
+	var s3 = this,
+	ce,
+	u,
+	x,
+	diff,
+	q,
+	z,
+	ay,
+	ea,
+	arry = [],
+	a = [],
+	c,
+	g,
+	h = [],
+	e,
+	start,
+	td,
+	data,
+	r;
+	if (!s3.c_r) {
+		s3 = window.s3; // added alternate for when called outside of this scope
+	}
+	if (typeof dv === 'undefined') {
+		dv = 0;
+	}
+	if (s3.events && ev) {
+		ay = s3.split(ev, ',');
+		ea = s3.split(s3.events, ',');
+		for (u = 0; u < ay.length; u++) {
+			for (x = 0; x < ea.length; x++) {
+				if (ay[u] == ea[x]) {
+					ce = 1;
+				}
+			}
+		}
+	}
+	if (!v || v == '') {
+		if (ce) {
+			s3.c_w(cn, '');
+		}
+		return '';
+	}
+	v = escape(v);
+	c = s3.c_r(cn);
+	g = 0;
+	if (c && c != '') {
+		arry = s3.split(c, '],[');
+		for (q = 0; q < arry.length; q++) {
+			z = arry[q];
+			z = s3.repl(z, '[', '');
+			z = s3.repl(z, ']', '');
+			z = s3.repl(z, '\'', '');
+			arry[q] = s3.split(z, ',');
+		}
+	}
+	e = new Date();
+	e.setFullYear(e.getFullYear() + 5);
+	if (dv == 0 && arry.length > 0 && arry[arry.length - 1][0] == v) {
+		arry[arry.length - 1] = [v, new Date().getTime()];
+	} else {
+		arry[arry.length] = [v, new Date().getTime()];
+	}
+	start = arry.length - ct < 0 ? 0 : arry.length - ct;
+	td = new Date();
+	for (x = start; x < arry.length; x++) {
+		diff = Math.round((td.getTime() - arry[x][1]) / 86400000);
+		if (diff < ex) {
+			h[g] = unescape(arry[x][0]);
+			a[g] = [arry[x][0], arry[x][1]];
+			g++;
+		}
+	}
+	data = s3.join(a, {
+			delim : ',',
+			front : '[',
+			back : ']',
+			wrap : '\''
+		});
+	s3.c_w(cn, data, e);
+	r = s3.join(h, {
+			delim : dl
+		});
+	if (ce) {
+		s3.c_w(cn, '');
+	}
+	return r;
+};
+
 // track a page load
 s3.w_trackPage = function (details) {
+//s3.contextData = util.cleanJSON (digital);
 s3.contextData = digital;
 //s3.contextData['dd'] = dd;
 //s3.contextData.dd = JSON.stringify(dd);
@@ -2086,6 +2503,104 @@ s3.contextData = digital;
 	if (digital._drop) {
 		util.cookieWrite('lastPg', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
 	}
+}
+
+// External Campaigns
+//if(!s.campaign){
+//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+s3.campaign = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's3_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
+//}
+if (s3.campaign) {
+	s3.eVar16 = 'D=v0';
+	s3.eVar17 = 'D=v0';
+	s3.eVar18 = s3.crossVisitParticipation(s3.campaign, 's_ev18', '30', '5', '>', 'event22'); // this is cleared every time event22 fires. i.e. Application Complete step
+}
+
+//console.log('ORIG s.list2  = ' + s.list2); // impressions from banner cookie related to previous page, collected after it loaded
+//console.log('pdPreImprs    = ' + pdPreImprs); // any other impressions passed for the current page after trackPage was called, but before it completed (and scanning links)
+var pdPreImprs = pageDetails.preImprs;
+pdPreImprs = pdPreImprs ? pdPreImprs.split(',') : [];
+for (prpty = 0; prpty < pdPreImprs.length; prpty++) {
+	s3.list2 = s3.apl(s3.list2, pdPreImprs[prpty], ',', 2);
+}
+//console.log('NEW s.list2   = ' + s.list2); // combined list of impressions for previous page
+if (s3.list2) {
+	//s3.w_addEvt(11);
+	appendEvent(digital,'intImpressions');
+}
+
+// Internal banner clicks
+pidQuerystring = lowerCaseVal(getQuerystringParam('pid', '', fullLocObj.href));
+//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+s3.eVar22 = getValueOnce(pidQuerystring, 's3_pid', 30, 'm');
+//}
+
+// count every pid click for comparison to getValueOnce count
+if (pidQuerystring) {
+	//appendEvent(10);
+	appendEvent(digital,'pidTotalClicks');
+}
+
+//if(s.eVar22&&!s.eVar65){
+if (s3.eVar22) {
+	//appendEvent(12);
+	appendEvent(digital,'intClickThroughs');
+	s3.eVar20 = s3.crossVisitParticipation(s3.eVar22, 's3_ev20', '30', '5', '>', 'event22');
+}
+//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+s3.eVar65 = getValueOnce(lowerCaseVal(getQuerystringParam('ref', '', fullLocObj.href)), 'refPrm', 30, 'm');
+//}
+// incoming links from AFS-group sites
+//if(s.eVar22&&s.eVar65){
+// ref is now just an additional parameter for tracking links from other sites
+if (s3.eVar65) {
+	//appendEvent(72);
+	appendEvent(digital,'afs-group');
+}
+//else{
+//	s.eVar65='';
+//}
+
+// Featured content - fid/wbcfrom - for secondary promo tracking (Patrick)
+//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+s3.eVar60 = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 'feat', 30, 'm');
+//}
+if (s3.eVar60) {
+	//appendEvent(66);
+	appendEvent(digital,'featuredContent');
+	s3.prop60 = dVar(60);
+}
+
+// Combined Internal External Stack
+if (s3.eVar22) {
+	s3.eVar19 = s3.crossVisitParticipation(s3.eVar22, 's3_ev19', '30', '10', '>', 'event22');
+}
+if (s3.campaign) {
+	s3.eVar19 = s3.crossVisitParticipation(s3.campaign, 's3_ev19', '30', '10', '>', 'event22');
+}
+
+// Paid/Natural Search Keyword
+s3.prop18 = pageNameDynamicVariable; // set to just pageName as default
+s3._channelParameter = 'Campaign|cid';
+s3.channelManager('cid');
+
+//channelManagerKeywords = cleanText(s._keywords || ''); // filter search keywords a bit - strip multiple spaces etc.
+channelManagerKeywords = cleanText(s3._keywords); // filter search keywords a bit - strip multiple spaces etc.
+
+if (s3._channel === 'Natural Search') {
+	channelManagerSearchType = 'NS';
+	// prop18 seo keywords and entry page
+	s3.prop18 = 'D="' + channelManagerKeywords + '|"+pageName';
+}
+//if(s._channel==='Campaign'&&/^sem:/i.test(s._campaign)){ // if cid param, and value starts with 'sem:' (just check for any CID). confirm identifier for PPC tracking codes
+if (s3._channel === 'Campaign' && channelManagerKeywords !== 'n/a') { // only if cid param exists and keywords are found, it's paid search. We may not have keywords if they are not passed by the search engine (usually for NS)
+	channelManagerSearchType = 'PS';
+}
+if (channelManagerSearchType) {
+	s3.eVar11 = channelManagerKeywords === 'n/a' ? 'Keyword Unavailable' : channelManagerKeywords;
+	s3.prop11 = dVar(11);
+
+	s3.eVar12 = s3.crossVisitParticipation(channelManagerSearchType + '|' + channelManagerKeywords, 's3_ev12', '30', '5', '>', 'event22');
 }
 
 /****************************** MODULES *****************************/
@@ -2184,4 +2699,5 @@ k.MouseEvent)&&(a.ya=1,a.useForcedLinkTracking=1,a.b.addEventListener("click",a.
 function s3_gi(a){var k,q=window.s_c_il,r,n,t=a.split(","),u,s,x=0;if(q)for(r=0;!x&&r<q.length;){k=q[r];if("s_c"==k._c&&(k.account||k.oun))if(k.account&&k.account==a)x=1;else for(n=k.account?k.account:k.oun,n=k.allAccounts?k.allAccounts:n.split(","),u=0;u<t.length;u++)for(s=0;s<n.length;s++)t[u]==n[s]&&(x=1);r++}x||(k=new AppMeasurement);k.setAccount?k.setAccount(a):k.sa&&k.sa(a);return k}AppMeasurement.getInstance=s3_gi;window.s_objectID||(window.s_objectID=0);
 function s_pgicq(){var a=window,k=a.s_giq,q,r,n;if(k)for(q=0;q<k.length;q++)r=k[q],n=s3_gi(r.oun),n.setAccount(r.un),n.setTagContainer(r.tagContainerName);a.s_giq=0}s_pgicq();
 
+s3.w_trackPage(digital);
 //s3.t();
