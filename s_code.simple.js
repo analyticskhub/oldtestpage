@@ -1555,7 +1555,7 @@ util.siteID = digital['dd.site'];
 		// External Campaigns
 		//if(!s.campaign){
 		//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-		digital['dd.campaign'] = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
+		//digital['dd.campaign'] = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
 		//s2.campaign = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
 		//}
 
@@ -2123,7 +2123,7 @@ if(!s3.__ccucr)
     {
         var s = this, d = new Date, v = s3.c_rr(k), c = s3.c_rspers(), i, m, e;
         if(v) return v; k = s3.escape ? s3.escape(k) : encodeURIComponent(k);
-        i = c.indexOf(' ' + k + '='); c = i < 0 ? s3.c_rr('s_sess') : c;
+        i = c.indexOf(' ' + k + '='); c = i < 0 ? s3.c_rr('s3_sess') : c;
         i = c.indexOf(' ' + k + '='); m = i < 0 ? i : c.indexOf('|', i);
         e = i < 0 ? i : c.indexOf(';', i); m = m > 0 ? m : e;
         v = i < 0 ? '' : s3.unescape ? s3.unescape(c.substring(i + 2 + k.length, m < 0 ? c.length : m)) : decodeURIComponent(c.substring(i + 2 + k.length, m < 0 ? c.length : m));
@@ -2131,7 +2131,7 @@ if(!s3.__ccucr)
     }
     function c_rspers()
     {
-        var s = this, cv = s3.c_rr("s_pers"), date = new Date().getTime(), expd = null, cvarr = [], vcv = "";
+        var s = this, cv = s3.c_rr("s3_pers"), date = new Date().getTime(), expd = null, cvarr = [], vcv = "";
         if(!cv) return vcv; cvarr = cv.split(";"); for(var i = 0, l = cvarr.length; i < l; i++)  { expd = cvarr[i].match(/\|([0-9]+)$/);
         if(expd && parseInt(expd[1]) >= date) { vcv += cvarr[i] + ";"; } } return vcv;
     }
@@ -2144,7 +2144,7 @@ if(!s3.__ccucw)
     s3.__ccucw = true;
     function c_w(k, v, e)
     {
-        var s3 = this, d = new Date, ht = 0, pn = 's_pers', sn = 's_sess', pc = 0, sc = 0, pv, sv, c, i, t, f;
+        var s3 = this, d = new Date, ht = 0, pn = 's3_pers', sn = 's3_sess', pc = 0, sc = 0, pv, sv, c, i, t, f;
         d.setTime(d.getTime() - 60000); if(s3.c_rr(k)) s3.c_wr(k, '', d); k = s3.escape ? s3.escape(k) : encodeURIComponent(k);
         pv = s3.c_rspers(); i = pv.indexOf(' ' + k + '='); if(i > -1) { pv = pv.substring(0, i) + pv.substring(pv.indexOf(';', i) + 1); pc = 1; }
         sv = s3.c_rr(sn); i = sv.indexOf(' ' + k + '='); if(i > -1) { sv = sv.substring(0, i) + sv.substring(sv.indexOf(';', i) + 1);
