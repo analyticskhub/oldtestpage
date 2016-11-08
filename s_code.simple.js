@@ -2009,8 +2009,7 @@ s3.linkTrackEvents="None"
 s3.usePlugins=true
 function s_doPlugins(s3) {
 
-var crossVisitPrtcptn = s3.crossVisitParticipation,
-pdPreImprs = pageDetails.preImprs,
+var pdPreImprs = pageDetails.preImprs,
 channelManagerKeywords,
 channelManagerSearchType = false,
 dVar = s3.w_dVar,
@@ -2020,13 +2019,12 @@ s3.pageName = digital['dd.pageName'];
 s3.eVar21 = pageNameDynamicVariable; // pageName eVar
 // hierarchy
 s3.hier1 = pageNameDynamicVariable;
-
 s3.eVar25 = s3.marketingCloudVisitorID;
 
 // use implementation plug-ins that are defined below
 // in this section. For example, if you copied the append
 // list plug-in code below, you could call:
-// s.events=s.apl(s.events,"event1",",",1);
+s3.events=s3.apl(s3.events,"event1",",",1);
 
 	if (typeof util.w_wtT.complete === 'function') {
 		util.w_wtT.complete(s3);
@@ -2118,7 +2116,30 @@ s3.repl = function (x, o, n) {
 	}
 	return x;
 };
-
+/*
+ * Plugin Utility: apl v1.1 - append item to list
+ */
+s3.apl = function (l, v, d, u) {
+	var s3 = this,
+	m = 0,
+	i,
+	n,
+	a;
+	if (!l) {
+		l = '';
+	}
+	if (u) {
+		a = s3.split(l, d);
+		for (i = 0; i < a.length; i++) {
+			n = a[i];
+			m = m || (u == 1 ? n == v : n.toLowerCase() == v.toLowerCase());
+		}
+	}
+	if (!m) {
+		l = l ? l + d + v : v;
+	}
+	return l;
+};
 // only set prop to dynamic copy if eVar has a value to reduce pixel length
 s3.w_dVar = function (id) {
 	return s3['eVar' + id] ? 'D=v' + id : '';
@@ -2415,6 +2436,7 @@ s3.seList="google.,googlesyndication.com,.googleadservices.com|q,as_q|"
 /*
  * Plug-in: crossVisitParticipation v1.7
  */
+//s3.crossVisitParticipation(s3.campaign, 's3_ev18', '30', '5', '>', 'event22');
 s3.crossVisitParticipation = function (v, cn, ex, ct, dl, ev, dv) {
 	var s3 = this,
 	ce,
@@ -2504,6 +2526,65 @@ s3.crossVisitParticipation = function (v, cn, ex, ct, dl, ev, dv) {
 	return r;
 };
 
+/*
+ * Plugin: Days since last Visit 1.1.H - capture time from last visit
+ */
+s3.getDaysSinceLastVisit = function (c) {
+	var s3 = this,
+	e = new Date(),
+	es = new Date(),
+	cval,
+	cval_s,
+	cval_ss,
+	ct = e.getTime(),
+	day = 24 * 60 * 60 * 1000,
+	f1,
+	f2,
+	f3,
+	f4,
+	f5;
+	e.setTime(ct + 3 * 365 * day);
+	es.setTime(ct + 30 * 60 * 1000);
+	f0 = 'Cookies Not Supported';
+	f1 = 'First Visit';
+	f2 = 'More than 30 days';
+	f3 = 'More than 7 days';
+	f4 = 'Less than 7 days';
+	f5 = 'Less than 1 day';
+	cval = s3.c_r(c);
+	if (cval.length == 0) {
+		s3.c_w(c, ct, e);
+		s3.c_w(c + '_s', f1, es);
+	} else {
+		var d = ct - cval;
+		if (d > 30 * 60 * 1000) {
+			if (d > 30 * day) {
+				s3.c_w(c, ct, e);
+				s3.c_w(c + '_s', f2, es);
+			} else if (d < 30 * day + 1 && d > 7 * day) {
+				s3.c_w(c, ct, e);
+				s3.c_w(c + '_s', f3, es);
+			} else if (d < 7 * day + 1 && d > day) {
+				s3.c_w(c, ct, e);
+				s3.c_w(c + '_s', f4, es);
+			} else if (d < day + 1) {
+				s3.c_w(c, ct, e);
+				s3.c_w(c + '_s', f5, es);
+			}
+		} else {
+			s3.c_w(c, ct, e);
+			cval_ss = s3.c_r(c + '_s');
+			s3.c_w(c + '_s', cval_ss, es);
+		}
+	}
+	cval_s = s3.c_r(c + '_s');
+	if (cval_s.length == 0)
+		return f0;
+	else if (cval_s != f1 && cval_s != f2 && cval_s != f3 && cval_s != f4 && cval_s != f5)
+		return '';
+	else
+		return cval_s;
+}
 // track a page load
 s3.w_trackPage = function (details) {
 //s3.contextData = util.cleanJSON (digital);
@@ -2615,6 +2696,62 @@ if (channelManagerSearchType) {
 	s3.eVar12 = s3.crossVisitParticipation(channelManagerSearchType + '|' + channelManagerKeywords, 's3_ev12', '30', '5', '>', 'event22');
 }
 
+s3.eVar29 = s3.getDaysSinceLastVisit('s3_lv');
+
+s3.ActivityMap.link = function(ele, linkName) {
+	if (ele) {
+		var objectId = ele.getAttribute('data-s-object-id');
+		if (objectId) {
+			return objectId;
+		}
+	
+		if (ele.tagName == 'A' && ele.href) {
+			return ele.href;
+		}
+	}
+	if (linkName) {
+		return linkName;
+	}
+}
+
+s3.ActivityMap.region = function(ele) {
+	var nav='';
+	var ele_orig = ele;
+	// for westpac.com.au
+	while ((ele && (ele = ele.parentNode))) {
+		if (ele.nodeType === 1) {
+			nav = ele.getAttribute('data-analytics-nav');
+			if (nav) {
+				return nav;
+			}
+		}
+	}
+
+	// for stg
+	ele = ele_orig;
+	var classNameArray;
+	var className,
+		classNames = {
+			'top-header': 1,
+			'topnav': 1,
+			'header': 1,
+			'breadcrumb': 1,
+			'leftside-navigation':1,
+			'asideright':1,
+			'content':1,
+			'footer': 1,
+		};
+	while ((ele && (ele = ele.parentNode))) {
+		classNameArray = ele.className.split(" ");
+
+		for (var i = 0; i < classNameArray.length; ++i) {
+			if ((className = classNameArray[i]) && classNames[className]) {
+				return className;
+			}
+		}
+	}
+	return "BODY";
+} 
 /****************************** MODULES *****************************/
 
 // copy and paste implementation modules (Media, Integrate) here
