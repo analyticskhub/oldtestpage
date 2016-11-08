@@ -2513,7 +2513,7 @@ s3.campaign = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocOb
 if (s3.campaign) {
 	s3.eVar16 = 'D=v0';
 	s3.eVar17 = 'D=v0';
-	s3.eVar18 = s3.crossVisitParticipation(s3.campaign, 's_ev18', '30', '5', '>', 'event22'); // this is cleared every time event22 fires. i.e. Application Complete step
+	s3.eVar18 = s3.crossVisitParticipation(s3.campaign, 's3_ev18', '30', '5', '>', 'event22'); // this is cleared every time event22 fires. i.e. Application Complete step
 }
 
 //console.log('ORIG s.list2  = ' + s.list2); // impressions from banner cookie related to previous page, collected after it loaded
