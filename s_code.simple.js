@@ -6,8 +6,37 @@ util.pathExcludeList=''; // elements to exclude from the path - index.html? defa
 util.pathExcludeDelim = ';'; // portion of the path to exclude - was ;
 util.siteID= '';  //s.siteID set in doPlugins to allow changing to 'app' based on visitorID cookie from apps
 util.version = 'U0.01';
-util.codeVers = 'V 1.9.0'+':'+ 'AppM 1.7.0'+':'+"AMap:"+ util.version
-util.location = window.location
+util.codeVers = 'V 1.9.0'+':'+ 'AppM 1.7.0'+':'+"AMap:"+ util.version;
+util.location = window.location;
+// moved from original responsive CSS function in analytics.js
+util.isVisible = function (selector, element) {
+	var elem = selector ? document.querySelector && document.querySelector(selector) : element,
+	ieDisplayNoneBug;
+	// fix for IE bug with inline and block elements stating offsets incorrectly
+	ieDisplayNoneBug = elem && elem.currentStyle && elem.currentStyle.display === 'none' ? true : false;
+	return elem && (elem.offsetWidth > 0 && elem.offsetHeight > 0) && !ieDisplayNoneBug; // other conditions can be added if required
+};
+util.getExp = function () {
+	var isVis = util.isVisible,
+	cssExperienceMob = isVis('.pagedetails-experience-mob') || isVis('.analytics-experience-mob'), // responsive site mobile class visible check. name changed to analytics-... to be more relevant
+	cssExperienceTab = isVis('.pagedetails-experience-tab') || isVis('.analytics-experience-tab'), // responsive site tablet class visible check. name changed to analytics-... to be more relevant
+	cssExperienceDesktop = isVis('.analytics-experience-desktop'), // responsive site tablet class visible check. name changed to analytics-... to be more relevant
+	cssNotDetected = cssExperienceMob === null && cssExperienceTab === null && cssExperienceDesktop === null,
+	experienceResult;
+
+	// logic to determine experience based on elements with classes being found/hidden/visible
+	experienceResult = (cssExperienceMob || (cssExperienceMob !== false && cssExperienceDesktop === false && !cssExperienceTab)) ? 'mob' : ((cssExperienceTab || (cssExperienceTab !== false && cssExperienceDesktop === false && !cssExperienceMob)) ? 'tab' : 'desktop'); // TESTING with !desktop options etc.
+
+	// save the experience determined by the logic
+	util.expOrig = util.expOrig || experienceResult;
+
+	// if no elements with classes detected, use the first saved experience
+	if (cssNotDetected) {
+		experienceResult = util.expOrig;
+	}
+
+	return experienceResult;
+};
 util.addHandler = function (element, event, handler) {
 	if (element.addEventListener) {
 		element.addEventListener(event, handler, false);
@@ -643,7 +672,7 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 		pdInSession = true;
 
 		// Change pageSite to 'banking' to consolidate OTP page names when in emulation in prod (necessary due to different domains)
-		if (s2.w_prod) {
+		if (s3.w_prod) {
 			pageSite = 'banking';
 		}
 	}
@@ -875,15 +904,16 @@ util.siteID = digital['dd.site'];
 				break;
 			}
 			break;
+		/*ABU moving this section to doPlugins section 
 		case 'sitesearch':
 			//if(s.w_pgLoad){ // getValOnce would be cleared on every page click/doPlugins in this pageType case required???? test.
 
-			/*
+			/ *
 			if(s.w_pgLoad){
 			alert(1);
 			s.w_trackLinkIntSearch(); // move to linkTracking section to run after every trackPage
 			}
-			 */
+			 * /
 
 			//s.eVar14 = getValueOnce(lowerCaseVal(getQuerystringParam('query','',fullLocObj.href)).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
 			//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
@@ -912,7 +942,7 @@ util.siteID = digital['dd.site'];
 			//	s.eVar14 = notSet;
 			//}
 			//}
-			break;
+			break;***/
 		case 'faqsearch':
 			// pageDetails passed from function call on faq search result div load
 			digital['dd.faqSearchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 'faq', 30, 'm');
@@ -1416,7 +1446,7 @@ util.siteID = digital['dd.site'];
 		//s.eVar7 = s.linkName ? 'link' : pageExperience; // switch to 'link' for link tracking
 		// switch to '(link)' for link tracking where experience may not be set/available in pageDetails?
 		//s.eVar7 = s.linkName ? (pageExperience || '(link)') : pageExperience;
-		digital['dd.experience'] = digital['dd.channel'] = pageExperience;
+		digital['dd.experience'] = digital['dd.channel'] = pageExperience||util.getExp();
 		
 		//s2.eVar7 = pageExperience;
 		//s2.channel = dVar(7);
@@ -1503,7 +1533,9 @@ util.siteID = digital['dd.site'];
 		//s2.prop7 = pdPageType || pageTypeAlt;
 
 		// track page number for search results etc.
-		digital['dd.visitNumber'] = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
+		if(pdPageNumber){
+			digital['dd.visitNumber'] = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
+		}
 		//s2.prop8 = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
 
 		// Visit number
@@ -2000,7 +2032,7 @@ s3.trackDownloadLinks=true
 s3.trackExternalLinks=true
 s3.trackInlineStats=true
 s3.linkDownloadFileTypes="exe,zip,wav,mp3,mov,mpg,avi,wmv,pdf,doc,docx,xls,xlsx,ppt,pptx"
-s3.linkInternalFilters="javascript:,movingtoaustralia.westpac.asia,westpac.com.au,movingtoaustralia.westpac.co.nz,movingtoaustralia.westpac.co.uk"
+s3.linkInternalFilters="javascript:,tel:,movingtoaustralia.westpac.asia,westpac.com.au,movingtoaustralia.westpac.co.nz,movingtoaustralia.westpac.co.uk,bankofmelbourne.com.au,banksa.com.au,bt.com.au,stgeorge.com.au"
 s3.linkLeaveQueryString=false
 s3.linkTrackVars="None"
 s3.linkTrackEvents="None"
@@ -2012,7 +2044,7 @@ function s_doPlugins(s3) {
 var pdPreImprs = pageDetails.preImprs,
 channelManagerKeywords,
 channelManagerSearchType = false,
-dVar = s3.w_dVar,
+//dVar = s3.w_dVar,
 pidQuerystring;
 
 s3.pageName = digital['dd.pageName'];
@@ -2141,7 +2173,7 @@ s3.apl = function (l, v, d, u) {
 	return l;
 };
 // only set prop to dynamic copy if eVar has a value to reduce pixel length
-s3.w_dVar = function (id) {
+s3.dVar = function (id) {
 	return s3['eVar' + id] ? 'D=v' + id : '';
 };
 /*
@@ -2585,6 +2617,235 @@ s3.getDaysSinceLastVisit = function (c) {
 	else
 		return cval_s;
 }
+// Helper function for standard numeric s.apl event call to reduce frequently used code
+s3.w_addEvt = function (evt) {
+	// allow text or numeric events to be passed
+	s3.events = s3.apl(s3.events, isNaN(evt) ? evt || '' : 'event' + evt, ',', 2);
+};
+// handler functions for event listening for custom link tracking
+s3.w_getEvtTrgt = function (evt, attrRequired) {
+	var evtTarget = evt || window.event,
+	lp,
+	max = 10; // search 10 ancestors up from clicked element to find suitable target
+
+	evtTarget = evtTarget ? evtTarget.target || evtTarget.srcElement : 0;
+
+	//if (evtTarget && (evtTarget.target || evtTarget.srcElement)) {
+	//	evtTarget = evtTarget.target || evtTarget.srcElement; // should really just be able to use 'this' inside handler to refer to calling element, but doesn't work in older IE
+
+	// Safari may target a non-element node, so move to parent
+	for (lp = 0; evtTarget && evtTarget.nodeType !== 1 && lp <= max; lp++) {
+		evtTarget = evtTarget.parentNode;
+	}
+
+	//console.log('attrRequired = ' + attrRequired + ' ================ ')
+	//console.log('attrRequired = ' + attrRequired + ', nodeName = ' + evtTarget.nodeName + ', type = ' + (evtTarget.getAttribute && evtTarget.getAttribute(attrRequired)));
+
+	if (attrRequired) {
+		// find the element the handler should be referring to, in case the event target is a child node
+		for (lp = 0; evtTarget && evtTarget.getAttribute && !evtTarget.getAttribute(attrRequired) && lp <= max; lp++) {
+			// work up to find first parent with attrRequired - should be the el with handler attached
+			evtTarget = evtTarget.parentNode;
+
+			//console.log('attrRequired = ' + attrRequired + ', nodeName = ' + evtTarget.nodeName + ', type = ' + (evtTarget.getAttribute && evtTarget.getAttribute(attrRequired)));
+		}
+
+		// set to zero if node with required attribute not found in parents
+		//if (evtTarget && evtTarget.getAttribute && !evtTarget.getAttribute(attrRequired)) {
+		if ((evtTarget && !evtTarget.getAttribute) || (evtTarget && evtTarget.getAttribute && !evtTarget.getAttribute(attrRequired))) {
+			evtTarget = 0;
+		}
+	}
+	//} else {
+	//	evtTarget = 0;
+	//}
+	//evtTarget=0; // this line only for testing if node not found. should be commented
+	return evtTarget || 0;
+};
+// Navigation menu ID config. define data-attribute to identify link groups
+s3.w_getNavMenuId = function (evt) {
+	var lp,
+	len,
+	node = s3.w_getEvtTrgt(evt),
+	nav = '';
+
+	// cycle through up to 'len' parent nodes to find a data-analytics-nav attribute
+	for (lp = 0, len = 50; lp < len; lp++) {
+		if (node) {
+			if (node.nodeType === 1) {
+				nav = node.getAttribute('data-analytics-nav');
+				if (nav) {
+					// set val in cookie
+					//console.log('nav = ' + nav);
+					s3.c_w('nav', nav);
+					break;
+				}
+			}
+			node = node.parentNode;
+		}
+	}
+};
+s3.w_trackLink = function (evt,type) {
+	
+	var eTarg = s3.w_getEvtTrgt(evt, 'href');
+	s3 = s3_gi(s3_account);
+	//s.events = 'event71';
+	if(/^social/i.test(type)){
+		s3.linkTrackEvents = s3.events = 'event71';
+		s3.linkTrackVars = s3.w_ltv + ',eVar56,prop56,events'; // includes eVar21 and c39
+		s3.eVar56 = util.lCase(eTarg.href, 1);
+		s3.prop56 = 'D=v56';
+		s3.tl(eTarg || true, 'e', 'social:' + util.lCase(eTarg.href, 1)); // 'eTarg' assumes this function only called from link clicks
+		console.log('tl() link:'+type)
+	}
+	if(/^exit/i.test(type)){
+		s3.linkTrackEvents = s3.events = '';
+		s3.linkTrackVars = s3.w_ltv;
+		s3.tl(eTarg || true, 'e', util.lCase(eTarg.href, 1)); // 'eTarg' assumes this function only called from link clicks
+		console.log('tl() link:'+type)
+	}
+	if(/^download/i.test(type)){
+		s3.events = 'event67';
+		var pd = (((/pds\.pdf(?:\?|$)/i).test(eTarg.href) || ((/\b(terms\ and\ conditions|product\ disclosure\ statement)\b/i).test(eTarg.innerHTML) && (/\.pdf(?:\?|$)/i).test(eTarg.href))) ? 'pds:' : ''); // ...pds.pdf in href or T and C in link text to identify product disclosure downloads
+		if (pd) {
+			s3.events+=',event31';
+		}
+		s3.linkTrackEvents = s3.events;
+		s3.linkTrackVars = s3.w_ltv + ',eVar61,prop61,events';
+		s3.eVar61 = pd + (util.lCase(eTarg.href, 1).replace(/(.*\/)?(\.*?)/, '$2')); // record file name only
+		s3.prop61 = 'D=v61';
+		s3.tl(eTarg || true, 'd', pd + util.lCase(eTarg.href, 1)); // 'eTarg' assumes this function only called from link clicks
+		console.log('tl() link:'+type)
+	}
+	if(/^call/i.test(type)){
+		var detail = decodeURI(util.lCase(eTarg.href, 1)).replace(/^tel:|\s+/gi, ''); // Appears in the Page interactions name report (v54). custom call links may not have friendly href
+		s3.linkTrackEvents = s3.events = 'event61,event69';
+		//s.linkTrackVars='prop15,prop69,eVar54,prop54,eVar59,events';
+		s3.linkTrackVars = s3.w_ltv + ',eVar54,prop54,eVar59,events';
+		s3.eVar54 = 'call:' + detail;
+		s3.prop54 = 'D=v54';
+		s3.eVar59 = detail;
+
+		//s.forcedLinkTrackingTimeout = 500;
+		//s.useForcedLinkTracking = false;
+
+		s3.tl(eTarg || true, 'o', 'interaction:call:' + detail); // 'eTarg' assumes this function only called from link clicks
+		//s.tl(eTarg||true,'o','interaction:call:'+detail, null, 'navigate'); // 'eTarg' assumes this function only called from link clicks // this or 'navigate' breaks FF in test page?
+		console.log('tl() link:'+type)
+	}
+	//s3.w_endTrckng();
+};
+s3.w_trackRank = function (evt) {
+	// Track search result rank clicks
+	// this refers to data set by another script on the funnelback search results page
+	var eTarg = s3.w_getEvtTrgt(evt, 'data-analytics-rank'),
+	detail = util.lCase(eTarg && eTarg.getAttribute('data-analytics-rank'), 1);
+
+	s3.c_w('cpr', detail);
+	//alert('Set cookie, rank: '+detail);
+	//s.w_stopEvt(evt);
+};
+s3.w_trackInteraction = function (evt, args) {
+	console.log('w_trackInteraction:')
+	var argsObj = args || {},
+	eTarg = s3.w_getEvtTrgt(evt, argsObj.detail ? 'href' : 'data-analytics-link'),
+	detail = util.clean(decodeURIComponent(util.lCase(argsObj.detail || (eTarg && eTarg.getAttribute('data-analytics-link')), 1))); // tracks details from object passed or event target with data-analytics-link attribute
+
+	if (detail === 'download') {
+		s3.w_trackLink(evt,'download'); // Some downloads in OTP are tagged directly as a 'download' (button tags etc. instead of a href)
+		return;
+	}
+
+	s3 = s3_gi(s3_account);
+	//s.events = 'event69';
+	s3.linkTrackEvents = s3.events = 'event69';
+	//s.linkTrackVars='prop15,prop69,eVar54,prop54,events';
+	s3.linkTrackVars = s3.w_ltv + ',eVar54,prop54,events';
+	s3.eVar54 = detail;
+	s3.prop54 = 'D=v54';
+	s3.tl(eTarg || true, 'o', 'interaction:' + detail); // 'eTarg' assumes this function only called from link clicks
+
+	if (argsObj.stopDefault) {
+		// dont stop default event unless specified
+		s3.w_stopEvt(evt);
+	}
+	//s3.w_endTrckng();
+};
+// link tracking handler
+s3.w_linkTracking = function (evt) {
+	console.log('w_linkTracking:')
+	var target = s3.w_getEvtTrgt(evt, 'href'),
+	linkRegexInternal = new RegExp(s3.linkInternalFilters.replace(/^,|,$/g, '').replace(/,/g, '|'), 'i'),
+	linkRegexDownload = new RegExp('\\.(?:' + s3.linkDownloadFileTypes.replace(/,/g, '|') + ')(?:\\?|$)', 'i'),
+	linkRegexSocial = (/(?:\/\/|\.)(?:youtube|facebook|twitter|linkedin|plus\.google)\.com/i), // need to confirm list. required to fire event71 if social exit link
+	dataAnalyticsLink;
+
+	//console.log('linkRegexDownload = ' + linkRegexDownload);
+
+	// set custom object IDs for clickmap
+	// only apply link handlers etc. if trackInlineStats is true
+	//if(s.trackInlineStats){
+	//	s.setOIDs(); // this probably should only be set once after window load, else link IDs generated every click on page...
+	//}
+
+	if (target.nodeName === 'A') {
+		// set nav area in cookie
+		s3.w_getNavMenuId(evt);
+
+		// social link handling (social link event)
+		if ((!linkRegexInternal.test(target.href)) && (linkRegexSocial.test(target.href))) {
+			s3.w_trackLink(evt,'social');
+		}
+		// exit link handling
+		if (target.href && (!linkRegexInternal.test(target.href)) && (!linkRegexSocial.test(target.href))) {
+			s3.w_trackLink(evt,'exit');
+		}
+		// download link handling. data-analytics-link attribute used in OTP to define some download links/buttons
+		if (linkRegexDownload.test(target.href)) {
+			s3.w_trackLink(evt,'download');
+		}// site search results link tracking
+		if (target.getAttribute('data-analytics-rank')) { // && /.+/.test(target.getAttribute('data-analytics-rank'))) { // previously in selenium two commands were required to capture the rank and click-past. The listener now captures the details in the first click
+			s3.w_trackRank(evt);
+		}
+		// Print link on branch detail page has class=print
+		//if (target.getAttribute('data-analytics-link')) { // && /.+/.test(target.getAttribute('data-analytics-rank'))) {
+		dataAnalyticsLink = target.getAttribute('data-analytics-link');
+		//console.log('dataAnalyticsLink = ' + dataAnalyticsLink);
+		if (dataAnalyticsLink) { // && /.+/.test(target.getAttribute('data-analytics-rank'))) {
+			if (!linkRegexDownload.test(target.href)) { // only if hasn't already been matched by linkRegexDownload regex above (OTP downloads may use data-attrs instead)
+				s3.w_trackInteraction(evt);
+
+				if (/^trackonce:/i.test(dataAnalyticsLink)) { // if the link name (data-analytics-link attribute value) starts with 'trackonce:', only track once, then remove the value to prevent subsequent click tracking
+					target.setAttribute('data-analytics-link', '');
+				}
+			}
+		}
+		// tel: links
+		if (/^tel:/i.test(target.href)) {
+			s3.w_trackLink(evt,'call');
+		}
+		// mailto: links?
+		if (/^mailto:/i.test(target.href)) {
+			target.setAttribute('data-analytics-link', 'email:' + decodeURI(target.href.replace(/^mailto:/i, ''))); // added .replace(/^mailto:/i,'')
+			s3.w_trackInteraction(evt);
+		}
+
+		// automatic banner dismiss auto-tracking. function for manual dismiss tracking available
+		// this probably requires more than just className selection? may need to be by data-attribute?
+		/*
+		target = s.w_altGetElemsByClassName(doc.body,'A','pid-dismiss');
+		//s.w_addHandler(target[lp],'click',function(evt){s.w_trackBannerDismiss(evt,'text',true)});
+		s.w_addHandler(target[lp],'click',s.w_trackBannerDismiss);
+		 */
+
+	}
+
+	// update time with every click
+	if (!window.performance) {
+		s3.c_w('navt',  + new Date(), new Date(+new Date() + 30000)); // cookie updated every click and only lasts for 30 seconds
+	}
+};
+
 // track a page load
 s3.w_trackPage = function (details) {
 //s3.contextData = util.cleanJSON (digital);
@@ -2596,6 +2857,10 @@ s3.contextData = digital;
 	if (digital._drop) {
 		util.cookieWrite('lastPg', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
 	}
+
+// attach link handler to document
+util.addHandler(document, 'click', s3.w_linkTracking); // testing handler on document instead of applying directly to every link. Simulate jQuery .on()
+	
 }
 
 // External Campaigns
@@ -2661,7 +2926,7 @@ s3.eVar60 = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.
 if (s3.eVar60) {
 	//appendEvent(66);
 	appendEvent(digital,'featuredContent');
-	s3.prop60 = dVar(60);
+	s3.prop60 = s3.dVar(60);
 }
 
 // Combined Internal External Stack
@@ -2691,12 +2956,35 @@ if (s3._channel === 'Campaign' && channelManagerKeywords !== 'n/a') { // only if
 }
 if (channelManagerSearchType) {
 	s3.eVar11 = channelManagerKeywords === 'n/a' ? 'Keyword Unavailable' : channelManagerKeywords;
-	s3.prop11 = dVar(11);
+	s3.prop11 = s3.dVar(11);
 
 	s3.eVar12 = s3.crossVisitParticipation(channelManagerSearchType + '|' + channelManagerKeywords, 's3_ev12', '30', '5', '>', 'event22');
 }
 
 s3.eVar29 = s3.getDaysSinceLastVisit('s3_lv');
+
+if (/^sitesearch$/.test(pdPageType)) {
+	//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
+	s3.eVar14 = getValueOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
+	if (s3.eVar14) {
+		s3.prop14 = s3.dVar(14);
+		// split search term into keywords
+		s3.list1 = cleanText(s3.eVar14.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
+		//s.eVar15 = pageBrand + ':' + (pageSite==='banking'?'secure':'public'); // OTP doesnt have site search
+		s3.w_addEvt(14);
+		//s.eVar30 = 'sitesearch:' + pdSearchResults; // use pdPageType here in place of text sitesearch string
+		s3.eVar30 = pdPageType + ':' + pdSearchResults;
+		//if(s.eVar30==='sitesearch:0'){
+		//console.log(pdSearchResults);
+		//if (s.eVar30 === pdPageType + ':0') {
+		if (pdSearchResults === '0') {
+			s3.w_addEvt(16);
+		}
+	} //else{
+	//	s.eVar14 = notSet;
+	//}
+	//}
+}
 
 s3.ActivityMap.link = function(ele, linkName) {
 	if (ele) {
