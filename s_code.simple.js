@@ -2033,6 +2033,7 @@ s3.trackExternalLinks=true
 s3.trackInlineStats=true
 s3.linkDownloadFileTypes="exe,zip,wav,mp3,mov,mpg,avi,wmv,pdf,doc,docx,xls,xlsx,ppt,pptx"
 s3.linkInternalFilters="javascript:,tel:,movingtoaustralia.westpac.asia,westpac.com.au,movingtoaustralia.westpac.co.nz,movingtoaustralia.westpac.co.uk,bankofmelbourne.com.au,banksa.com.au,bt.com.au,stgeorge.com.au"
+s3.linkInternalFilters = new RegExp(s3.linkInternalFilters.replace(/^,|,$/g, '').replace(/,/g, '|'), 'i').test(location.host)? s3.linkInternalFilters :s3.linkInternalFilters+','+location.host //if current domain is not listed as internal domain
 s3.linkLeaveQueryString=false
 s3.linkTrackVars="None"
 s3.linkTrackEvents="None"
