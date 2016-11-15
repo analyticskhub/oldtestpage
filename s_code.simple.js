@@ -2032,7 +2032,16 @@ s3.trackDownloadLinks=true
 s3.trackExternalLinks=true
 s3.trackInlineStats=true
 s3.linkDownloadFileTypes="exe,zip,wav,mp3,mov,mpg,avi,wmv,pdf,doc,docx,xls,xlsx,ppt,pptx"
-s3.linkInternalFilters="javascript:,tel:,mailto:,movingtoaustralia.westpac.asia,westpac.com.au,movingtoaustralia.westpac.co.nz,movingtoaustralia.westpac.co.uk,bankofmelbourne.com.au,banksa.com.au,bt.com.au,stgeorge.com.au," + util.getLoc().hostname+','+location.hostname
+//common Settings
+s3.linkInternalFilters="javascript:,tel:,mailto:," + util.getLoc().hostname+','+location.hostname
+//WBC Settings
+//s3.linkInternalFilters="javascript:,tel:,mailto:,movingtoaustralia.westpac.asia,westpac.com.au,movingtoaustralia.westpac.co.nz,movingtoaustralia.westpac.co.uk," + util.getLoc().hostname+','+location.hostname
+//STG Settings
+//s3.linkInternalFilters="javascript:,tel:,mailto:,stgeorge.com.au," + util.getLoc().hostname+','+location.hostname
+//BOM Settings
+//s3.linkInternalFilters="javascript:,tel:,mailto:,bankofmelbourne.com.au," + util.getLoc().hostname+','+location.hostname
+//BSA Settings
+//s3.linkInternalFilters="javascript:,tel:,mailto:,banksa.com.au," + util.getLoc().hostname+','+location.hostname
 s3.linkLeaveQueryString=false
 s3.linkTrackVars="None"
 s3.linkTrackEvents="None"
@@ -2733,7 +2742,24 @@ s3.w_trackLink = function (evt,type) {
 		//s.tl(eTarg||true,'o','interaction:call:'+detail, null, 'navigate'); // 'eTarg' assumes this function only called from link clicks // this or 'navigate' breaks FF in test page?
 		console.log('tl() link:'+type)
 	}
-	//s3.w_endTrckng();
+	s3.w_endTrckng();
+};
+s3.w_trackLiveChat = function (evt, args) {
+	// this function is called directly by LivePerson code when the Interactive Chat event is fired in LivePerson
+	var eTarg = s3.w_getEvtTrgt(evt),
+	argsObj = args || {},
+	detail = s3.w_lCase(argsObj.detail, 1); // details passed from LivePerson rule
+	s3 = s3_gi(s3_account);
+	//s.events = 'event63,event69';
+	s3.linkTrackEvents = s3.events = 'event63,event69';
+	//s.linkTrackVars='prop15,prop69,eVar54,prop54,eVar57,prop57,events';
+	s3.linkTrackVars = s3.w_ltv + ',eVar54,prop54,eVar57,prop57,events';
+	s3.eVar54 = 'live chat:' + detail;
+	s3.prop54 = 'D=v54';
+	s3.eVar57 = s3.w_lCase(argsObj.session, 1);
+	s3.prop57 = 'D=v57';
+	s3.tl(eTarg || true, 'o', 'interaction:live chat:' + detail); // (eTarg||true) allows this function to be called from script or link clicks
+	s3.w_endTrckng();
 };
 s3.w_trackRank = function (evt) {
 	// Track search result rank clicks
@@ -2769,7 +2795,7 @@ s3.w_trackInteraction = function (evt, args) {
 		// dont stop default event unless specified
 		s3.w_stopEvt(evt);
 	}
-	//s3.w_endTrckng();
+	s3.w_endTrckng();
 };
 // link tracking handler
 s3.w_linkTracking = function (evt) {
@@ -2860,6 +2886,30 @@ s3.contextData = digital;
 	}
 }
 
+// Do things after pixel sent
+s3.w_endTrckng = function () {
+	// record length of last pixel
+	//var sVisitorNamespace = s.visitorNamespace,
+	//s = s.rc ? s.rc[sVisitorNamespace] : 0,
+	var lastPixel = window['s_i_' + s3.account],
+	//lastPixelSrc = lastPixel && lastPixel.getAttribute('src'),
+	lastPixelSrc = lastPixel && lastPixel.src,
+	lastPixelLength = 0;
+
+	//var lastPixelSrc = window["s2"].kb
+	if (lastPixelSrc) { // changed to lastPixel.getAttribute('src') to avoid invalid pointer error in IE11 when reading .src
+		lastPixelLength = lastPixelSrc.length;
+
+		// add pixels to an array to simplify testing
+		s3.w_pixels = s3.w_pixels || [];
+		s3.w_pixels.push(lastPixelSrc);
+
+		// store length of the pixel just fired in a cookie, to extract on next page load
+		s3.c_w('lastReqLen', lastPixelLength);
+	}
+
+	//return lastPixelLength;
+};
 // External Campaigns
 //if(!s.campaign){
 //if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
