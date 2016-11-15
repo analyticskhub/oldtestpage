@@ -2748,7 +2748,7 @@ s3.w_trackLiveChat = function (evt, args) {
 	// this function is called directly by LivePerson code when the Interactive Chat event is fired in LivePerson
 	var eTarg = s3.w_getEvtTrgt(evt),
 	argsObj = args || {},
-	detail = s3.w_lCase(argsObj.detail, 1); // details passed from LivePerson rule
+	detail = util.lCase(argsObj.detail, 1); // details passed from LivePerson rule
 	s3 = s3_gi(s3_account);
 	//s.events = 'event63,event69';
 	s3.linkTrackEvents = s3.events = 'event63,event69';
@@ -2756,7 +2756,7 @@ s3.w_trackLiveChat = function (evt, args) {
 	s3.linkTrackVars = s3.w_ltv + ',eVar54,prop54,eVar57,prop57,events';
 	s3.eVar54 = 'live chat:' + detail;
 	s3.prop54 = 'D=v54';
-	s3.eVar57 = s3.w_lCase(argsObj.session, 1);
+	s3.eVar57 = util.lCase(argsObj.session, 1);
 	s3.prop57 = 'D=v57';
 	s3.tl(eTarg || true, 'o', 'interaction:live chat:' + detail); // (eTarg||true) allows this function to be called from script or link clicks
 	s3.w_endTrckng();
@@ -2884,6 +2884,7 @@ s3.contextData = digital;
 	if (digital._drop) {
 		util.cookieWrite('lastPg', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
 	}
+	s3.w_endTrckng();
 }
 
 // Do things after pixel sent
