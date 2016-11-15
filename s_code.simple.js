@@ -2827,7 +2827,7 @@ s3.w_linkTracking = function (evt) {
 		}
 		// mailto: links?
 		if (/^mailto:/i.test(target.href)) {
-			target.setAttribute('data-analytics-link', 'email:' + decodeURI(target.href.replace(/^mailto:/i, ''))); // added .replace(/^mailto:/i,'')
+			//ABU tpo FIX:  target.setAttribute('data-analytics-link', 'email:' + decodeURI(target.href.replace(/^mailto:/i, ''))); // added .replace(/^mailto:/i,'')
 			s3.w_trackInteraction(evt);
 		}
 
@@ -2855,13 +2855,10 @@ s3.contextData = digital;
 //s3.contextData.dd = JSON.stringify(dd);
 	//s3.contextData.dd = JSON.stringify(dd).replace(/\./g, '.'); // replace dots here to fix bug in Omniture debugger context data display
 	s3.t();
+	console.log('f():w_trackPage s3.t()');
 	if (digital._drop) {
 		util.cookieWrite('lastPg', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
 	}
-
-// attach link handler to document
-util.addHandler(document, 'click', s3.w_linkTracking); // testing handler on document instead of applying directly to every link. Simulate jQuery .on()
-	
 }
 
 // External Campaigns
@@ -3041,6 +3038,11 @@ s3.ActivityMap.region = function(ele) {
 	}
 	return "BODY";
 } 
+
+// attach link handler to document
+util.addHandler(document, 'click', s3.w_linkTracking); // testing handler on document instead of applying directly to every link. Simulate jQuery .on()
+
+
 /****************************** MODULES *****************************/
 
 // copy and paste implementation modules (Media, Integrate) here
@@ -3137,5 +3139,5 @@ k.MouseEvent)&&(a.ya=1,a.useForcedLinkTracking=1,a.b.addEventListener("click",a.
 function s3_gi(a){var k,q=window.s_c_il,r,n,t=a.split(","),u,s,x=0;if(q)for(r=0;!x&&r<q.length;){k=q[r];if("s_c"==k._c&&(k.account||k.oun))if(k.account&&k.account==a)x=1;else for(n=k.account?k.account:k.oun,n=k.allAccounts?k.allAccounts:n.split(","),u=0;u<t.length;u++)for(s=0;s<n.length;s++)t[u]==n[s]&&(x=1);r++}x||(k=new AppMeasurement);k.setAccount?k.setAccount(a):k.sa&&k.sa(a);return k}AppMeasurement.getInstance=s3_gi;window.s_objectID||(window.s_objectID=0);
 function s_pgicq(){var a=window,k=a.s_giq,q,r,n;if(k)for(q=0;q<k.length;q++)r=k[q],n=s3_gi(r.oun),n.setAccount(r.un),n.setTagContainer(r.tagContainerName);a.s_giq=0}s_pgicq();
 
-s3.w_trackPage(digital);
+//s3.w_trackPage(digital);
 //s3.t();
