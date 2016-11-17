@@ -633,7 +633,7 @@ pdPageNamePrefixPair = cleanText(pageDetails.pageNamePrefixes).split('|'),
 pdPageNamePrefix,
 pdFeaturedContent,
 formTypeOverride,
-lastSentPage = util.cookieRead('lastPg'),
+lastSentPage = util.cookieRead('lastPage'),
 getValueOnce = util.getValOnce,
 getQuerystringParam = util.getQueryParam, 
 pageNameDynamicVariable = 'D=pageName'; // zzzzz change to D.pageName to reduce pixel
@@ -1773,10 +1773,15 @@ util.siteID = digital['dd.site'];
 		//	s.prop15 = pageNameDynamicVariable;
 		//}
 		// refactored and referencing lastPg cookie
-		//ABU TODO
-		if(lastSentPage) digital['dd.previousPage'] = lastSentPage;
+		//ABU TODO 
+		if(lastSentPage){
+			digital['dd.previousPage'] = lastSentPage;
+			var lastPixelLength = s2.c_r('lastPixelLen')
+			digital['dd.lastPixelLength'] = lastPixelLength;
+		}
 		//s2.prop15 = lastSentPage === sPageNameTemp ? pageNameDynamicVariable : lastSentPage;
-
+		
+		
 		// Previous pixel length
 		//s2.prop69 = s2.w_cap(s2.c_r('lastReqLen'), 5000);
 		//if(s.prop69>5000){
@@ -2833,6 +2838,12 @@ s3.w_linkTracking = function (evt) {
 		if (target.getAttribute('data-analytics-rank')) { // && /.+/.test(target.getAttribute('data-analytics-rank'))) { // previously in selenium two commands were required to capture the rank and click-past. The listener now captures the details in the first click
 			s3.w_trackRank(evt);
 		}
+		// mailto: links?
+		if (/^mailto:/i.test(target.href)) {
+			target.setAttribute('data-analytics-link', 'email:' + decodeURI(target.href.replace(/^mailto:/i, '').replace(/((?:&|\?)body=.*?(?=&|$))/ig, ''))); // added .replace(/^mailto:/i,'')
+			//ABU tpo FIX:  s3.w_trackInteraction(evt);
+		}
+
 		// Print link on branch detail page has class=print
 		//if (target.getAttribute('data-analytics-link')) { // && /.+/.test(target.getAttribute('data-analytics-rank'))) {
 		dataAnalyticsLink = target.getAttribute('data-analytics-link');
@@ -2849,11 +2860,6 @@ s3.w_linkTracking = function (evt) {
 		// tel: links
 		if (/^tel:/i.test(target.href)) {
 			s3.w_trackLink(evt,'call');
-		}
-		// mailto: links?
-		if (/^mailto:/i.test(target.href)) {
-			//ABU tpo FIX:  target.setAttribute('data-analytics-link', 'email:' + decodeURI(target.href.replace(/^mailto:/i, ''))); // added .replace(/^mailto:/i,'')
-			s3.w_trackInteraction(evt);
 		}
 
 		// automatic banner dismiss auto-tracking. function for manual dismiss tracking available
@@ -2882,7 +2888,7 @@ s3.contextData = digital;
 	s3.t();
 	console.log('f():w_trackPage s3.t()');
 	if (digital._drop) {
-		util.cookieWrite('lastPg', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
+		util.cookieWrite('lastPage', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
 	}
 	s3.w_endTrckng();
 }
@@ -2906,7 +2912,7 @@ s3.w_endTrckng = function () {
 		s3.w_pixels.push(lastPixelSrc);
 
 		// store length of the pixel just fired in a cookie, to extract on next page load
-		s3.c_w('lastReqLen', lastPixelLength);
+		s3.c_w('lastPixelLen', lastPixelLength);
 	}
 
 	//return lastPixelLength;
