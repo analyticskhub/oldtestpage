@@ -6,7 +6,7 @@ util.pathExcludeList=''; // elements to exclude from the path - index.html? defa
 util.pathExcludeDelim = ';'; // portion of the path to exclude - was ;
 util.siteID= '';  //s.siteID set in doPlugins to allow changing to 'app' based on visitorID cookie from apps
 util.version = 'U0.01';
-util.codeVers = 'V 1.9.0'+':'+ 'AppM 1.7.0'+':'+"AMap:"+ util.version;
+util.codeVers = 'Vid 1.9.0'+':'+ 'AppM 1.7.0'+':'+"AMap:"+ util.version;
 util.location = window.location;
 // moved from original responsive CSS function in analytics.js
 util.isVisible = function (selector, element) {
@@ -2065,7 +2065,7 @@ s3.pageName = digital['dd.pageName'];
 s3.eVar21 = pageNameDynamicVariable; // pageName eVar
 // hierarchy
 s3.hier1 = pageNameDynamicVariable;
-s3.eVar25 = s3.marketingCloudVisitorID;
+//s3.eVar25 = s3.marketingCloudVisitorID;
 
 // use implementation plug-ins that are defined below
 // in this section. For example, if you copied the append
@@ -2917,6 +2917,71 @@ s3.w_endTrckng = function () {
 
 	//return lastPixelLength;
 };
+//ABU zzz Try Dynamic value 'D=mid' or capture mid manual
+/*if(typeof visitor != 'undefined'){
+	s3.eVar25 = s3.prop25 = visitor.getMarketingCloudVisitorID(visitor.cookieName);
+}*/
+s3.eVar25 = s3.prop25 = 'D=mid';
+//ABU: Analytics ID tracking 
+var ctid ={};
+//STG ID
+if (s3.c_r("s_stg_ti")){ctid.stgid = {"id" : s3.c_r("s_stg_ti"), "authState": (s3.c_r("s_stg_auth") === '1' ? Visitor.AuthState.AUTHENTICATED:Visitor.AuthState.UNKNOWN)}}
+if (s3.c_r("s_bom_ti")){ctid.bomid = {"id" : s3.c_r("s_bom_ti"), "authState": (s3.c_r("s_bom_auth") === '1' ? Visitor.AuthState.AUTHENTICATED:Visitor.AuthState.UNKNOWN)}}
+if (s3.c_r("s_bsa_ti")){ctid.bsaid = {"id" : s3.c_r("s_bsa_ti"), "authState": (s3.c_r("s_bsa_auth") === '1' ? Visitor.AuthState.AUTHENTICATED:Visitor.AuthState.UNKNOWN)}}
+if (s3.c_r("s_wbc-ti")){ctid.wbcid = {"id" : s3.c_r("s_wbc-ti"), "authState": Visitor.AuthState.UNKNOWN}}
+if (s3.c_r("s_wbc-gi")){ctid.wbcgid = {"id" : s3.c_r("s_wbc-gi"), "authState": Visitor.AuthState.UNKNOWN}}
+
+
+//Multiple IDs with a single authentication state
+console.log(ctid);
+s3.visitor.setCustomerIDs(ctid);
+
+// generic account ID - value in cookie should have a prefix like 'corp_'. These will get overwritten through different sites, but could be tied together with visitor ID etc.
+// included for CORP and other sites that require tracking ID
+s3.eVar34 = s3.prop34 = 'D=s_wbc-gi';
+
+// customer tracking ID
+s3.eVar35 = s3.prop35 = 'D=s_wbc-ti'; // cookie is set at .westpac.com.au
+//s.prop35 = s.eVar35;
+
+// business account ID
+//s.eVar41 = 'D=BUS-ACCOUNT-ID'; // was originally proposed for OTP 1.2. currently not required
+//s.prop41 = dVar(41);
+
+// customer otp profile
+//s.eVar47 = getValueOnce(s.c_rr('s_wbc-pi'), 'pi', 30, 'm'); // cookie is set at full domain - banking.westpac.com.au. Could be dynamic value if these cookies available at .westpac.com.au
+s3.eVar47 = s3.prop47 = 'D=s_wbc-pi';
+//s.prop47 = dVar(47);
+
+// Webseal ID proxy
+//s.eVar48 = getValueOnce(s.c_rr('s_wbc-ses'), 'ses', 30, 'm'); // cookie is set at banking.westpac.com.au. wouldnt be able to access from smetrics if was httpOnly, as set on banking.westpac.com.au ...
+//s.prop48 = dVar(48);
+s3.eVar48 = s3.prop48 = 'D=s_wbc-ses';
+
+// customer type segment
+//s.eVar50 = getValueOnce(s.c_rr('s_wbc-seg'), 'seg', 30, 'm'); // cookie is set at .westpac.com.au, but value is short and may be useful on page
+//s.prop50 = dVar(50);
+//s.eVar50 = s.prop50 = 'D=s_wbc-seg';
+s3.eVar50 = s3.prop50 = s3.c_rr('s_wbc-seg'); // if values are short capture as-is, else use dynamic value to get value server-side.
+
+// detect OTP/online banking profile switching
+custTrackingId = s3.c_rr('s_wbc-ti');
+if (custTrackingId) {
+	custTrackingIdPrevious = s3.c_r('temp-ti');
+	s3.c_w('temp-ti', custTrackingId); // update to current
+}
+custProfileId = s3.c_rr('s_wbc-pi');
+if (custProfileId) {
+	custProfileIdPrevious = s3.c_r('temp-pi');
+	s3.c_w('temp-pi', custProfileId); // update to current
+}
+if (custTrackingId && custTrackingId === custTrackingIdPrevious && custProfileId && custProfileIdPrevious && custProfileId !== custProfileIdPrevious) {
+	userSwitchedProfile = true;
+	s3.prop59 = '(switch profile)';
+	console.log('Profile switched'); // detect when only switching profiles and landing on dashboard vs. a new login to dashboard
+}
+
+
 // External Campaigns
 //if(!s.campaign){
 //if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
