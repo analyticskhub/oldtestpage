@@ -2050,6 +2050,8 @@ s3.linkInternalFilters="javascript:,tel:,mailto:," + util.getLoc().hostname+','+
 s3.linkLeaveQueryString=false
 s3.linkTrackVars="None"
 s3.linkTrackEvents="None"
+//Abu zzz
+s3.w_ltv = 'server,channel,eVar7,prop15,prop25,eVar25,prop35,eVar35,prop39,prop69,eVar21'; // default vars required in all click tracking functions (linkTrackVars)
 
 /* uncomment below to use doPlugins */
 s3.usePlugins=true

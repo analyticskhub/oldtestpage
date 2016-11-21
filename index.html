@@ -12,7 +12,7 @@
 		
 		<!-- Call s_code script in head for testing -->
 		<script>
-			//(function(a,c){function b(d,j,g,h,i){var f=c.getElementsByTagName('script')[0],e=c.createElement('script');if(c.getElementById(j)){return}e.id=j;e.type='text/javascript';e.async=(g||true);e.defer=(h||true);if(e.readyState){e.onreadystatechange=function(){if(e.readyState==='loaded'||e.readyState==='complete'){e.onreadystatechange=null;i()}}}else{e.onload=function(){i()}}e.src=d;f.parentNode.insertBefore(e,f)}b('s_code_dev.js','omniture-scode',true,true,function(){s3.w_trackPage()})}(window,document));
+			//(function(a,c){function b(d,j,g,h,i){var f=c.getElementsByTagName('script')[0],e=c.createElement('script');if(c.getElementById(j)){return}e.id=j;e.type='text/javascript';e.async=(g||true);e.defer=(h||true);if(e.readyState){e.onreadystatechange=function(){if(e.readyState==='loaded'||e.readyState==='complete'){e.onreadystatechange=null;i()}}}else{e.onload=function(){i()}}e.src=d;f.parentNode.insertBefore(e,f)}b('s_code.simple.js','omniture-scode',true,true,function(){s3.w_trackPage()})}(window,document));
 		</script>
 		
 		<!-- local copy of Westpac jQuery for testing -->
@@ -569,7 +569,7 @@
 							/* testStr='/'+regex.replace(/\\/g,'\\\\')+'/.test(window.s3.w_pixels[window.s3.w_pixels.length - 1]);'; */
 							textAlert(regex);}}})()" id="selenium-link" class="no-pad">selenium bm</a> 
 					<a href="http://www.diffchecker.com/" id="" target="_blank" class="">differ</a> 
-					<a href="s_code_dev.js" target="_blank" class="no-pad">s_code_dev.js</a> <span id="scode-date" class="pad">&nbsp;</span> 
+					<a href="s_code.simple.js" target="_blank" class="no-pad">s_code.simple.js</a> <span id="scode-date" class="pad">&nbsp;</span> 
 					
 					<a href="asyncOnePager.html" target="_blank" class="no-pad">One pager</a> <a href="asyncTrackingScript.html" target="_blank">(full)</a> 
 					<a href="javascript:(function(){s3.c_wr('s3_pers_wp_dev','testing cookie');}())" class="pad" title="Sets cookie to enable console logging">Dev cookie</a>
@@ -690,7 +690,7 @@
 						dataType: 'script',
 						mimeType: 'text/javascript; charset=utf-8',
 						cache: true,
-						url: 's_code_dev.js',
+						url: 's_code.simple.js',
 						success: function(){
 							s3.w_trackPage();
 						}
@@ -1419,9 +1419,9 @@
 						dataType: 'script',
 						mimeType: 'text/javascript; charset=utf-8',
 						cache: true,
-						url: 's_code_dev.js',
+						url: 's_code.simple.js',
 						//url: 's_code_www.txt',
-						//url: 'http://10.120.103.105/analytics/s_code_dev.js',
+						//url: 'http://10.120.103.105/analytics/s_code.simple.js',
 						success: function(){
 							s3.w_trackPage();
 							//alert('jquery');
@@ -1707,7 +1707,7 @@
 							
 							loadScript('s_code.simple.js', 'omniture-scode', true, true, function () { // TODO - update file location
 							//loadScript('s_code_www.txt', 'omniture-scode', true, true, function () { // TODO - update file location
-							//loadScript('http://10.120.103.105/analytics/s_code_dev.js', 'omniture-scode', true, true, function () { // TODO - update file location
+							//loadScript('http://10.120.103.105/analytics/s_code.simple.js', 'omniture-scode', true, true, function () { // TODO - update file location
 								
 								s3.w_trackPage();
 								
@@ -1759,14 +1759,14 @@
 				// minified versions of above, provided to Oregon and Domino team. Reference to script file needs to be updated -
 				
 				// original version with addHandler
-				//(function(a,e){function c(d,g,f){if(d.addEventListener){d.addEventListener(g,f,false)}else{if(d.attachEvent){d.attachEvent('on'+g,f)}}}function b(d,j,g,h,i){if(e.getElementById(j)){return}var f=e.createElement('script');f.id=j;f.type='text/javascript';f.async=(g||true);f.defer=(h||true);if(f.readyState){f.onreadystatechange=function(){if(f.readyState==='loaded'||f.readyState==='complete'){f.onreadystatechange=null;i()}}}else{f.onload=function(){i()}}f.src=d;e.body.appendChild(f)}c(a,'load',function(){b('s_code_dev.js','omniture-scode',true,true,function(){s3.w_trackPage()})})}(window,document));
+				//(function(a,e){function c(d,g,f){if(d.addEventListener){d.addEventListener(g,f,false)}else{if(d.attachEvent){d.attachEvent('on'+g,f)}}}function b(d,j,g,h,i){if(e.getElementById(j)){return}var f=e.createElement('script');f.id=j;f.type='text/javascript';f.async=(g||true);f.defer=(h||true);if(f.readyState){f.onreadystatechange=function(){if(f.readyState==='loaded'||f.readyState==='complete'){f.onreadystatechange=null;i()}}}else{f.onload=function(){i()}}f.src=d;e.body.appendChild(f)}c(a,'load',function(){b('s_code.simple.js','omniture-scode',true,true,function(){s3.w_trackPage()})})}(window,document));
 				
 				// without addHandler waiting for window load (avoids long delay of marketing tag loading) -
 				// using appendChild
-				//(function(a,c){function b(d,i,f,g,h){if(c.getElementById(i)){return}var e=c.createElement('script');e.id=i;e.type='text/javascript';e.async=(f||true);e.defer=(g||true);if(e.readyState){e.onreadystatechange=function(){if(e.readyState==='loaded'||e.readyState==='complete'){e.onreadystatechange=null;h()}}}else{e.onload=function(){h()}}e.src=d;c.body.appendChild(e)}b('s_code_dev.js','omniture-scode',true,true,function(){s3.w_trackPage()})}(window,document));
+				//(function(a,c){function b(d,i,f,g,h){if(c.getElementById(i)){return}var e=c.createElement('script');e.id=i;e.type='text/javascript';e.async=(f||true);e.defer=(g||true);if(e.readyState){e.onreadystatechange=function(){if(e.readyState==='loaded'||e.readyState==='complete'){e.onreadystatechange=null;h()}}}else{e.onload=function(){h()}}e.src=d;c.body.appendChild(e)}b('s_code.simple.js','omniture-scode',true,true,function(){s3.w_trackPage()})}(window,document));
 				
 				// using insertBefore
-				//(function(a,c){function b(d,j,g,h,i){var f=c.getElementsByTagName('script')[0],e=c.createElement('script');if(c.getElementById(j)){return}e.id=j;e.type='text/javascript';e.async=(g||true);e.defer=(h||true);if(e.readyState){e.onreadystatechange=function(){if(e.readyState==='loaded'||e.readyState==='complete'){e.onreadystatechange=null;i()}}}else{e.onload=function(){i()}}e.src=d;f.parentNode.insertBefore(e,f)}b('s_code_dev.js','omniture-scode',true,true,function(){s3.w_trackPage()})}(window,document));
+				//(function(a,c){function b(d,j,g,h,i){var f=c.getElementsByTagName('script')[0],e=c.createElement('script');if(c.getElementById(j)){return}e.id=j;e.type='text/javascript';e.async=(g||true);e.defer=(h||true);if(e.readyState){e.onreadystatechange=function(){if(e.readyState==='loaded'||e.readyState==='complete'){e.onreadystatechange=null;i()}}}else{e.onload=function(){i()}}e.src=d;f.parentNode.insertBefore(e,f)}b('s_code.simple.js','omniture-scode',true,true,function(){s3.w_trackPage()})}(window,document));
 			}
 			
 			// to hide popups with escape press
