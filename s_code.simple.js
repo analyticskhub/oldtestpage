@@ -2921,7 +2921,7 @@ s3.w_endTrckng = function () {
 			// store length of the pixel just fired in a cookie, to extract on next page load
 			s3.c_w('lastPixelLen', lastPixelLength);
 		}
-	}, 4000);
+	}, 1000);
 	//return lastPixelLength;
 };
 //ABU zzz Try Dynamic value 'D=mid' or capture mid manual
