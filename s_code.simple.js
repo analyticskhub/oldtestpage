@@ -2900,9 +2900,10 @@ s3.w_endTrckng = function () {
 	// record length of last pixel
 	//var sVisitorNamespace = s.visitorNamespace,
 	//s = s.rc ? s.rc[sVisitorNamespace] : 0,
-	var lastPixel = window['s_i_' + s3.account],
+	//var lastPixel = window['s_i_' + s3.account],
 	//lastPixelSrc = lastPixel && lastPixel.getAttribute('src'),
-	lastPixelSrc = lastPixel && lastPixel.src,
+	//lastPixelSrc = lastPixel && lastPixel.src,
+	var lastPixelSrc = window['s_i_' + s3.account].src === 'undefined' ? window['s_i_' + s3.account].src: s3.kb,
 	lastPixelLength = 0;
 
 	//var lastPixelSrc = window["s2"].kb

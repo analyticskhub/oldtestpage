@@ -1056,19 +1056,19 @@
 						document.getElementById('omni-pixel-selenium').value='waiting for request...';
 						
 						setTimeout(function(lastOmniRequest){
-							var pixel=window['s_i_'+s3.account],
+							//var pixel=window['s_i_'+s3.account],
+							var pixel=window['s_i_' + s3.account].src === 'undefined' ? window['s_i_' + s3.account].src: s3.kb,
 								regex,
 								selenium;
 							// get pixel from dom
 							
 							if(pixel){ // in case request is aborted
 								//document.getElementById('omni-pixel').value=pixel.src;
-								document.getElementById('omni-pixel').value=pixel.getAttribute('src');
+								document.getElementById('omni-pixel').value=pixel;
 								
 								// pixel with details that change, such as cache buster, time, day parting replaced
 								//regex=pixel.src
-								regex=pixel.getAttribute('src')
-									.replace(/\/b\/ss\/westpac-.+?\//g, '\/b\/ss\/westpac-.+?\/') // escape question mark
+								regex=pixel.replace(/\/b\/ss\/westpac-.+?\//g, '\/b\/ss\/westpac-.+?\/') // escape question mark
 									.replace(/\?/g, '\?') // escape question mark
 									.replace(/\/s\d+?\?AQB=/, '\/s\\d+?\\?AQB=') // cachebuster
 									.replace(/&t=.+?&/, '&t=.+?&') // time
@@ -1112,7 +1112,6 @@
 									.replace(/&bw=\d{1,5}(?=&)/g, '(&bw=\\d{1,5})?') // browser width
 									.replace(/&bh=\d{1,5}(?=&)/g, '(&bh=\\d{1,5})?') // browser height
 									.replace(/(&p=.+?(?=&))?(&ct=.+?&hp=(Y|N)(?=&))?(&p(i)d=.+?&pidt=1&oid=.+?_\d{1,3}&oidt=1&ot=A&oi=1(?=&))?&AQE=1/g, '(&p=.+?)?(&ct=.+?&hp=(Y|N))?(&p(i)d=.+?&pidt=1&oid=.+?_\\d{1,3}&oidt=1&ot=A&oi=1)?(&AQE=1)?') // clickmap
-									
 									.replace(/\//g,'\\/') // escape slashes for regex
 									;
 									
@@ -1123,7 +1122,7 @@
 								selenium = '/'+regex
 									.replace(/\\/g,'\\\\')+ // double escape slashes to match selenium for easy diff
 									//'/.test(window[\'s_i_\'+window.s._in+\'_\'+window.s.visitorNamespace+((window.s.rc?window.s.rc[window.s.visitorNamespace]:0)>1?\'_\'+((window.s.rc?window.s.rc[window.s.visitorNamespace]:0)-1):\'\')].getAttribute(\'src\'));';
-									'/.test(window.s.w_pixels[window.s.w_pixels.length - 1]);';
+									'/.test(window.s3.w_pixels[window.s3.w_pixels.length - 1]);';
 								document.getElementById('omni-pixel-selenium').value = selenium;
 								//console.log(selenium);
 								
