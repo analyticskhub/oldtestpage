@@ -1000,7 +1000,8 @@
 					*/
 				
 					// set field values and flash fields captured
-					var requestCount=(window['s_i_' + s3.account]? window['s_i_' + s3.account].src.length:0),
+					var requestCount=(window['s_i_' + s3.account].src? window['s_i_' + s3.account].src.length:
+					                  s3.kb?s3.kb.length:0),
 						typeEl=document.getElementById('tag-type'),
 						type,
 						valEl=document.getElementById('test-tracking-pagename'),
@@ -1068,7 +1069,7 @@
 								
 								// pixel with details that change, such as cache buster, time, day parting replaced
 								//regex=pixel.src
-								regex=pixel.replace(/\/b\/ss\/westpac-.+?\//g, '\/b\/ss\/westpac-.+?\/') // escape question mark
+								regex=pixel.replace(/\/b\/ss\/wbg-banking-.+?\//g, '\/b\/ss\/wbg-banking-.+?\/') // escape question mark
 									.replace(/\?/g, '\?') // escape question mark
 									.replace(/\/s\d+?\?AQB=/, '\/s\\d+?\\?AQB=') // cachebuster
 									.replace(/&t=.+?&/, '&t=.+?&') // time

@@ -2297,7 +2297,7 @@ s3.channelManager = function (a, b, c, d, e, f, g) {
 			s3.c_w(e, 1, 0);
 		if (!s3.c_r(e))
 			i = 0;
-		if (f && s3.c_r('s_tbm' + f))
+		if (f && s3.c_r('s3_tbm' + f))
 			i = 0;
 	}
 	j = s3.referrer ? s3.referrer : document.referrer;
@@ -2457,7 +2457,7 @@ s3.channelManager = function (a, b, c, d, e, f, g) {
 		s3._keywords = H ? I ? I : 'Keyword Unavailable' : 'n/a';
 		if (f && w != 'Typed/Bookmarked') {
 			h.setTime(h.getTime() + f * 86400000);
-			s3.c_w('s_tbm' + f, 1, h);
+			s3.c_w('s3_tbm' + f, 1, h);
 		}
 	} else
 		s3._campaignID = s3._referrer = s3._referringDomain = s3._campaign = s3._channel = s3._partner = s3._keywords = '';
@@ -2897,27 +2897,31 @@ s3.contextData = digital;
 
 // Do things after pixel sent
 s3.w_endTrckng = function () {
+	console.log('w_endTrckng:'+s3.kb);
 	// record length of last pixel
 	//var sVisitorNamespace = s.visitorNamespace,
 	//s = s.rc ? s.rc[sVisitorNamespace] : 0,
 	//var lastPixel = window['s_i_' + s3.account],
 	//lastPixelSrc = lastPixel && lastPixel.getAttribute('src'),
 	//lastPixelSrc = lastPixel && lastPixel.src,
-	var lastPixelSrc = window['s_i_' + s3.account].src === 'undefined' ? window['s_i_' + s3.account].src: s3.kb,
-	lastPixelLength = 0;
+	//var lastPixelSrc = window['s_i_' + s3.account].src === 'undefined' ? window['s_i_' + s3.account].src: s3.kb,
+	setTimeout(function(){
+		console.log('timeout:'+s3.kb);
+		var lastPixelSrc = s3.kb||'';
+		lastPixelLength = 0;
 
-	//var lastPixelSrc = window["s2"].kb
-	if (lastPixelSrc) { // changed to lastPixel.getAttribute('src') to avoid invalid pointer error in IE11 when reading .src
-		lastPixelLength = lastPixelSrc.length;
+		//var lastPixelSrc = window["s2"].kb
+		if (lastPixelSrc) { // changed to lastPixel.getAttribute('src') to avoid invalid pointer error in IE11 when reading .src
+			lastPixelLength = lastPixelSrc.length;
 
-		// add pixels to an array to simplify testing
-		s3.w_pixels = s3.w_pixels || [];
-		s3.w_pixels.push(lastPixelSrc);
+			// add pixels to an array to simplify testing
+			s3.w_pixels = s3.w_pixels || [];
+			s3.w_pixels.push(lastPixelSrc);
 
-		// store length of the pixel just fired in a cookie, to extract on next page load
-		s3.c_w('lastPixelLen', lastPixelLength);
-	}
-
+			// store length of the pixel just fired in a cookie, to extract on next page load
+			s3.c_w('lastPixelLen', lastPixelLength);
+		}
+	}, 4000);
 	//return lastPixelLength;
 };
 //ABU zzz Try Dynamic value 'D=mid' or capture mid manual
@@ -3062,7 +3066,7 @@ if (s3.campaign) {
 // Paid/Natural Search Keyword
 s3.prop18 = pageNameDynamicVariable; // set to just pageName as default
 s3._channelParameter = 'Campaign|cid';
-s3.channelManager('cid');
+s3.channelManager('cid','','s3_c_m');
 
 //channelManagerKeywords = cleanText(s._keywords || ''); // filter search keywords a bit - strip multiple spaces etc.
 channelManagerKeywords = cleanText(s3._keywords); // filter search keywords a bit - strip multiple spaces etc.
@@ -3108,7 +3112,7 @@ if (/^sitesearch$/.test(pdPageType)) {
 	//}
 }
 
-s3.ActivityMap.link = function(ele, linkName) {
+/*s3.ActivityMap.link = function(ele, linkName) {
 	if (ele) {
 		var objectId = ele.getAttribute('data-s-object-id');
 		if (objectId) {
@@ -3122,7 +3126,29 @@ s3.ActivityMap.link = function(ele, linkName) {
 	if (linkName) {
 		return linkName;
 	}
-}
+}*/
+s3.ActivityMap.link = function(ele, linkName) {
+     if (ele) {
+         var objectId = ele.getAttribute('data-s-object-id');
+         if (objectId) {
+             return objectId;
+         }
+
+         if (ele.tagName == 'A' && ele.href) {
+             // mailto: links?
+             if (/^mailto:/i.test(ele.href)) {
+                 return 'email:' + decodeURI(ele.href.replace(/^mailto:/i, '').replace(/((?:&|\?)body=.*?(?=&|$))/ig, '')); // added .replace(/^mailto:/i,'')
+             } else if (/^tel:/i.test(ele.href)) {
+                 return 'call:' + decodeURI(util.lCase(ele.href, 1)).replace(/^tel:|\s+/gi, '');
+             }
+             return ele.href;
+         }
+     }
+     if (linkName) {
+         return linkName;
+     }
+     return "";
+};
 
 s3.ActivityMap.region = function(ele) {
 	var nav='';
