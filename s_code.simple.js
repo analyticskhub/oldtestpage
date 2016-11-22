@@ -2898,7 +2898,7 @@ s3.contextData = digital;
 // Do things after pixel sent
 s3.w_endTrckng = function () {
 	console.log('w_endTrckng:'+s3.kb);
-	// record length of last pixel
+	// record length of last pixel	
 	//var sVisitorNamespace = s.visitorNamespace,
 	//s = s.rc ? s.rc[sVisitorNamespace] : 0,
 	//var lastPixel = window['s_i_' + s3.account],

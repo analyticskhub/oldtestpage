@@ -1058,7 +1058,7 @@
 						
 						setTimeout(function(lastOmniRequest){
 							//var pixel=window['s_i_'+s3.account],
-							var pixel=window['s_i_' + s3.account].src === 'undefined' ? window['s_i_' + s3.account].src: s3.kb,
+							var pixel=s3.kb||'',
 								regex,
 								selenium;
 							// get pixel from dom
@@ -1137,7 +1137,7 @@
 								*/
 								
 							}
-						},100);
+						},1000);
 					//}
 					/*ABU
 					// check if hybrid visitorID set
