@@ -641,6 +641,12 @@ pageNameDynamicVariable = 'D=pageName'; // zzzzz change to D.pageName to reduce 
 
 //ABU dd.brand & dd.site for each brand 
 // Brand specific
+if (/(?:^|\.)banksa\.com\.au$/i.test(util.getLoc().hostname)) {
+	pageBrand = 'bsa';
+	pageSite = /(.+)(?:\.bankofmelbourne\.com\.au$)/i.exec(util.getLoc().hostname); // || [];
+	pageSite = pageSite ? pageSite[1] : notSet;
+}
+// Brand specific
 if (/(?:^|\.)bankofmelbourne\.com\.au$/i.test(util.getLoc().hostname)) {
 	pageBrand = 'bom';
 	pageSite = /(.+)(?:\.bankofmelbourne\.com\.au$)/i.exec(util.getLoc().hostname); // || [];
@@ -685,7 +691,9 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 	
 	var corpSubDomain = /(.+)(?:\.corp(?:.*?)\.westpac\.(?:com\.au|co\.nz)$)/i.exec(util.getLoc().hostname);
 		if (corpSubDomain) {
-			pageDetails.subSite = corpSubDomain[1];
+			pageSite = 'corp';
+			//pageDetails.subSite = corpSubDomain[1];
+			pdSubSite = corpSubDomain[1];
 			// A custom subSiteSeparator may be used for concatenating subSite into pageName in s_code (Westpac uses default value of hyphen)
 			pageDetails.subSiteSeparator = ':';
 		}
