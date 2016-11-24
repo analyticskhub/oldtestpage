@@ -1396,11 +1396,11 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 		
 		//Abu to investigate ZZZ
 		digital['dd.brand']= pageNamePathArray[0]; // Brand
-		if (pageNamePathArray[1]){ digital['dd.site'] = = pageNamePathArray.slice(0, 2).join(':');}
+		if (pageNamePathArray[1]){ digital['dd.site'] = pageNamePathArray.slice(0, 2).join(':');}
 		if (pageNamePathArray[2]){ digital['dd.section1'] = pageNamePathArray.slice(0, 3).join(':');}
 		if (pageNamePathArray[3]){ digital['dd.section2'] = pageNamePathArray.slice(0, 4).join(':');}
-		if (pageNamePathArray[4]) {digital['dd.section3'] = pageNamePathArray.slice(0, 5).join(':');}
-		if (pageNamePathArray[5]) {digital['dd.section4'] = pageNamePathArray.slice(0, 6).join(':');}
+		if (pageNamePathArray[4]){ digital['dd.section3'] = pageNamePathArray.slice(0, 5).join(':');}
+		if (pageNamePathArray[5]){ digital['dd.section4'] = pageNamePathArray.slice(0, 6).join(':');}
 		
 		//dd.brand = pageNamePathArray[0]; // Brand
 		//s2.eVar6 = pageNamePathArray[0]; // Brand
