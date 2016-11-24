@@ -694,9 +694,10 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 
 // Set values for microsites. This may be commented out for other domains
 /*ABU: TODO Other domain*/
-digital['dd.brand']= pageBrand
-digital['dd.site'] = pageBrand + ':' + pageSite + (pdSubSite ? (pageDetails.subSiteSeparator || '-') + pdSubSite : ''); // with subSite like APPS - brand:site-subSite:section.
-util.siteID = digital['dd.site'];
+//digital['dd.brand']= pageBrand
+//digital['dd.site'] = pageBrand + ':' + pageSite + (pdSubSite ? (pageDetails.subSiteSeparator || '-') + pdSubSite : ''); // with subSite like APPS - brand:site-subSite:section.
+//util.siteID = digital['dd.site'];
+		util.siteID = pageBrand + ':' + pageSite + (pdSubSite ? (pageDetails.subSiteSeparator || '-') + pdSubSite : ''); // with subSite like APPS - brand:site-subSite:section.
 		// switch short/long forms based on in/out of session URLs
 		if (pdFormType === 'checkurl') {
 			pdFormType = pdInSession ? 'short' : 'long';
@@ -1386,6 +1387,9 @@ util.siteID = digital['dd.site'];
 		// New version with experience removed from pageName -
 		
 		//Abu to investigate ZZZ
+		digital['dd.brand']= pageNamePathArray[0]; // Brand
+		digital['dd.site'] = pageNamePathArray[1];
+
 		//dd.brand = pageNamePathArray[0]; // Brand
 		//s2.eVar6 = pageNamePathArray[0]; // Brand
 		//s2.prop6 = dVar(6);
