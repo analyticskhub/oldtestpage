@@ -2383,12 +2383,13 @@ s3.usePlugins=true
 function s_doPlugins(s3) {
 
 var pdPreImprs = pageDetails.preImprs,
-channelManagerKeywords,
-channelManagerSearchType = false,
+//channelManagerKeywords,
+//channelManagerSearchType = false,
 //dVar = s3.w_dVar,
 pidQuerystring;
 
 s3.pageName = digital['dd.pageName'];
+s3.products = util.valReplace(util.valReplace(s3.w_prodStr(pdProductID, pageDetails), util.lStor('get', 'analytics_productsReplace')), pageDetails.productsReplace); // global + local replace
 s3.eVar21 = pageNameDynamicVariable; // pageName eVar
 // hierarchy
 s3.hier1 = pageNameDynamicVariable;
@@ -3368,7 +3369,7 @@ s3.w_prodStr = function (prodArr, details) {
 				util.lCase(prodArr[lp1].cat || '') + ';' +
 				//s.w_lCase(prodArr[lp1].prod) + (pdPageType === 'application' && !primaryProduct ? '-x' : '') + ';' + // identify primary product/s for enhanced cross-sell reporting
 				//s.w_lCase(s.w_clean(prodArr[lp1].prod.replace(/,/g, ' '))) + (pdPageType === 'application' && !primaryProduct ? '-x' : '') + ';' + // identify primary product/s for enhanced cross-sell reporting
-				util.lCase(s2.w_clean(prodArr[lp1].prod.replace(/,/g, ' '))) + (pdPageType === 'application' && crossSellProduct ? '-x' : '') + ';' + // identify primary product/s for enhanced cross-sell reporting
+				util.lCase(util.clean(prodArr[lp1].prod.replace(/,/g, ' '))) + (pdPageType === 'application' && crossSellProduct ? '-x' : '') + ';' + // identify primary product/s for enhanced cross-sell reporting
 				(prodArr[lp1].qty || '1') + ';' + (prodArr[lp1].total || '') + ';' + (prodEvents || '') + ';' +
 				//.replace(/deposit(?==)/g,'event5') // replace friendly product event names with event numbers
 				//.replace(/loan(?==)/g,'event41')
