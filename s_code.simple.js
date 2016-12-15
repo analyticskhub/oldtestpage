@@ -1824,8 +1824,9 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 		//}
 
 		// server from full domain
+		//ABU server is move to do_plugins
 		//s.server = lowerCaseVal(fullLocObj.hostname);
-		digital['dd.server'] = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(util.codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
+		//digital['dd.server'] = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(util.codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
 		//s2.server = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(s2.w_codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
 
 		// experience from app/pageDetails
@@ -2394,6 +2395,9 @@ s3.eVar21 = pageNameDynamicVariable; // pageName eVar
 // hierarchy
 s3.hier1 = pageNameDynamicVariable;
 //s3.eVar25 = s3.marketingCloudVisitorID;
+//s3.server = lowerCaseVal(fullLocObj.hostname);
+s3.server  = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(util.codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
+//s2.server = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(s2.w_codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
 
 // use implementation plug-ins that are defined below
 // in this section. For example, if you copied the append
@@ -3437,7 +3441,8 @@ s3.w_endTrckng = function () {
 /*if(typeof visitor != 'undefined'){
 	s3.eVar25 = s3.prop25 = visitor.getMarketingCloudVisitorID(visitor.cookieName);
 }*/
-s3.eVar25 = s3.prop25 = 'D=mid';
+s3.eVar25 = 'D=mid'; //s3.prop25 =
+
 //ABU: Analytics ID tracking 
 var ctid ={};
 //STG ID
@@ -3454,10 +3459,10 @@ s3.visitor.setCustomerIDs(ctid);
 
 // generic account ID - value in cookie should have a prefix like 'corp_'. These will get overwritten through different sites, but could be tied together with visitor ID etc.
 // included for CORP and other sites that require tracking ID
-s3.eVar34 = s3.prop34 = 'D=s_wbc-gi';
+s3.eVar34 = 'D=s_wbc-gi'; //s3.prop34 =
 
 // customer tracking ID
-s3.eVar35 = s3.prop35 = 'D=s_wbc-ti'; // cookie is set at .westpac.com.au
+s3.eVar35 =  'D=s_wbc-ti'; //s3.prop35 =// cookie is set at .westpac.com.au
 //s.prop35 = s.eVar35;
 
 // business account ID
@@ -3466,19 +3471,19 @@ s3.eVar35 = s3.prop35 = 'D=s_wbc-ti'; // cookie is set at .westpac.com.au
 
 // customer otp profile
 //s.eVar47 = getValueOnce(s.c_rr('s_wbc-pi'), 'pi', 30, 'm'); // cookie is set at full domain - banking.westpac.com.au. Could be dynamic value if these cookies available at .westpac.com.au
-s3.eVar47 = s3.prop47 = 'D=s_wbc-pi';
+s3.eVar47 = 'D=s_wbc-pi'; //s3.prop47 =
 //s.prop47 = dVar(47);
 
 // Webseal ID proxy
 //s.eVar48 = getValueOnce(s.c_rr('s_wbc-ses'), 'ses', 30, 'm'); // cookie is set at banking.westpac.com.au. wouldnt be able to access from smetrics if was httpOnly, as set on banking.westpac.com.au ...
 //s.prop48 = dVar(48);
-s3.eVar48 = s3.prop48 = 'D=s_wbc-ses';
+s3.eVar48  = 'D=s_wbc-ses'; //= s3.prop48
 
 // customer type segment
 //s.eVar50 = getValueOnce(s.c_rr('s_wbc-seg'), 'seg', 30, 'm'); // cookie is set at .westpac.com.au, but value is short and may be useful on page
 //s.prop50 = dVar(50);
 //s.eVar50 = s.prop50 = 'D=s_wbc-seg';
-s3.eVar50 = s3.prop50 = s3.c_rr('s_wbc-seg'); // if values are short capture as-is, else use dynamic value to get value server-side.
+s3.eVar50 = s3.c_rr('s_wbc-seg'); //s3.prop50 = // if values are short capture as-is, else use dynamic value to get value server-side.
 
 // detect OTP/online banking profile switching
 custTrackingId = s3.c_rr('s_wbc-ti');
@@ -3799,5 +3804,5 @@ k.MouseEvent)&&(a.ya=1,a.useForcedLinkTracking=1,a.b.addEventListener("click",a.
 function s3_gi(a){var k,q=window.s_c_il,r,n,t=a.split(","),u,s,x=0;if(q)for(r=0;!x&&r<q.length;){k=q[r];if("s_c"==k._c&&(k.account||k.oun))if(k.account&&k.account==a)x=1;else for(n=k.account?k.account:k.oun,n=k.allAccounts?k.allAccounts:n.split(","),u=0;u<t.length;u++)for(s=0;s<n.length;s++)t[u]==n[s]&&(x=1);r++}x||(k=new AppMeasurement);k.setAccount?k.setAccount(a):k.sa&&k.sa(a);return k}AppMeasurement.getInstance=s3_gi;window.s_objectID||(window.s_objectID=0);
 function s_pgicq(){var a=window,k=a.s_giq,q,r,n;if(k)for(q=0;q<k.length;q++)r=k[q],n=s3_gi(r.oun),n.setAccount(r.un),n.setTagContainer(r.tagContainerName);a.s_giq=0}s_pgicq();
 
-s3.w_trackPage(digital);
+//s3.w_trackPage(digital);
 //s3.t();
