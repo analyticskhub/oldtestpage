@@ -942,38 +942,6 @@ util.amntBnds = function (type, transactionValue) { // type not required? all us
 	}
 	return band;
 };
-// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-util.appStatusSetup = function (status) {
-	var formStatusArray = status,
-		finalVal = [],
-		formStatusDetail;
-	for (var _i = 0, formStatusArray_1 = formStatusArray; _i < formStatusArray_1.length; _i++) {
-		var items = formStatusArray_1[_i],
-			frmStVal;
-		frmStVal = 'accStatus:' + items.accountStatus + '|' + 'proStatus:' + items.profileStatus + '|' + 'verStatus:' + items.verificationStatus + '|' + 'exceCode:' + items.execeptionCode;
-		finalVal.push(frmStVal);
-	}
-	//console.info(finalVal);
-	formStatusDetail = finalVal.join(';');
-	return formStatusDetail;
-	//console.info('stringVal = ', formStatusDetail);
-};
-
-util.createTransID = function (prodArray) {
-	var transIDArray = prodArray,
-		finalVal = [],
-		combinedtransID;
-	for (var _i = 0, transIDArray_1 = transIDArray; _i < transIDArray_1.length; _i++) {
-		var items = transIDArray_1[_i],
-			transIDVal;
-		transIDVal = items.prod + '_' + items.Id;
-		finalVal.push(transIDVal);
-	}
-	//console.info(finalVal);
-	combinedtransID = finalVal.join(';');
-	return combinedtransID;
-};
-// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 
 var _tempContext = {},
 digital={},
@@ -996,17 +964,6 @@ paymentProduct, // for products string where required
 pdPageStep = lowerCaseVal(pageDetails.pageStep, 1), // local var reference
 pdFormName = lowerCaseVal(cleanText(pageDetails.formName)),
 pdFormType = lowerCaseVal(cleanText(pageDetails.formType)),
-//---- wbg|form|app|*au ---- 
-pdnewFormName = lowerCaseVal(cleanText(pageDetails.newFormName)),
-pdJourneyType = lowerCaseVal(cleanText(pageDetails.journeyType)),
-pdAccountType = lowerCaseVal(cleanText(pageDetails.accountType)),
-pdBusinessType = lowerCaseVal(cleanText(pageDetails.businessType)),
-pdFormIsStp = lowerCaseVal(cleanText(pageDetails.formIsSTP)),
-pdFormVariant = lowerCaseVal(cleanText(pageDetails.formVariant)),
-journeyTypeOverride,
-pdProductCount,
-pdAppStatus = pageDetails.applicationStatus,
-//--- wbg|form|app|*au ----
 pdInSession = false, // if page is in secure/unsecure area
 pdSelfserviceDetails = lowerCaseVal(cleanText(pageDetails.selfserviceDetail)), // for selfservice details tracking
 pdTransactionType = lowerCaseVal(pageDetails.transactionType), // for transactions
@@ -1017,9 +974,6 @@ pdTransactionDetails = lowerCaseVal(cleanText(pageDetails.transactionDetails || 
 formNameAlt, // Payments use pdTransactionType as part of form name, instead of formName
 pdTransactionId = pageDetails.transactionID || '', // for transactions - confirm uniqueness - '[CID:...]' on Domino
 prchId = pdTransactionId || '', // local copy for purchaseID manipulation
-//Anil new appReference
-//pdTransactionId = pageDetails.appReference || '', // for transactions - confirm uniqueness - '[CID:...]' on Domino
-//prchId = pageDetails.appReference[0].Id || '', // local copy for purchaseID manipulation
 pdFormStatus = lowerCaseVal(cleanText(pageDetails.formStatus)), // local var reference
 pdSearchTerm = cleanText(pageDetails.searchTerm),
 pdSearchResults = String((String(pageDetails.searchResults) || notSet) > -1 ? util.cap(pageDetails.searchResults, 5000) : notSet), // need to differentiate between undefined, 0, '0' and ''.
@@ -1151,7 +1105,7 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 
 		// adjusted to adapt to the journey - e.g. long-short, long-concise
 		//if (pdFormType) {
-		/*if (pdPageType && pdFormName) {
+		if (pdPageType && pdFormName) {
 			//if (pdPageStep === 'start') {
 			//if (pdPageStep === 'start' && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys
 			if ((pdPageStep === 'start' || pdPageStep === 'intro') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
@@ -1168,30 +1122,7 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 					pdFormType = formTypeOverride[2] + (pdFormType && pdFormType !== formTypeOverride[2] ? '-' + pdFormType : '');
 				}
 			}
-		}*/
-//---- wbg|form|app|*au ---- 
-if (pdPageType && pdnewFormName) {
-	//if (pdPageStep === 'start') {
-	//if (pdPageStep === 'start' && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys
-	if ((pdPageStep === 'start' || pdPageStep === 'intro') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
-		util.cookieWrite('journeyTypOv', pdPageType + pdnewFormName + '-' + pdJourneyType);
-		//s2.c_w('frmTypOv', pdPageType + pdFormName + '-' + pdFormType); // prefix should also include pdSubSite to avoid clash on multi-sites?
-	} else {
-		journeyTypeOverride = /(.*)-(.*)/.exec(util.cookieRead('journeyTypOv'));
-		//console.info('journeyTypeOverride', journeyTypeOverride)
-		//journeyTypeOverride = /(.*)-(.*)/.exec(s2.c_r('frmTypOv'));
-		//console.log('journeyTypeOverride[1] = ' + journeyTypeOverride[1]);
-		//console.log('journeyTypeOverride[2] = ' + journeyTypeOverride[2]);
-
-		// if the override matches the current form
-		if (journeyTypeOverride && journeyTypeOverride[1] === pdPageType + pdnewFormName) { // prefix should also include pdSubSite to avoid clash on multi-sites?
-			pdJourneyType = journeyTypeOverride[2] + (pdJourneyType && pdJourneyType !== journeyTypeOverride[2] ? '-' + pdJourneyType : '');
-
 		}
-	}
-}
-//---- wbg|form|app|*au ---- 
-		
 		//console.log('pdFormType = ' + pdFormType);
 
 		// Dynamic pageName prefix for in- and out-of-session pages to uniquely identify the page in separate path/section
@@ -1200,10 +1131,7 @@ if (pdPageType && pdnewFormName) {
 
 		// Payments use pdTransactionType as part of page and form name, instead of formName
 		//formNameAlt = pdFormName || pdTransactionType;
-		//formNameAlt = pdFormName ? (pdFormName + (pdFormType ? ':' + pdFormType : '')) : pdTransactionType; // to switch short/long form type when required
-		//---- wbg|form|app|*au ---- 
-		formNameAlt = pdnewFormName || pdTransactionType; // to switch short/long form type when required
-		//---- wbg|form|app|*au ---- 
+		formNameAlt = pdFormName ? (pdFormName + (pdFormType ? ':' + pdFormType : '')) : pdTransactionType; // to switch short/long form type when required
 
 
 		// set pageName syntax for forms
@@ -1700,28 +1628,8 @@ if (pdPageType && pdnewFormName) {
 				//s2.transactionID = pdPageStep + '_' + pdTransactionId;
 				//s2.eVar39 = 'D=xact';
 			}
-		// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-		digital['dd.journeyType'] = lowerCaseVal(pdJourneyType);
-		// form-type
-		if (pdFormIsStp) {
-			digital['dd.formType'] = 'stp' + '_' + (lowerCaseVal(pdFormVariant) || 'na');
-		} else {
-			digital['dd.formType'] = 'non-stp';
-		}
-		// account-type
-		digital['dd.accountType'] = lowerCaseVal(pdAccountType);
-		//business-type
-		digital['dd.businessType'] = lowerCaseVal(pdBusinessType);
 
-		// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-
-		switch (pdPageStep) {
-			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-			case 'welcome':
-				appendEvent(digital, 'welcome');
-
-				break;
-			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+			switch (pdPageStep) {
 			case 'start':
 				appendEvent(digital,'appStart');
 				//appendEvent(21);
@@ -1749,12 +1657,7 @@ if (pdPageType && pdnewFormName) {
 				appendEvent(digital,'appCompleteSerialised', util.serialise(eventSerialisationKey, pdPageStep));
 				//appendEvent('event27' + util.serialise(eventSerialisationKey, pdPageStep));
 				console.log(eventSerialisationKey);
-				//digital['dd.transactionID'] = pdTransactionId;
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-				if (pdTransactionId) {
-					digital['dd.transactionID'] =  digital['dd.applicationID'] = util.createTransID(pdTransactionId);
-				}
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+				digital['dd.transactionID'] = pdTransactionId;
 				//s2.transactionID = pdTransactionId;
 				//s.eVar39 = 'D=xact'; // if multiple transacation ID's, what happens on forms without productID? are there any without products? Have form txn ID + multi prod IDs?
 				//s.purchaseID = 'D=v39';
@@ -1784,12 +1687,6 @@ if (pdPageType && pdnewFormName) {
 					//pdProductID[0].events=lowerCaseVal(pdTransactionType,1)+'='+pdTransactionAmount; // generic pdFormStatus applied during prod string processing
 					pdProductID[0].events = (pdTransactionType || notSet) + '=' + pdTransactionAmount; // generic pdFormStatus applied during prod string processing
 				}
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-				if (pdFormIsStp && pdAppStatus) {
-					// call applicationStatus function here with pdAppStatus as argument
-					digital['dd.applicationStatus'] = util.appStatusSetup(pdAppStatus);
-				}
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 
 				// track status of whole form submission (even though form may include multiple products)
 				// pdFormStatus is applied directly to merchandising with every transaction amount band
@@ -1828,31 +1725,8 @@ if (pdPageType && pdnewFormName) {
 				}
 
 				break;
-		}
-		break;
-	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-	case 'quote':
-		// *au
-		switch (pdPageStep) {
-			case 'start':
-				appendEvent(digital, 'quoteStart');
-
-				break;
-			case 'save':
-				appendEvent(digital, 'quoteSaved');
-
-				break;
-			case 'retrieve':
-				appendEvent(digital, 'quoteRetrieved');
-
-				break;
-			case 'complete':
-				appendEvent(digital, 'quoteComplete');
-
-				break;
-		}
-		break;
-	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+			}
+			break;
 		case 'servererror':
 			// 404, 500 etc. on page load
 			// align pageName for errors to correspond to similar section details of other pages
@@ -3372,32 +3246,28 @@ s3.w_prodArr = function (prodVal) {
 s3.w_prodStr = function (prodArr, details) {
 	// join product object array into Omniture formatted prod string for tracking
 	var prodSyntax = [],
-		//pdFormStatus = pageDetails.formStatus,
-		pdFormStatus = util.lCase(util.clean(details.formStatus)),
-		pdPageType = util.lCase(util.clean(details.pageType)),
-		lp1,
-		lp2,
-		prodArrLen = prodArr.length,
-		productCount,
-		pCount = [],
-		prodEvents,
-		prodEventDetails,
-		prodMerch,
-		txnType,
-		txnEvt,
-		txnBand,
-		transactionDetails,
-		currency,
-		amount,
-		currencySpecified = false,
-		//primaryProduct,
-		//primaryProductSpecified = false;
-		validProductCount = 0,
-		crossSellCheckLen = prodArrLen,
-		crossSellProduct,
-		crossSellProductSpecified = false,
-		primaryProduct,
-		secondaryProduct;
+	//pdFormStatus = pageDetails.formStatus,
+	pdFormStatus = util.lCase(util.clean(details.formStatus)),
+	pdPageType = util.lCase(util.clean(details.pageType)),
+	lp1,
+	lp2,
+	prodArrLen = prodArr.length,
+	prodEvents,
+	prodEventDetails,
+	prodMerch,
+	txnType,
+	txnEvt,
+	txnBand,
+	transactionDetails,
+	currency,
+	amount,
+	currencySpecified = false,
+	//primaryProduct,
+	//primaryProductSpecified = false;
+	validProductCount = 0,
+	crossSellCheckLen = prodArrLen,
+	crossSellProduct,
+	crossSellProductSpecified = false;
 
 	// loop through all products in the prodArr to set transaction amounts (band and average) and translate friendly transaction types into correct event numbers
 	//console.log('prodArr = ' + prodArr);
@@ -3414,39 +3284,9 @@ s3.w_prodStr = function (prodArr, details) {
 
 			if (crossSellProductSpecified) {
 				crossSellProduct = /true/i.test(prodArr[lp1].crossSell); // assume crossSell will be specified correctly in details
-			} //else {
-			//crossSellProduct = validProductCount > 1 ? true : false; // if nothing specified, anything after first valid product is assumed to be cross-sell
-			//}
-			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-			// commented default crossell for second product without crossel property
-			// append primaryProduct or secondaryProduct prefix (1- or 2-) in product string
-			if (prodArr[lp1].primaryProd === 'true') {
-				primaryProduct = true;
-				console.info('primaryProduct', primaryProduct);
+			} else {
+				crossSellProduct = validProductCount > 1 ? true : false; // if nothing specified, anything after first valid product is assumed to be cross-sell
 			}
-			if (prodArr[lp1].secondaryProd === 'true') {
-				secondaryProduct = true;
-				console.info('secondaryProduct', secondaryProduct);
-			}
-			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-
-
-			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-			if (prodArr[lp1].qty) {
-				var totalProductsSold = 0;
-				pCount.push(prodArr[lp1].qty);
-				pCount = pCount.map(parseFloat);
-
-				for (var i in pCount) {
-					totalProductsSold += pCount[i];
-				}
-				productCount = totalProductsSold;
-			}
-			if (productCount && pdPageStep === 'complete' && pdPageType === 'application') {
-				pdProductCount = productCount;
-				digital['dd.productCount'] = productCount;
-			}
-			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 
 			prodEvents = prodArr[lp1].events;
 			prodMerch = prodArr[lp1].merch;
@@ -3540,13 +3380,13 @@ s3.w_prodStr = function (prodArr, details) {
 				util.lCase(prodArr[lp1].cat || '') + ';' +
 				//s.w_lCase(prodArr[lp1].prod) + (pdPageType === 'application' && !primaryProduct ? '-x' : '') + ';' + // identify primary product/s for enhanced cross-sell reporting
 				//s.w_lCase(s.w_clean(prodArr[lp1].prod.replace(/,/g, ' '))) + (pdPageType === 'application' && !primaryProduct ? '-x' : '') + ';' + // identify primary product/s for enhanced cross-sell reporting
-				(pdPageType === 'application' && (crossSellProduct ? 'x-' : '' || secondaryProduct ? '2-' : '' || primaryProduct ? '1-' : '')) + util.lCase(util.clean(prodArr[lp1].prod.replace(/,/g, ' '))) + ';' +  // identify primary product/s for enhanced cross-sell reporting
+				util.lCase(util.clean(prodArr[lp1].prod.replace(/,/g, ' '))) + (pdPageType === 'application' && crossSellProduct ? '-x' : '') + ';' + // identify primary product/s for enhanced cross-sell reporting
 				(prodArr[lp1].qty || '1') + ';' + (prodArr[lp1].total || '') + ';' + (prodEvents || '') + ';' +
 				//.replace(/deposit(?==)/g,'event5') // replace friendly product event names with event numbers
 				//.replace(/loan(?==)/g,'event41')
 				//.replace(/payment(?==)/g,'event40')+';'+
 				(prodMerch || '')
-					.replace(/(^|\|)options=/g, '$1eVar37=') // set product options into eVar37
+				.replace(/(^|\|)options=/g, '$1eVar37=') // set product options into eVar37
 				//.replace(/(^|\|)merchVar(?==)/g,'eVarX') // example only, replace friendly merchandising names with eVar numbers
 			);
 		}
@@ -3971,5 +3811,5 @@ k.MouseEvent)&&(a.ya=1,a.useForcedLinkTracking=1,a.b.addEventListener("click",a.
 function s3_gi(a){var k,q=window.s_c_il,r,n,t=a.split(","),u,s,x=0;if(q)for(r=0;!x&&r<q.length;){k=q[r];if("s_c"==k._c&&(k.account||k.oun))if(k.account&&k.account==a)x=1;else for(n=k.account?k.account:k.oun,n=k.allAccounts?k.allAccounts:n.split(","),u=0;u<t.length;u++)for(s=0;s<n.length;s++)t[u]==n[s]&&(x=1);r++}x||(k=new AppMeasurement);k.setAccount?k.setAccount(a):k.sa&&k.sa(a);return k}AppMeasurement.getInstance=s3_gi;window.s_objectID||(window.s_objectID=0);
 function s_pgicq(){var a=window,k=a.s_giq,q,r,n;if(k)for(q=0;q<k.length;q++)r=k[q],n=s3_gi(r.oun),n.setAccount(r.un),n.setTagContainer(r.tagContainerName);a.s_giq=0}s_pgicq();
 
-s3.w_trackPage(digital);
+//s3.w_trackPage(digital);
 //s3.t();
