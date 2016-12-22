@@ -64,20 +64,19 @@ var visitor = Visitor.getInstance("3A4B7BAF56F01DA67F000101@AdobeOrg", {
 	overwriteCrossDomainMCIDAndAID: true //Set overwrite property 
 });
 
-var util = window.util || {},
-w_wtT = window.w_wtT || {};//test environment variables
+var util = window.util || {};
+util.w_wtT =window.w_wtT || window.testTracking || {};//test environment variables
 util.pathConcatDelim = ':';
 util.queryVarsList= '';
 util.pathExcludeList=''; // elements to exclude from the path - index.html? default.aspx for info?
 util.pathExcludeDelim = ';'; // portion of the path to exclude - was ;
 util.siteID= '';  //s.siteID set in doPlugins to allow changing to 'app' based on visitorID cookie from apps
 util.version = 'U0.01';
-util.codeVers="vid"+visitor.version+","+util.version,
+//util.codeVers="vid"+visitor.version+","+util.version;
 util.location = window.location;
 // moved from original responsive CSS function in analytics.js
 util.isVisible = function (selector, element) {
-	var elem = selector ? document.querySelector && document.querySelector(selector) : element,
-	ieDisplayNoneBug;
+	var elem = selector ? document.querySelector && document.querySelector(selector) : element, ieDisplayNoneBug;
 	// fix for IE bug with inline and block elements stating offsets incorrectly
 	ieDisplayNoneBug = elem && elem.currentStyle && elem.currentStyle.display === 'none' ? true : false;
 	return elem && (elem.offsetWidth > 0 && elem.offsetHeight > 0) && !ieDisplayNoneBug; // other conditions can be added if required
@@ -111,7 +110,7 @@ util.addHandler = function (element, event, handler) {
 			element.attachEvent('on' + event, handler);
 		}
 	}
-}
+};
 util.onReady = function (func) {
 	if (/complete/.test(document.readyState)) { // fire/attach immediately in case window load has already occured
 			func();
@@ -120,10 +119,10 @@ util.onReady = function (func) {
 			setTimeout(func, 4); // should be 4
 		});
 	}
-}
+};
 util.cookieRead = function (sKey) {
 	return decodeURIComponent(document.cookie.replace(new RegExp('(?:(?:^|.*;)\\s*' + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=\\s*([^;]*).*$)|^.*$'), '$1')) || '';
-}
+};
 util.cookieWrite = function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
 	if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) {
 		return false;
@@ -134,7 +133,7 @@ util.cookieWrite = function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
 	}
 	document.cookie = encodeURIComponent(sKey) + '=' + encodeURIComponent(sValue) + sExpires + (sDomain ? '; domain=' + sDomain : '') + (sPath ? '; path=' + sPath : '') + (bSecure ? '; secure' : '');
 	return true;
-}
+};
 util.scriptElement = function (id) {
 	var existing = document.getElementById(id),
 	scripts = document.getElementsByTagName('script')[0],
@@ -155,7 +154,7 @@ util.scriptElement = function (id) {
 	scripts.parentNode.insertBefore(element, scripts);
 	
 	return element;
-}
+};
 util.cloneObject=function (oToBeCloned, clones) {
 	var oClone,
 	Constr = oToBeCloned && oToBeCloned.constructor ? oToBeCloned.constructor : undefined,
@@ -207,7 +206,7 @@ util.cloneObject=function (oToBeCloned, clones) {
 		}
 	}
 	return oClone;
-}
+};
 util.qSA = function (doc, selector, tag, attr, regex) {
 	var lp,
 	len,
@@ -237,7 +236,7 @@ util.qSA = function (doc, selector, tag, attr, regex) {
 		}
 	}
 	return result;
-}
+};
 util.getText = function (elem) {
 	var elemText;
 	if (elem) {
@@ -246,10 +245,10 @@ util.getText = function (elem) {
 		elemText = '';
 	}
 	return elemText.replace(/^\s+|\s+$/g, ''); // trim
-},
+};
 util.removeNumbers = function (str) {
 	return str.replace(/\s+\(\s*\d+\s*\)$/g, ''); // remove numbers and trim
-}
+};
 util.addCallback = function (scriptEl, readyCheck, callback) {
 	var thisFunction = helpers.addCallback;
 	thisFunction.q = thisFunction.q || [];
@@ -280,7 +279,7 @@ util.addCallback = function (scriptEl, readyCheck, callback) {
 			}
 		});
 	}
-}
+};
 util.guidRgx = /\b\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\b/g;
 util.cleanJSON = function (JSONdata) {
 	JSONdata = JSONdata.replace(/\\n/g, "\\n")  
@@ -294,7 +293,7 @@ util.cleanJSON = function (JSONdata) {
 	// remove non-printable and other non-valid JSON chars
 	JSONdata = JSONdata.replace(/[\u0000-\u0019]+/g,""); 
 	return JSONdata = JSON.parse(JSONdata);
-}
+};
 
 util.cleanURL = function (loc, locType) {
 	var cleanedUrl = (loc || '')
@@ -339,7 +338,6 @@ util.cleanURL = function (loc, locType) {
 
 	return cleanedUrl;
 };
-util.w_wtT = window.testTracking || {};
 // return full current URL for test or prod
 util.getLoc = function () {
 	return util.w_wtT.location || window.location;
@@ -424,7 +422,7 @@ util.pt=function(x,d,f,a){
 		t = z < x.length ? t : ''
 	}
 	return '';
-}
+};
 
 util.getPageName = function (u) {
 	var v = u || String(util.getLoc),
@@ -543,11 +541,11 @@ util.getVisitNum = function (tp, c, c2) {
 			return 1;
 		}
 	}
-}
+};
 util.dimo = function (m, y) {
 	var d = new Date(y, m + 1, 0);
 	return d.getDate();
-}
+};
 util.endof = function (x) {
 	var t = new Date;
 	t.setHours(0);
@@ -562,7 +560,7 @@ util.endof = function (x) {
 	}
 	t.setDate(t.getDate() + d);
 	return t;
-}
+};
 
 // serialisation value for events
 util.serial = function () {
@@ -944,6 +942,7 @@ util.amntBnds = function (type, transactionValue) { // type not required? all us
 	}
 	return band;
 };
+
 var _tempContext = {},
 digital={},
 pageBrand='',
@@ -954,7 +953,7 @@ fullLocObj = util.getLoc(), // update each call
 cleanText = util.clean,
 appendEvent = util.addEvt,
 // store copy in s object for clicks etc to refer to previous details (pageName etc.)
-pageDetails =w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
+pageDetails = util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
 pdPageName = cleanText(pageDetails.pageName),
 pdDialogTitle = cleanText(pageDetails.dialogTitle), // captures titles of dialogs in OTP and CTRT code for dynamic campaign landing page. Value is appended to end of page name.
 sPageNameTemp = '',
@@ -1026,6 +1025,14 @@ if (/(?:^|\.)stgeorge\.com\.au$/i.test(util.getLoc().hostname)) {
 	pageSite = /(.+)(?:\.stgeorge\.com\.au$)/i.exec(util.getLoc().hostname); // || [];
 	pageSite = pageSite ? pageSite[1] : notSet;
 }
+
+// Brand specific
+if (/(?:^|\.)bt\.com\.au$/i.test(util.getLoc().hostname)) {
+	pageBrand = 'bt';
+	pageSite = /(.+)(?:\.bt\.com\.au$)/i.exec(util.getLoc().hostname); // || [];
+	pageSite = pageSite ? pageSite[1] : notSet;
+}
+
 //if (/(?:^|\.)westpac\.com\.au$/i.test(fullLocHostname) || (window.s_w_wbcrgx && window.s_w_wbcrgx.test(fullLocHostname))) {
 if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 	pageBrand = 'wbc';
@@ -2396,7 +2403,7 @@ s3.eVar21 = pageNameDynamicVariable; // pageName eVar
 s3.hier1 = pageNameDynamicVariable;
 //s3.eVar25 = s3.marketingCloudVisitorID;
 //s3.server = lowerCaseVal(fullLocObj.hostname);
-s3.server  = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(util.codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
+s3.server  = lowerCaseVal(fullLocObj.hostname); //ABU remove + (/\s(banking|dev)\s/i.test(util.codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
 //s2.server = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(s2.w_codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
 
 // use implementation plug-ins that are defined below
@@ -3602,7 +3609,7 @@ if (channelManagerSearchType) {
 }
 
 s3.eVar29 = s3.getDaysSinceLastVisit('s3_lv');
-s3.prop39 = util.codeVers+":App"+ s3.version;
+s3.prop39 = "vid"+Visitor.version+","+util.version+":App"+ s3.version;
 
 if (/^sitesearch$/.test(pdPageType)) {
 	//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
