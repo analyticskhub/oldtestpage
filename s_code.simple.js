@@ -63,7 +63,7 @@ var visitor = Visitor.getInstance("3A4B7BAF56F01DA67F000101@AdobeOrg", {
 	cookieDomain: (/[0-9]{1,3}$/i).test(location.hostname)? location.hostname : location.hostname.split('.').slice(1).join('.'),
 	overwriteCrossDomainMCIDAndAID: true //Set overwrite property 
 });
-
+console.info('util starts here');
 var util = window.util || {};
 util.w_wtT =window.w_wtT || window.testTracking || {};//test environment variables
 util.pathConcatDelim = ':';
