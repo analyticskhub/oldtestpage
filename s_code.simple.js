@@ -3594,11 +3594,11 @@ s3.w_prodStr = function (prodArr, details) {
 			// append primaryProduct or secondaryProduct prefix (1- or 2-) in product string
 			if (prodArr[lp1].primaryProd === 'true' && pdPageType === 'application') {
 				primaryProduct = true;
-				console.info('primaryProduct', primaryProduct);
+				//console.info('primaryProduct', primaryProduct);
 			}
 			if (prodArr[lp1].secondaryProd === 'true' && pdPageType === 'application') {
 				secondaryProduct = true;
-				console.info('secondaryProduct', secondaryProduct);
+				//console.info('secondaryProduct', secondaryProduct);
 			}
 			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 
