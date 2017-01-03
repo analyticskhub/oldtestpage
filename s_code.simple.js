@@ -1098,7 +1098,7 @@ util.appStatusSetup = function (status) {
 	for (var _i = 0, formStatusArray_1 = formStatusArray; _i < formStatusArray_1.length; _i++) {
 		var items = formStatusArray_1[_i],
 			frmStVal;
-		frmStVal = 'accStatus:' + items.accountStatus + '|' + 'proStatus:' + items.profileStatus + '|' + 'verStatus:' + items.verificationStatus + '|' + 'exceCode:' + items.execeptionCode;
+		frmStVal = 'accStatus:' + items.accountStatus + '|' + 'proStatus:' + items.profileStatus + '|' + 'verStatus:' + items.verificationStatus + '|' + 'exceCode:' + items.exceptionCode;
 		finalVal.push(frmStVal);
 	}
 	//console.info(finalVal);
@@ -1357,8 +1357,20 @@ formNameAlt = pdnewFormName || pdTransactionType; // to switch short/long form t
 // set pageName syntax for forms
 if (formNameAlt || (/^(?:tool|survey|selfservice|registration|payment|login|enquiry|application)$/).test(pdPageType)) { // pageType considered to be a form, use form syntax for pageName
 	formNameAlt = formNameAlt || notSet;
+	var newPageType;
+	newPageType = pdPageType;
 
-	sPageNameTemp = util.siteID + ':' + (pdPageType || notSet) + ':' + formNameAlt + (pdPageName ? ':' + pdPageName : ''); // with subSite coming from s.siteID
+	newPageType = lowerCaseVal(
+		newPageType.replace(/application/i, 'app')
+			.replace(/enquiry/i, 'enq')
+			.replace(/quote/i, 'quo')
+			.replace(/selfservice/i, 'ser')
+			.replace(/registration/i, 'reg')
+			.replace(/payment/i, 'pay')
+			.replace(/survey/i, 'sur')
+	);
+
+	sPageNameTemp = util.siteID + ':' + (newPageType || notSet) + ':' + formNameAlt + (pdPageName ? ':' + pdPageName : ''); // with subSite coming from s.siteID
 	//sPageNameTemp = s2.siteID + ':' + (pdPageType || notSet) + ':' + formNameAlt + (pdPageName ? ':' + pdPageName : ''); // with subSite coming from s.siteID
 	//sPageNameTemp = s.siteID + ':' + (pdSubSite ? pdSubSite + ':' : '') + (pdPageType || notSet) + ':' + formNameAlt + (pdPageName ? ':' + pdPageName : '');
 } else {
