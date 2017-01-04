@@ -1,0 +1,206 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Responsive experience test new</title>
+		<style>
+			body {
+				font-family: Verdana;
+				font-size: 11px;
+				background-color: #FFF;
+				line-height: 1.4;
+			}
+			@media screen, print and (min-width:1px) { /* media queries dont work in IE<9 */
+				.media-query-support-required {
+					display: none;
+				}
+			}
+			body p {
+				margin: 20px;
+			}
+			div p span {
+				font-weight: bold;
+			}
+			div div p {
+				margin: 20px;
+			}
+			div div p a {
+				margin-left: 6px;
+			}
+			div div.group>p:first-child {
+				border: 1px dotted black;
+			}
+			div.demo>div {
+				width: 200px;
+				margin: 20px;
+				border: 1px dotted black;
+			}
+			div.settings {
+				display: table;
+				border: none;
+				margin: 20px 0;
+			}
+			div.settings div {
+				display: table-row;
+			}
+			div.settings div a {
+				display: table-cell;
+			}
+			div.settings p, div.settings a {
+				margin: 0px;
+				padding: 0px 0 2px 20px;
+			}
+			.other-info {
+				font-size: 12px;
+			}
+			#exp {
+				font-weight: bold;
+				padding: 10px;
+			}
+			.desktop {
+				background: #d0e4ff;
+			}
+			.tab {
+				background: #ffe0b5;
+			}
+			.mob {
+				background: #daff9a;
+			}
+		</style>
+		<!--[if lt IE 9]>
+			<style>
+				.long-url-support-required {
+					display: none;
+				}
+			</style>
+		<![endif]-->
+		<script src="s_code.simple.js"></script>
+		<script>
+			respDemo = {
+				setClass : function (group, number, on) {
+					var elem = document.getElementById(group + number),
+					parent = document.getElementById(group + number + 'parent'),
+					visible = elem.style.display != 'none';
+					elem.className = on ? 'analytics-experience-' + group : '';
+					parent.style.backgroundColor = on ? 'yellow' : '';
+					parent.style.borderStyle = on ? (visible ? 'solid' : 'dotted') : 'dotted';
+					respDemo.update();
+				},
+				setVis : function (group, number, on) {
+					var elem = document.getElementById(group + number),
+					parent = document.getElementById(group + number + 'parent'),
+					classRegex = new RegExp('\\banalytics-experience-' + group + '\\b');
+					elem.style.display = on ? 'inline' : 'none';
+					parent.style.borderStyle = on ? (classRegex.test(elem.className) ? 'solid' : 'dotted') : 'dotted';
+					respDemo.update();
+				},
+				update : function () {
+					var elem = document.getElementById('exp'),
+					experience = s.w_getExp();
+					elem.innerHTML = experience;
+					elem.className = experience;
+				}
+			};
+		</script>
+	</head>
+	<body>
+		<div class="demo">
+			<div class="desktop group">
+				<p id="desktop1parent">
+					
+					<!-- element showing in desktop -->
+					&nbsp;<span id="desktop1">Desktop element</span>
+					
+				</p>
+				
+				<div class="settings">
+					<div>
+						<p>Desktop class</p>
+						<a href="#" onclick="respDemo.setClass('desktop', 1, 1)">yes</a>
+						<a href="#" onclick="respDemo.setClass('desktop', 1, 0)">no</a>
+					</div>
+					<div>
+						<p>Visible</p>
+						<a href="#" onclick="respDemo.setVis('desktop', 1, 1)">yes</a>
+						<a href="#" onclick="respDemo.setVis('desktop', 1, 0)">no</a>
+					</div>
+				</div>
+			</div>
+			<div class="tab group">
+				<p id="tab1parent">
+					
+					<!-- element showing in tablet -->
+					&nbsp;<span id="tab1">Tablet element</span>
+					
+				</p>
+				
+				<div class="settings">
+					<div>
+						<p>Tablet class</p>
+						<a href="#" onclick="respDemo.setClass('tab', 1, 1)">yes</a>
+						<a href="#" onclick="respDemo.setClass('tab', 1, 0)">no</a>
+					</div>
+					<div>
+						<p>Visible</p>
+						<a href="#" onclick="respDemo.setVis('tab', 1, 1)">yes</a>
+						<a href="#" onclick="respDemo.setVis('tab', 1, 0)">no</a>
+					</div>
+				</div>
+			</div>
+			<div class="mob group">
+				<p id="mob1parent">
+					
+					<!-- element showing in mobile -->
+					&nbsp;<span id="mob1">Mobile element</span>
+					
+				</p>
+				
+				<div class="settings">
+					<div>
+						<p>Mobile class</p>
+						<a href="#" onclick="respDemo.setClass('mob', 1, 1)">yes</a>
+						<a href="#" onclick="respDemo.setClass('mob', 1, 0)">no</a>
+					</div>
+					<div>
+						<p>Visible</p>
+						<a href="#" onclick="respDemo.setVis('mob', 1, 1)">yes</a>
+						<a href="#" onclick="respDemo.setVis('mob', 1, 0)">no</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<p style="margin-top:40px;font-size:24px">
+			experience = <span id="exp"></span>
+		</p>
+		<script>
+			respDemo.update();
+		</script>
+		
+		<p style="margin-top:40px;font-size:10px">
+			<a href="responsive2.html">Reset page</a>
+		</p>
+		
+		<p style="margin-top:40px;font-size:12px" class="other-info long-url-support-required">
+			This bookmarklet will log the detected experience details to the console and highlight any elements with analytics classes.<br>
+			Drag the link to your bookmarks bar - <a href="javascript:(function(){if(document.documentMode)
+console.info('Not supported in IE8');else if(window.util&&util.isVisible){var f=pageDetails.experience,k=util.isVisible('.analytics-experience-desktop'),e=util.isVisible('.pagedetails-experience-tab'),a=util.isVisible('.analytics-experience-tab'),e=null!==e?e:a,a=util.isVisible('.pagedetails-experience-mob'),b=util.isVisible('.analytics-experience-mob'),l=null!==a?a:b,a=['.pagedetails-experience-tab','.pagedetails-experience-mob','.analytics-experience-desktop','.analytics-experience-tab','.analytics-experience-mob'],g={'null':'Not found','true':'Visible','false':'Hidden'},d={desktop:'#d0e4ff',tab:'#ffe0b5',mob:'#daff9a','(function not found)':'pink',responsive:'lightgray','(not set)':'lightgray'},h,c,m=window.util&&util.getExp?util.getExp():'(function not found)';if(window.console){console.info('%25c-------------------------------------------','color:gray');if(document.querySelectorAll)
+for(b=0;b<a.length;b++)
+h=document.querySelectorAll(a[b]),c=h.length,console.info('%25cFound '+c+' '+a[b]+' element'+(1!==c?'s':'')+'.'+(c?1===c?' It ':' The first element ':'')+(c?util.isVisible(0,h[0])?'has content.':'is empty.':'')+(c?' It is '+g[String(util.isVisible(a[b]))].toLowerCase()+'.':''),'color:'+(0===c?'gray':1===c?'green':'red'));console.info('%25c-------------------------------------------','color:gray');console.info('%25cElement with desktop class:%25c'+g[String(k)],'color:black;background-color:'+d.desktop,'color:'+(k?'black':'gray')+';font-weight:bold');console.info('%25cElement with tablet class:%25c'+g[String(e)],'color:black;background-color:'+d.tab,'color:'+(e?'black':'gray')+';font-weight:bold');console.info('%25cElement with mobile class:%25c'+g[String(l)],'color:black;background-color:'+d.mob,'color:'+(l?'black':'gray')+';font-weight:bold');console.info('%25cOriginal/default experience:%25c'+(util.expOrig||'(not set)'),'color:gray','background-color:'+d[util.expOrig||'(not set)']+';color:gray;font-weight:bold');console.info('%25cCurrent detected experience:%25c'+m,'color:black;font-weight:bold','background-color:'+d[m]+';color:black;font-weight:bold');console.info('%25c-------------------------------------------','color:gray');console.info('%25cpageDetails.experience:%25c'+(f||'(not set)'),'color:black','background-color:'+d[f||'(not set)']+';color:black;font-weight:bold')}
+if(document.querySelector)
+for(b=0;b<a.length;b++)
+if(f=document.querySelector(a[b]))
+f.style.backgroundColor='yellow'}else
+window.console&&console.info('s_code functions not found')})();">Experience Detect</a>
+		</p>
+		<p class="other-info">
+			If 'experience' is specified in pageDetails JSON it will have priority over the detected CSS experience.
+		</p>
+		
+		<p class="other-info media-query-support-required">
+			<br>IE&lt;9 doesn't support standard CSS media queries for responsive sizing pages.<br>
+			If support is added by another method, pageDetails.experience must be set directly by the other code. (e.g. JS)
+		</p>
+	</body>
+</html>
