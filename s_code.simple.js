@@ -2566,7 +2566,7 @@ s3.events=s3.apl(s3.events,"event1",",",1);
 		util.w_wtT.complete(s3);
 	}
 	s3.AudienceManagement.setup({
-          "partner": "wbg.demdex.net",
+          "partner": "wbg",
           "containerNSID": 0,
           "uuidCookie": {
               "name": "aam_uuid",
@@ -2574,7 +2574,7 @@ s3.events=s3.apl(s3.events,"event1",",",1);
           },
     "disableDefaultRequest": true,
     "disableScriptAttachment": true
-      });
+    });
 
 }
 s3.doPlugins=s_doPlugins
