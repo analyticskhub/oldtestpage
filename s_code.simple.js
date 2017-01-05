@@ -75,12 +75,30 @@ util.version = 'U0.01';
 //util.codeVers="vid"+visitor.version+","+util.version;
 util.location = window.location;
 // moved from original responsive CSS function in analytics.js
+util.isVisible_ex = "util.isVisible(@selector, @element) \nreturn true if the item is not hidded";
 util.isVisible = function (selector, element) {
 	var elem = selector ? document.querySelector && document.querySelector(selector) : element, ieDisplayNoneBug;
 	// fix for IE bug with inline and block elements stating offsets incorrectly
 	ieDisplayNoneBug = elem && elem.currentStyle && elem.currentStyle.display === 'none' ? true : false;
 	return elem && (elem.offsetWidth > 0 && elem.offsetHeight > 0) && !ieDisplayNoneBug; // other conditions can be added if required
 };
+util.random_ex ="util.random() \nreturn an rendom number";
+util.random = function(){
+	var dd = new Date(); 
+	return Math.round(Math.abs(Math.sin(dd.getTime()))*1000000000)%10000000;
+};
+util.loadScript_ex ="util.loadScript(@url,@delay,@random) \nload an script async \n@url destination URL, \n@delay is use for setTimeout defauel 4000ms  \n@random supply string which will be replaced by rendom number at runtime\n@example util.loadScript('//abc.abc.com/pages/scripts/abc.js?RAND',4,'RAND')";
+util.loadScript = function(url,delay,random){
+	var d = delay ? d=delay : 4000; //default delay 4000ms
+	url = random ? String(url).replace(new RegExp(random),util.random()) : String(url);
+	setTimeout(function(){
+		var a=document.createElement("script");
+		var b=document.getElementsByTagName("script")[0];
+		a.src=document.location.protocol+url;
+		a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)
+	}, d);
+};
+util.getExp_ex="util.getExp() \nreturn responsive experence as mob, tab or desktop\based on css class .analytics-experience .pagedetails-experience";
 util.getExp = function () {
 	var isVis = util.isVisible,
 	cssExperienceMob = isVis('.pagedetails-experience-mob') || isVis('.analytics-experience-mob'), // responsive site mobile class visible check. name changed to analytics-... to be more relevant
@@ -102,6 +120,7 @@ util.getExp = function () {
 
 	return experienceResult;
 };
+util.addHandler_ex="util.addHandler(@element, @event, @handler) add event Listener";
 util.addHandler = function (element, event, handler) {
 	if (element.addEventListener) {
 		element.addEventListener(event, handler, false);
@@ -120,9 +139,11 @@ util.onReady = function (func) {
 		});
 	}
 };
+util.cookieRead_ex="util.cookieRead(@sKey) \nreturn the value of a given cookie \@sKey =cookie name";
 util.cookieRead = function (sKey) {
 	return decodeURIComponent(document.cookie.replace(new RegExp('(?:(?:^|.*;)\\s*' + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=\\s*([^;]*).*$)|^.*$'), '$1')) || '';
 };
+util.cookieWrite_ex="util.cookieWrite(@sKey, @sValue, @vEnd, @sPath, @sDomain, @bSecure) \nWrite a cookie with given value \n@sKey =cookie name \n@sValue = cookie value, \n@vEnd = cookie expiry \n@sPath = domain path \n@sDomain = cookie domain \n@bSecure = secure flug";
 util.cookieWrite = function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
 	if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) {
 		return false;
@@ -134,6 +155,7 @@ util.cookieWrite = function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
 	document.cookie = encodeURIComponent(sKey) + '=' + encodeURIComponent(sValue) + sExpires + (sDomain ? '; domain=' + sDomain : '') + (sPath ? '; path=' + sPath : '') + (bSecure ? '; secure' : '');
 	return true;
 };
+
 util.scriptElement = function (id) {
 	var existing = document.getElementById(id),
 	scripts = document.getElementsByTagName('script')[0],
@@ -155,6 +177,7 @@ util.scriptElement = function (id) {
 	
 	return element;
 };
+util.cloneObject_ex ="util.cloneObject(@oToBeCloned, @clones)";
 util.cloneObject=function (oToBeCloned, clones) {
 	var oClone,
 	Constr = oToBeCloned && oToBeCloned.constructor ? oToBeCloned.constructor : undefined,
@@ -207,6 +230,7 @@ util.cloneObject=function (oToBeCloned, clones) {
 	}
 	return oClone;
 };
+util.qSA_ex ="util.qSA(@doc, @selector, @tag, @attr, @regex) return selected elements \n@doc = document  \n@selector = any selecton \nFor non supported browser: \n@tag, @attr, @regex"; 
 util.qSA = function (doc, selector, tag, attr, regex) {
 	var lp,
 	len,
@@ -237,6 +261,7 @@ util.qSA = function (doc, selector, tag, attr, regex) {
 	}
 	return result;
 };
+util.getText_ex = "util.getText(@elem) \nreturn text of any element"
 util.getText = function (elem) {
 	var elemText;
 	if (elem) {
@@ -246,6 +271,7 @@ util.getText = function (elem) {
 	}
 	return elemText.replace(/^\s+|\s+$/g, ''); // trim
 };
+util.removeNumbers_ex = "util.removeNumbers(@str) \nremove number from a given string" 
 util.removeNumbers = function (str) {
 	return str.replace(/\s+\(\s*\d+\s*\)$/g, ''); // remove numbers and trim
 };
@@ -281,6 +307,7 @@ util.addCallback = function (scriptEl, readyCheck, callback) {
 	}
 };
 util.guidRgx = /\b\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\b/g;
+util.cleanJSON_ex = "util.cleanJSON(@JSONdata) \n remove non-printable and other non-valid JSON chars";
 util.cleanJSON = function (JSONdata) {
 	JSONdata = JSONdata.replace(/\\n/g, "\\n")  
 				   .replace(/\\'/g, "\\'")
@@ -295,6 +322,7 @@ util.cleanJSON = function (JSONdata) {
 	return JSONdata = JSON.parse(JSONdata);
 };
 
+util.cleanURL_ex = "util.cleanURL(@loc, @locType) \nremove guidRgx,referrer querystring parameter, multiple slashes, session ID,hash or hashbang\@locType = 1 remove cid";
 util.cleanURL = function (loc, locType) {
 	var cleanedUrl = (loc || '')
 	.replace(/(\w)\/\/+/g, '$1/') // replace multiple slashes after a word char. with single slash (except for ://) for clean pageName (from location)
@@ -338,11 +366,11 @@ util.cleanURL = function (loc, locType) {
 
 	return cleanedUrl;
 };
-// return full current URL for test or prod
+util.getLoc_ex = "util.getLoc() return full current URL for test or prod"; 
 util.getLoc = function () {
 	return util.w_wtT.location || window.location;
 };
-util.defaultPage = /^\/+$/.test(util.getLoc.pathname) ? 'home' : ''; // filename to add when none exists (www home page)
+util.defaultPage = /^\/+$/.test(util.getLoc().pathname) ? 'home' : ''; // filename to add when none exists (www home page)
 // default/initialised s.pageURL
 util.pageURL = util.cleanURL(util.getLoc().href, 1);
 
@@ -355,17 +383,17 @@ util.timePart = function () {
 	return dayNames[dateNow.getDay()] + ' ' + ('00' + dateNow.getHours()).slice(-2) + ':' + (dateNow.getMinutes() > 29 ? '30' : '00');
 };
 
-// lower case strings or (not set) if empty
+util.lCase_ex ="util.lCase(@val, @alt) \nlower case strings or (not set) if empty";
 util.lCase = function (val, alt) {
 	var altVal = alt ? '(not set)' : '';
 	return String(val || altVal).toLowerCase();
 };
-// clean strings - trim and remove multiple spaces for consistency
+util.clean_ex ="util.clean(@str) \nclean strings - trim and remove multiple spaces for consistency";
 util.clean = function (str) {
 	return (str ? String(str) : '').replace(/\s+/g, ' ').replace(/^\s|\s$/g, '');
 };
 
-// return 'zero' for '0' value to allow SAINT classification
+util.fixZero_ex = "util.fixZero(@val) return 'zero' for '0' value";
 util.fixZero = function (val) {
 	return String(val) === '0' ? 'zero' : val;
 };
@@ -386,6 +414,7 @@ util.srchTerm = function (val) {
 	return srchTerm;
 };
 // cap numbers to reduce number of items for classifactions
+util.cap_ex = "util.cap(@item, @cap) \nif item value is greater than, or equal to cap, append '+'";
 util.cap = function (item, cap) {
 	return item >= cap ? cap + '+' : item; // if item value is greater than, or equal to cap, append '+'. event50 (page load time) removes the '+', because the event value must be numeric.
 };
@@ -396,6 +425,7 @@ util.addEvt = function (obj,evtName,evtValue){
 	obj['ev_'+ evtName] = evtValue ? evtValue : 1; 
 	//s2.events = s2.apl(s2.events, isNaN(evt) ? evt || '' : 'event' + evt, ',', 2);
 };
+util.fl_ex = "util.fl(@str, @len) \nreturn substring of a given length";
 util.fl = function(x,l){
 return x?(''+x).substring(0,l):x
 };
@@ -405,6 +435,7 @@ util.p_c = function (v, c) {
 	return c.toLowerCase() == v.substring(0, x < 0 ? v.length : x).toLowerCase() ? v : 0;
 };
 
+util.pt_ex ="pt - runs function in f argument against list of \nvariables declared in x (delimited by d), with a as an optional \nargument to be included in f function call";
 util.pt=function(x,d,f,a){
 	var t=x,
 	z=0,
@@ -425,7 +456,7 @@ util.pt=function(x,d,f,a){
 };
 
 util.getPageName = function (u) {
-	var v = u || String(util.getLoc),
+	var v = u || String(util.pageURL),
 	x = v.indexOf(':'),
 	y = v.indexOf('/', x + 4),
 	z = v.indexOf('?'),
@@ -701,6 +732,7 @@ util.valReplace = function (initialVal, replaceDetails) {
 	//console.log('resultName = ' + resultName);
 	return resultName;
 };
+util.getQueryParam ="util.getQueryParam(@parameters, @delimiter, @url, @startFromHash) \nReturn a Query Param value(s)";
 util.getQueryParam = function (parameters, delimiter, url, startFromHash) {
 	var params = parameters.split(','),
 	delim = delimiter || '',
@@ -784,6 +816,7 @@ util.moduleLookup = function (mods, modKey) {
 	}
 	return moduleFriendlyNames;
 };
+util.amntBnds_ex = "util.amntBnds(@type, @Value) \nReturns bands of any value";
 util.amntBnds = function (type, transactionValue) { // type not required? all use the same bands
 	var bands,
 	band = {
