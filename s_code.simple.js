@@ -1206,7 +1206,7 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 if (pdPageType && pdnewFormName) {
 	//if (pdPageStep === 'start') {
 	//if (pdPageStep === 'start' && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys
-	if ((pdPageStep === 'start' || pdPageStep === 'intro') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
+	if ((pdPageStep === 'start' || pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
 		util.cookieWrite('journeyTypOv', pdPageType + pdnewFormName + '-' + pdJourneyType);
 		//s2.c_w('frmTypOv', pdPageType + pdFormName + '-' + pdFormType); // prefix should also include pdSubSite to avoid clash on multi-sites?
 	} else {
@@ -3609,7 +3609,7 @@ s3.w_prodStr = function (prodArr, details) {
 				util.lCase(prodArr[lp1].cat || '') + ';' +
 				//s.w_lCase(prodArr[lp1].prod) + (pdPageType === 'application' && !primaryProduct ? '-x' : '') + ';' + // identify primary product/s for enhanced cross-sell reporting
 				//s.w_lCase(s.w_clean(prodArr[lp1].prod.replace(/,/g, ' '))) + (pdPageType === 'application' && !primaryProduct ? '-x' : '') + ';' + // identify primary product/s for enhanced cross-sell reporting
-				(pdPageType === 'application' && (crossSellProduct ? 'x-' : '' || secondaryProduct ? '2-' : '' || primaryProduct ? '1-' : '')) + util.lCase(util.clean(prodArr[lp1].prod.replace(/,/g, ' '))) + ';' +  // identify primary product/s for enhanced cross-sell reporting
+				(pdPageType === 'application' && crossSellProduct ? 'x-' : '' || secondaryProduct ? '2-' : '' || primaryProduct ? '1-' : '') + util.lCase(util.clean(prodArr[lp1].prod.replace(/,/g, ' '))) + ';' +  // identify primary product/s for enhanced cross-sell reporting
 				(prodArr[lp1].qty || '1') + ';' + (prodArr[lp1].total || '') + ';' + (prodEvents || '') + ';' +
 				//.replace(/deposit(?==)/g,'event5') // replace friendly product event names with event numbers
 				//.replace(/loan(?==)/g,'event41')
