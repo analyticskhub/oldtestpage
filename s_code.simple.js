@@ -2352,12 +2352,7 @@ if (pdPageType && pdnewFormName) {
 		//	s.prop15 = pageNameDynamicVariable;
 		//}
 		// refactored and referencing lastPg cookie
-		//ABU TODO 
-		if(lastSentPage){
-			digital['dd.previousPage'] = lastSentPage;
-			var lastPixelLength = s2.c_r('lastPixelLen')
-			digital['dd.lastPixelLength'] = lastPixelLength;
-		}
+
 		//s2.prop15 = lastSentPage === sPageNameTemp ? pageNameDynamicVariable : lastSentPage;
 		
 		
@@ -3733,11 +3728,15 @@ if (custTrackingId && custTrackingId === custTrackingIdPrevious && custProfileId
 	console.log('Profile switched'); // detect when only switching profiles and landing on dashboard vs. a new login to dashboard
 }
 
-
 // capture user-agent
 s3.prop27 = 'D=User-Agent'; // capture with proc rule to increase capture (non-JS), reduce JS size and reduce pixel length
 
-
+//Previous page
+if(lastSentPage){
+	digital['dd.previousPage'] = lastSentPage;
+	var lastPixelLength = s3.c_r('lastPixelLen')
+	digital['dd.lastPixelLength'] = lastPixelLength;
+}
 
 // External Campaigns
 //if(!s.campaign){
