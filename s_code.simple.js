@@ -1173,7 +1173,8 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 if (pdPageType && pdnewFormName) {
 	//if (pdPageStep === 'start') {
 	//if (pdPageStep === 'start' && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys
-	if ((pdPageStep === 'start' || pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
+	//if ((pdPageStep === 'start' || pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
+	if ((pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
 		util.cookieWrite('journeyTypOv', pdPageType + pdnewFormName + '-' + pdJourneyType);
 		//s2.c_w('frmTypOv', pdPageType + pdFormName + '-' + pdFormType); // prefix should also include pdSubSite to avoid clash on multi-sites?
 	} else {
