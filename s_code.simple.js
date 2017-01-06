@@ -1057,7 +1057,7 @@ pdFormStatus = lowerCaseVal(cleanText(pageDetails.formStatus)), // local var ref
 pdSearchTerm = cleanText(pageDetails.searchTerm),
 pdSearchResults = String((String(pageDetails.searchResults) || notSet) > -1 ? util.cap(pageDetails.searchResults, 5000) : notSet), // need to differentiate between undefined, 0, '0' and ''.
 pdItemName = cleanText(pageDetails.itemName), // item name for faq and atm
-pageExperience = pageDetails.experience,
+pageExperience = pageDetails.experience || pageDetails.siteExperience || '',
 trackingOverrideEnabled = false, // for trackingOverride
 prpty, // local var for looping properties
 friendlyModules,
@@ -2374,8 +2374,6 @@ if (pdPageType && pdnewFormName) {
 
 		//s2.prop26 = 'D=g'; // this is the filtered page URL from JS document (will include hash if any)
 
-		// capture user-agent
-		//s.prop27 = 'D=User-Agent'; // capture with proc rule to increase capture (non-JS), reduce JS size and reduce pixel length
 
 		// track scode version
 		//digital['dd.analyticsVersion'] = util.codeVers;
@@ -2582,6 +2580,8 @@ pidQuerystring;
 
 s3.pageName = digital['dd.pageName'];
 s3.products = util.valReplace(util.valReplace(s3.w_prodStr(pdProductID, pageDetails), util.lStor('get', 'analytics_productsReplace')), pageDetails.productsReplace); // global + local replace
+//Visit number
+s3.eVar8 = util.cap(util.getVisitNum(365), 1000);
 s3.eVar21 = pageNameDynamicVariable; // pageName eVar
 // hierarchy
 s3.hier1 = pageNameDynamicVariable;
@@ -3638,7 +3638,7 @@ s3.w_trackPage = function (details) {
 	//s3.contextData.dd = JSON.stringify(dd).replace(/\./g, '.'); // replace dots here to fix bug in Omniture debugger context data display
 	s3.t();
 	console.log('f():w_trackPage s3.t()');
-	if (digital._drop) {
+	if (!digital._drop) {
 		util.cookieWrite('lastPage', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
 	}
 	s3.w_endTrckng();
@@ -3693,33 +3693,28 @@ if (s3.c_r("s_wbc-gi")){ctid.wbcgid = {"id" : s3.c_r("s_wbc-gi"), "authState": V
 console.log(ctid);
 s3.visitor.setCustomerIDs(ctid);
 
+if (pageBrand === 'wbc'){
+// === WESTPAC == //
 // generic account ID - value in cookie should have a prefix like 'corp_'. These will get overwritten through different sites, but could be tied together with visitor ID etc.
 // included for CORP and other sites that require tracking ID
 s3.eVar34 = 'D=s_wbc-gi'; //s3.prop34 =
-
 // customer tracking ID
 s3.eVar35 =  'D=s_wbc-ti'; //s3.prop35 =// cookie is set at .westpac.com.au
-//s.prop35 = s.eVar35;
-
-// business account ID
-//s.eVar41 = 'D=BUS-ACCOUNT-ID'; // was originally proposed for OTP 1.2. currently not required
-//s.prop41 = dVar(41);
-
 // customer otp profile
-//s.eVar47 = getValueOnce(s.c_rr('s_wbc-pi'), 'pi', 30, 'm'); // cookie is set at full domain - banking.westpac.com.au. Could be dynamic value if these cookies available at .westpac.com.au
 s3.eVar47 = 'D=s_wbc-pi'; //s3.prop47 =
-//s.prop47 = dVar(47);
-
 // Webseal ID proxy
-//s.eVar48 = getValueOnce(s.c_rr('s_wbc-ses'), 'ses', 30, 'm'); // cookie is set at banking.westpac.com.au. wouldnt be able to access from smetrics if was httpOnly, as set on banking.westpac.com.au ...
-//s.prop48 = dVar(48);
 s3.eVar48  = 'D=s_wbc-ses'; //= s3.prop48
-
 // customer type segment
-//s.eVar50 = getValueOnce(s.c_rr('s_wbc-seg'), 'seg', 30, 'm'); // cookie is set at .westpac.com.au, but value is short and may be useful on page
-//s.prop50 = dVar(50);
-//s.eVar50 = s.prop50 = 'D=s_wbc-seg';
 s3.eVar50 = s3.c_rr('s_wbc-seg'); //s3.prop50 = // if values are short capture as-is, else use dynamic value to get value server-side.
+}
+// === STG == //
+pageBrand === 'stg'? s3.eVar34 = 'D=s_stg_ti' : '';//s3.prop34 =
+
+// === BOM == //
+pageBrand === 'bom'? s3.eVar34 = 'D=s_bom_ti' : ''; //s3.prop34 =
+
+// === BSA == //
+pageBrand === 'bsa'? s3.eVar34 = 'D=s_bsa_ti': ''; //s3.prop34 =
 
 // detect OTP/online banking profile switching
 custTrackingId = s3.c_rr('s_wbc-ti');
@@ -3737,6 +3732,11 @@ if (custTrackingId && custTrackingId === custTrackingIdPrevious && custProfileId
 	s3.prop59 = '(switch profile)';
 	console.log('Profile switched'); // detect when only switching profiles and landing on dashboard vs. a new login to dashboard
 }
+
+
+// capture user-agent
+s3.prop27 = 'D=User-Agent'; // capture with proc rule to increase capture (non-JS), reduce JS size and reduce pixel length
+
 
 
 // External Campaigns
