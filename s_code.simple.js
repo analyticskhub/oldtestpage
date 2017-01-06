@@ -1078,7 +1078,7 @@ pdPageNamePrefixPair = cleanText(pageDetails.pageNamePrefixes).split('|'),
 pdPageNamePrefix,
 pdFeaturedContent,
 formTypeOverride,
-lastSentPage = util.cookieRead('lastPage'),
+lastSentPage = util.cookieRead('lastPage')|| '',
 getValueOnce = util.getValOnce,
 getQuerystringParam = util.getQueryParam, 
 pageNameDynamicVariable = 'D=pageName'; // zzzzz change to D.pageName to reduce pixel
@@ -3623,7 +3623,15 @@ s3.w_prodStr = function (prodArr, details) {
 	 */
 	return prodSyntax.join(',').replace(/;;;,/g, ',').replace(/;;;$/, ''); // join product string array and remove unnecessary delimiters to reduce pixel length
 };
-
+s3.w_log = function (data) {
+	if (s3.c_rr('s3_pers_wp_dev') || !s3.w_prod) {
+		try {
+			console.info('s_code: ' + data); // debug logging only when dev, or dev cookies set. this should be on for live sites for debugging
+		} catch (ignore) {
+			// don't log if console unavailable
+		}
+	}
+};
 // track a page load
 s3.w_trackPage = function (details) {
 	//s3.contextData = util.cleanJSON (digital);
@@ -3633,10 +3641,13 @@ s3.w_trackPage = function (details) {
 	//s3.contextData.dd = JSON.stringify(dd).replace(/\./g, '.'); // replace dots here to fix bug in Omniture debugger context data display
 	s3.t();
 	console.log('f():w_trackPage s3.t()');
-	if (!digital._drop) {
-		util.cookieWrite('lastPage', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
-	}
 	s3.w_endTrckng();
+	s3.w_log(s3.pageName);
+	if (!digital._drop) {
+		util.cookieWrite('lastPage', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000)));
+		console.log('pName'+ s3.pageName);	
+	}
+	
 }
 
 // Do things after pixel sent
