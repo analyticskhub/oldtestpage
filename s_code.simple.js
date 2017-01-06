@@ -1206,7 +1206,8 @@ if (/(?:^|\.)westpac\.com\.au$/i.test(util.getLoc().hostname)) {
 if (pdPageType && pdnewFormName) {
 	//if (pdPageStep === 'start') {
 	//if (pdPageStep === 'start' && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys
-	if ((pdPageStep === 'start' || pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
+	//if ((pdPageStep === 'start' || pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
+	if ((pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
 		util.cookieWrite('journeyTypOv', pdPageType + pdnewFormName + '-' + pdJourneyType);
 		//s2.c_w('frmTypOv', pdPageType + pdFormName + '-' + pdFormType); // prefix should also include pdSubSite to avoid clash on multi-sites?
 	} else {
@@ -1681,7 +1682,7 @@ if (pdPageType && pdnewFormName) {
 				//appendEvent('event29' + s2.w_serialise(eventSerialisationKey, pdPageStep));
 
 				//s.transactionID='enq_'+pdTransactionId; // prefix to avoid duplicates with other applications etc.
-				digital['dd.applicationID']  = digital['dd.transactionID'] = pdTransactionId ? 'enq_' + pdTransactionId : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
+				digital['dd.applicationID']  = digital['dd.transactionID'] = pdTransactionId[0].Id ? 'enq_' + pdTransactionId[0].Id : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
 				//s2.transactionID = pdTransactionId ? 'enq_' + pdTransactionId : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
 				//s2.eVar39 = 'D=xact'; //ABU not sure 'D=xact' replacemint  ZZZ 
 
@@ -1883,10 +1884,16 @@ if (pdPageType && pdnewFormName) {
 		switch (pdPageStep) {
 			case 'start':
 				appendEvent(digital, 'quoteStart');
+				if (pdTransactionId) {
+					digital['dd.transactionID'] = digital['dd.applicationID'] = util.createTransID(pdTransactionId);
+				}
 
 				break;
 			case 'save':
 				appendEvent(digital, 'quoteSaved');
+				if (pdTransactionId) {
+					digital['dd.transactionID'] = digital['dd.applicationID'] = util.createTransID(pdTransactionId);
+				}
 
 				break;
 			case 'retrieve':
@@ -1895,7 +1902,9 @@ if (pdPageType && pdnewFormName) {
 				break;
 			case 'complete':
 				appendEvent(digital, 'quoteComplete');
-
+				if (pdTransactionId) {
+					digital['dd.transactionID'] =  digital['dd.applicationID'] = util.createTransID(pdTransactionId);
+				}
 				break;
 		}
 		break;
