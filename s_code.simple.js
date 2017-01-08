@@ -1649,7 +1649,7 @@ if (pdPageType && pdnewFormName) {
 			break;
 
 			/*
-			case 'livechat': // triggered on live person popup window, not on page or click
+			case 'livechat': // triggered on live person popup winfdow, not on page or click
 			switch(pdPageStep){
 			case 'start':
 			s.eVar57 = (s.eVar57||'{LivePerson Session ID}'); // check value
@@ -1680,9 +1680,11 @@ if (pdPageType && pdnewFormName) {
 				//Abu todo serialise event ZZZZ
 				appendEvent(digital,'enqCompleteSerialised', util.serialise(eventSerialisationKey, pdPageStep));
 				//appendEvent('event29' + s2.w_serialise(eventSerialisationKey, pdPageStep));
-
+				if (pdTransactionId) {
+					digital['dd.transactionID'] = digital['dd.applicationID'] = 'enq_' + util.createTransID(pdTransactionId);
+				}
 				//s.transactionID='enq_'+pdTransactionId; // prefix to avoid duplicates with other applications etc.
-				digital['dd.applicationID']  = digital['dd.transactionID'] = pdTransactionId[0].Id ? 'enq_' + pdTransactionId[0].Id : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
+				//digital['dd.applicationID']  = digital['dd.transactionID'] = pdTransactionId[0].Id ? 'enq_' + pdTransactionId[0].Id : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
 				//s2.transactionID = pdTransactionId ? 'enq_' + pdTransactionId : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
 				//s2.eVar39 = 'D=xact'; //ABU not sure 'D=xact' replacemint  ZZZ 
 
@@ -1792,6 +1794,8 @@ if (pdPageType && pdnewFormName) {
 				// mark serial stamp as complete once hit. re-use same stamp if starting same form again if not completed, generate new serial if form has been completed (in the same origin)
 				//ABU todo serilize event ZZZZ
 				appendEvent(digital,'appCompleteSerialised', util.serialise(eventSerialisationKey, pdPageStep));
+				//s3.events = s3.apl(s3.events, 'event71' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
+				//s3.events=s3.apl(s3.events,"event1",",",1);
 				//appendEvent('event27' + util.serialise(eventSerialisationKey, pdPageStep));
 				console.log(eventSerialisationKey);
 				//digital['dd.transactionID'] = pdTransactionId;
@@ -1885,14 +1889,14 @@ if (pdPageType && pdnewFormName) {
 			case 'start':
 				appendEvent(digital, 'quoteStart');
 				if (pdTransactionId) {
-					digital['dd.transactionID'] = digital['dd.applicationID'] = util.createTransID(pdTransactionId);
+					digital['dd.transactionID'] = digital['dd.applicationID'] = 'quote_' + util.createTransID(pdTransactionId);
 				}
 
 				break;
 			case 'save':
 				appendEvent(digital, 'quoteSaved');
 				if (pdTransactionId) {
-					digital['dd.transactionID'] = digital['dd.applicationID'] = util.createTransID(pdTransactionId);
+					digital['dd.transactionID'] = digital['dd.applicationID'] = 'quote_' + util.createTransID(pdTransactionId);
 				}
 
 				break;
@@ -1903,7 +1907,7 @@ if (pdPageType && pdnewFormName) {
 			case 'complete':
 				appendEvent(digital, 'quoteComplete');
 				if (pdTransactionId) {
-					digital['dd.transactionID'] =  digital['dd.applicationID'] = util.createTransID(pdTransactionId);
+					digital['dd.transactionID'] =  digital['dd.applicationID'] = 'quote_' + util.createTransID(pdTransactionId);
 				}
 				break;
 		}
@@ -2587,6 +2591,8 @@ s3.products = util.valReplace(util.valReplace(s3.w_prodStr(pdProductID, pageDeta
 //Visit number
 s3.eVar8 = util.cap(util.getVisitNum(365), 1000);
 s3.eVar21 = pageNameDynamicVariable; // pageName eVar
+//s3.w_addEvt('26:' + util.serialise(eventSerialisationKey, pdPageStep));
+//s3.events = s3.apl(s3.events,'event26' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
 // hierarchy
 s3.hier1 = pageNameDynamicVariable;
 //s3.eVar25 = s3.marketingCloudVisitorID;
