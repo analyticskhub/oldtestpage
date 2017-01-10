@@ -2295,7 +2295,7 @@ if (pdPageType && pdnewFormName) {
 		//s2.eVar60 = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 'feat', 30, 'm');
 		//}
 		if (pdFeaturedContent) {
-			dd.featuredContent = pdFeaturedContent;
+			digital['dd.featuredContent'] = pdFeaturedContent;
 			appendEvent(digital,'featuredContent');
 			//appendEvent(66);
 			//s2.prop60 = dVar(60);
@@ -3836,16 +3836,6 @@ if (s3.eVar65) {
 //else{
 //	s.eVar65='';
 //}
-
-// Featured content - fid/wbcfrom - for secondary promo tracking (Patrick)
-//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-s3.eVar60 = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 'feat', 30, 'm');
-//}
-if (s3.eVar60) {
-	//appendEvent(66);
-	appendEvent(digital,'featuredContent');
-	s3.prop60 = s3.dVar(60);
-}
 
 // Combined Internal External Stack
 if (s3.eVar22) {
