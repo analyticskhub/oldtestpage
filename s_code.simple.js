@@ -85,15 +85,27 @@ util.random = function(){
 	var dd = new Date(); 
 	return Math.round(Math.abs(Math.sin(dd.getTime()))*1000000000)%10000000;
 };
-util.loadScript_ex ="util.loadScript(@url,@delay,@random) \nload an script async \n@url destination URL, \n@delay is use for setTimeout defauel 4000ms  \n@random supply string which will be replaced by rendom number at runtime\n@example util.loadScript('//abc.abc.com/pages/scripts/abc.js?RAND',4,'RAND')";
-util.loadScript = function(url,delay,random){
+util.loadScript_ex ="util.loadScript(@url,@delay,@random, @idVal) \nload an script async \n@url destination URL, \n@delay is use for setTimeout defauel 4000ms  \n@random supply string which will be replaced by rendom number at runtime\n @idVal any value supplied this will replace {ID} paramer inside the URL  \n@example util.loadScript('//abc.abc.com/pages/scripts/abc.js?id={ID}&g=RAND',4,'RAND','abc123')";
+util.loadScript = function(url,delay,random,idVal){
 	var d = delay ? d=delay : 4000; //default delay 4000ms
 	url = random ? String(url).replace(new RegExp(random),util.random()) : String(url);
+	url = idVal ? String(url).replace(/\{ID\}/g,idVal) : String(url);
 	setTimeout(function(){
 		var a=document.createElement("script");
 		var b=document.getElementsByTagName("script")[0];
 		a.src=document.location.protocol+url;
 		a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)
+	}, d);
+};
+util.loadImgPixel_ex ="util.loadImgPixel(@url,@delay,@random, @idVal) \nload an image \n@url destination URL, \n@delay is use for setTimeout defauel 4000ms  \n@random supply string which will be replaced by rendom number at runtime\n @idVal any value supplied this will replace {ID} paramer inside the URL  \n@example util.loadScript('//abc.abc.com/pages/scripts/abc.js?id={ID}&g=RAND',4,'RAND','abc123')";
+util.loadImgPixel = function(url,delay,random,idVal){
+	var d = delay ? d=delay : 4000; //default delay 4000ms
+	url = random ? String(url).replace(new RegExp(random),util.random()) : String(url);
+	url = idVal ? String(url).replace(/\{ID\}/g,idVal) : String(url);
+	setTimeout(function(){
+		var ad_image = new Image(1,1);
+		ad_image.src = document.location.protocol+url;
+		document.body.appendChild(ad_image)
 	}, d);
 };
 util.getExp_ex="util.getExp() \nreturn responsive experence as mob, tab or desktop\based on css class .analytics-experience .pagedetails-experience";
