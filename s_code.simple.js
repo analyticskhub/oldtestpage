@@ -349,6 +349,8 @@ util.cleanURL = function (loc, locType) {
 	.replace(/(^https?:.+?(forms|online)(?:\.|-).*\.nsf.*?)(?:\/\w{32}(?=\?))/i, '$1') // Remove session ID only from Domino path $1 adds www. ???
 	.replace(util.guidRgx, '') // remove OTP user GUID
 	.replace(/#+!*$/, '') // remove hash or hashbang (or multiples of these characters) at end of loc (only) to unify URLs that would otherwise match
+	.replace(/(default|index)(\.html|\.htm)/, '')
+	.replace(/\.html|\.htm/, '')
 ;
 
 	if (locType === 1) {
@@ -389,7 +391,7 @@ util.getLoc_ex = "util.getLoc() return full current URL for test or prod";
 util.getLoc = function () {
 	return util.w_wtT.location || window.location;
 };
-util.defaultPage = /^\/+$/.test(util.getLoc().pathname) ? 'home' : ''; // filename to add when none exists (www home page)
+util.defaultPage = /^\/((default|index)\.html?)?$/.test(util.getLoc().pathname) ? 'home' : ''; // filename to add when none exists (www home page)
 // default/initialised s.pageURL
 util.pageURL = util.cleanURL(util.getLoc().href, 1);
 
@@ -442,6 +444,11 @@ util.cap = function (item, cap) {
 util.addEvt = function (obj,evtName,evtValue){
 	// allow text or numeric events to be passed
 	obj['ev_'+ evtName] = evtValue ? evtValue : 1; 
+	//s2.events = s2.apl(s2.events, isNaN(evt) ? evt || '' : 'event' + evt, ',', 2);
+};
+util.addSerialiseEvt = function (obj,evtNumber,evtValue){
+	// allow text or numeric events to be passed
+	obj['&&events'] = evtValue ? evtNumber + ':'+evtValue : evtNumber + ':1'; 
 	//s2.events = s2.apl(s2.events, isNaN(evt) ? evt || '' : 'event' + evt, ',', 2);
 };
 util.fl_ex = "util.fl(@str, @len) \nreturn substring of a given length";
@@ -1685,11 +1692,11 @@ if (pdPageType && pdnewFormName) {
 			//s.products = (pageDetails.productID?';' + pageDetails.productID.replace(/,/g,',;'):'');
 			switch (pdPageStep) {
 			case 'start':
-				appendEvent(digital,'enqStart');
+				//appendEvent(digital,'enqStart');
 				//appendEvent(53);
 				// serialise enquiry start
 				//Abu todo serialise event ZZZZ
-				appendEvent(digital,'enqStartSerialised',util.serialise(eventSerialisationKey, pdPageStep));
+				util.addSerialiseEvt(digital,'event28',util.serialise(eventSerialisationKey, pdPageStep));
 				//appendEvent('event28' + util.serialise(eventSerialisationKey, pdPageStep));
 				break;
 			case 'complete':
@@ -1697,7 +1704,8 @@ if (pdPageType && pdnewFormName) {
 				//appendEvent(54);
 				// serialise enquiry complete
 				//Abu todo serialise event ZZZZ
-				appendEvent(digital,'enqCompleteSerialised', util.serialise(eventSerialisationKey, pdPageStep));
+				//appendEvent(digital,'enqCompleteSerialised', util.serialise(eventSerialisationKey, pdPageStep));
+				util.addSerialiseEvt(digital,'event29',util.serialise(eventSerialisationKey, pdPageStep));
 				//appendEvent('event29' + s2.w_serialise(eventSerialisationKey, pdPageStep));
 				if (pdTransactionId) {
 					digital['dd.transactionID'] = digital['dd.applicationID'] = 'enq_' + util.createTransID(pdTransactionId);
@@ -1789,10 +1797,11 @@ if (pdPageType && pdnewFormName) {
 				break;
 			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 			case 'start':
-				appendEvent(digital,'appStart');
+				//appendEvent(digital,'appStart');
 				//appendEvent(21);
 				//ABU todo serilize event ZZZZ
-				appendEvent(digital,'appStartSerialised',util.serialise(eventSerialisationKey, pdPageStep));
+				//appendEvent(digital,'appStartSerialised',util.serialise(eventSerialisationKey, pdPageStep));
+				util.addSerialiseEvt(digital,'event26',util.serialise(eventSerialisationKey, pdPageStep));
 				//appendEvent('event26' + s2.w_serialise(eventSerialisationKey, pdPageStep));
 
 				//console.log('s.events = ' + s.events);
@@ -1812,7 +1821,7 @@ if (pdPageType && pdnewFormName) {
 				//appendEvent(22);
 				// mark serial stamp as complete once hit. re-use same stamp if starting same form again if not completed, generate new serial if form has been completed (in the same origin)
 				//ABU todo serilize event ZZZZ
-				appendEvent(digital,'appCompleteSerialised', util.serialise(eventSerialisationKey, pdPageStep));
+				util.addSerialiseEvt(digital,'event71',util.serialise(eventSerialisationKey, pdPageStep));
 				//s3.events = s3.apl(s3.events, 'event71' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
 				//s3.events=s3.apl(s3.events,"event1",",",1);
 				//appendEvent('event27' + util.serialise(eventSerialisationKey, pdPageStep));
@@ -1984,11 +1993,6 @@ if (pdPageType && pdnewFormName) {
 		digital['dd.section2'] = pageNamePathArray[3]? pageNamePathArray.slice(0, 4).join(':') : digital['dd.section1'] ;
 		digital['dd.section3'] = pageNamePathArray[4]? pageNamePathArray.slice(0, 5).join(':') : digital['dd.section2'] ;
 		digital['dd.section4'] = pageNamePathArray[5]? pageNamePathArray.slice(0, 6).join(':') : digital['dd.section3'] ;
-		/*if (pageNamePathArray[1]){ digital['dd.site'] = pageNamePathArray.slice(0, 2).join(':');}
-		if (pageNamePathArray[2]){ digital['dd.section1'] = pageNamePathArray.slice(0, 3).join(':');}
-		if (pageNamePathArray[3]){ digital['dd.section2'] = pageNamePathArray.slice(0, 4).join(':');}
-		if (pageNamePathArray[4]){ digital['dd.section3'] = pageNamePathArray.slice(0, 5).join(':');}
-		if (pageNamePathArray[5]){ digital['dd.section4'] = pageNamePathArray.slice(0, 6).join(':');}*/
 				
 		//dd.brand = pageNamePathArray[0]; // Brand
 		//s2.eVar6 = pageNamePathArray[0]; // Brand
@@ -3675,6 +3679,8 @@ s3.w_log = function (type, data) {
 s3.w_trackPage = function (details) {
 	var referenceObj = details || pageDetails,
 	detailsCopy; //,
+	
+	s3.w_pgTrkStatus = referenceObj.s_abort ? 'blocked' : 'started';
 	
 	detailsCopy = util.cloneObject(referenceObj);
 	//s3.contextData = util.cleanJSON (digital);
