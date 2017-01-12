@@ -3684,6 +3684,46 @@
 			}
 		}
 	};
+	s3.w_collectStoredData = function () {
+		// epoch date used to clear cookies
+		var dateZero = new Date(0); //,
+		//impTmp = s.c_r('impTmp'); //
+
+		// collect pid impressions from after previous page load
+		s3.list2 = s3.c_r('banners');
+
+		// put the temp banners into the normal cookie
+		//s.c_w('banners', impTmp, impTmp ? new Date(+new Date() + (24 * 60 * 60 * 1000)) : dateZero); // store new banners from this page. keep impressions in cookie for 24 hours
+		//s.c_w('impTmp', 0, dateZero); // clear banner cookie after adding to cookie for sending
+
+		//console.log('COLLECT STORED - impTmp = ' + impTmp);
+
+		s3.c_w('banners', 0, dateZero); // clear after sending
+		//s.w_prevPgCkiesSent = true;
+
+		// capture number of form validation errors from cookie
+		if (s3.c_r('errCount')) {
+			s3.prop17 = s3.c_r('errCode');
+			//s.eVar30 = (s.prop17.indexOf(s.w_inlErr+',')>-1? s.prop17 : 'defined errors') + ':' + s.c_r('errCount');
+			s3.eVar30 = 'errors:' + util.cap(s3.c_r('errCount'), 50);
+			s3.c_w('errCode', 0, dateZero);
+			s3.c_w('errCount', 0, dateZero);
+		}
+
+		// Navigation menu ID
+		s3.prop59 = s3.c_r('nav');
+		// remove nav cookie after tracking
+		s3.c_w('nav', 0, dateZero);
+
+		// if search results 'click past rank' cookie has been set from result link click, track the rank and click event and delete the cookie.
+		// The cookie is set on search results link clicks with the rank of the link
+		s3.prop16 = util.cap(s3.c_r('cpr'), 101);
+		if (s3.prop16) {
+			s3.w_addEvt(15);
+			// delete cookie after tracking
+			s3.c_w('cpr', 0, dateZero);
+		}
+	};
 	/*s3.w_clearOmniVars = function () {
 		var lp,
 		len,
@@ -3764,7 +3804,7 @@
 		// Predict expected pageName for dupe/trackOnce to decide whether to keep or ignore new impressions being passed
 		dcPageName = detailsCopy.pageName || '0';
 		
-		currPredictedPageName = (detailsCopy.s_pageName || (detailsCopy.formName ? detailsCopy.formName + (detailsCopy.formType || '0') + dcPageName : (detailsCopy.transactionType ? detailsCopy.transactionType + dcPageName : (detailsCopy.subSite || '0') + (detailsCopy.pageName ? (detailsCopy.pageNamePrefixes || '0') + dcPageName : decodeURIComponent(s.getPageName(s.pageURL)))))) + (detailsCopy.pageType || '0') + (detailsCopy.dialogTitle || '0') + (detailsCopy.itemName || '0') + (detailsCopy.pageNameReplace || '0'); // replace undefined's with '0' to shorten value
+		currPredictedPageName = (detailsCopy.s_pageName || (detailsCopy.formName ? detailsCopy.formName + (detailsCopy.formType || '0') + dcPageName : (detailsCopy.transactionType ? detailsCopy.transactionType + dcPageName : (detailsCopy.subSite || '0') + (detailsCopy.pageName ? (detailsCopy.pageNamePrefixes || '0') + dcPageName : decodeURIComponent(util.getPageName(util.pageURL)))))) + (detailsCopy.pageType || '0') + (detailsCopy.dialogTitle || '0') + (detailsCopy.itemName || '0') + (detailsCopy.pageNameReplace || '0'); // replace undefined's with '0' to shorten value
 		/*
 		console.log('s.getPageName(s.pageURL) ' + s.getPageName(s.pageURL));
 		console.log('s.getPageName(s.pageURL) ' + decodeURI(s.getPageName(s.pageURL)));
@@ -3808,20 +3848,20 @@
 			if (detailsCopy.s_abort) { // any value in s.abort (or s_abort) will prevent tracking from being sent
 				// re-set abort details after changeIf
 				detailsCopy._drop = 1;
-				s.w_pgTrkStatus = 'blocked'; // don't collect banners for pages being aborted or meeting trackDedupe/trackOnce rules
+				s3.w_pgTrkStatus = 'blocked'; // don't collect banners for pages being aborted or meeting trackDedupe/trackOnce rules
 			} else {
 				if (!detailsCopy._drop) {
-					s.w_pgTrkStatus = 'sent'; // ok to start collecting banners for this page
-					s.w_perfTracked = true; // prevent from re-running
+					s3.w_pgTrkStatus = 'sent'; // ok to start collecting banners for this page
+					s3.w_perfTracked = true; // prevent from re-running
 
 					// collect and remove data only if it is likely to actually be sent
-					s.w_collectStoredData();
+					s3.w_collectStoredData();
 
 					// collect any previous addEvents that were not sent, then clear the cookie
 					/*while (storedEventsCount--) {
 						s.w_addEvt(storedEventsArray[storedEventsCount]);
 					}*/
-					s.c_w('addEvts', 0, new Date(0));
+					s3.c_w('addEvts', 0, new Date(0));
 				}
 			}	
 		
