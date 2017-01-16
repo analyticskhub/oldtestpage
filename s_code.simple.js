@@ -3873,6 +3873,86 @@
 
 		return testResult;
 	};
+	// test specific values to decide if the pageDetails should be aborted, changed etc.
+	//s.w_changeIf = function (refObj, sObjectProperties) // dynamically change pageDetails or s object
+	s3.w_changeIf = function (refObj) { // dynamically change pageDetails
+		var prpty,
+		expressionSet = refObj.changeIf || [],
+		expressionSetLength,
+		expressionItem,
+		//sObjectItem,
+		//getSObjectProperty = function (item) {
+		//	return sObjectProperties && /^s\.(prop|eVar)/.test(item) && item.replace(/^s\./, '');
+		//},
+		ifItemVal,
+		equalsItemVal,
+		andIf,
+		andEvaluation,
+		dynamicItems = {
+			'(lastpage)' : s3.c_r('lastPg'),
+			'(location)' : util.getLoc().href,
+			'(referrer)' : document.referrer,
+			'(s_pers)' : s3.c_rr('s_pers'), // these cookie values can only be used in the if expression, not equals
+			'(s_sess)' : s3.c_rr('s_sess') // these cookie values can only be used in the if expression, not equals
+		};
+		//console.log(dynamicItems);
+
+		try {
+			if (typeof expressionSet === 'string') {
+				expressionSet = JSON.parse(expressionSet);
+			}
+		} catch (err) {
+			//s.w_log(err);
+			expressionSet = [];
+		}
+
+		//console.log('expressionSet = ');
+		//console.log(expressionSet);
+
+		expressionSetLength = expressionSet.length;
+
+		for (prpty = 0; prpty < expressionSetLength; prpty++) {
+			expressionItem = expressionSet[prpty];
+			//console.log(expressionItem);
+
+			if (expressionItem.item && expressionItem.like && expressionItem.then) {
+				//console.log('expressionItem = ');
+				//console.log(expressionItem);
+				//sObjectItem = getSObjectProperty(expressionItem.item);
+				//ifItemVal = String(dynamicItems[expressionItem.item] || refObj[expressionItem.item] || (sObjectItem && window.s[sObjectItem]) || ''); // only when called from end of doPlugins, for async
+				ifItemVal = String(dynamicItems[expressionItem.item] || refObj[expressionItem.item] || ''); // only when called from end of doPlugins, for async
+				//console.log('ifItemVal = ');
+				//console.log(ifItemVal);
+				//sObjectItem = getSObjectProperty(expressionItem.equals);
+				//equalsItemVal = String(dynamicItems[expressionItem.equals] || refObj[expressionItem.equals] || (sObjectItem && window.s[sObjectItem]) || expressionItem.equals || ''); // added option to set a property to one of the dynamic values
+				equalsItemVal = String(dynamicItems[(expressionItem.equals || '').replace(/\((s_pers|s_sess)\)/i, '')] || refObj[expressionItem.equals] || expressionItem.equals || ''); // added option to set a property to one of the dynamic values
+				//console.log('equalsItemVal = ');
+				//console.log(equalsItemVal);
+
+				andEvaluation = true;
+				andIf = expressionItem.and;
+				if (andIf && andIf.item && andIf.like) {
+					andEvaluation = new RegExp(andIf.like, 'i').test(String(dynamicItems[andIf.item] || refObj[andIf.item] || ''));
+				}
+
+				if (new RegExp(expressionItem.like, 'i').test(ifItemVal) && andEvaluation) {
+					if (expressionItem.replace) {
+						//console.log('regex = ' + new RegExp(expressionItem.replace.exp, expressionItem.replace.flags || ''));
+						equalsItemVal = equalsItemVal.replace(new RegExp(expressionItem.replace.exp, expressionItem.replace.flags || ''), expressionItem.replace.subs || '');
+					}
+					//console.log('equalsItemVal = ' + equalsItemVal);
+					refObj[expressionItem.then] = equalsItemVal;
+					//sObjectItem = getSObjectProperty(expressionItem.then);
+					//if (sObjectItem) {
+					//	window.s[sObjectItem] = equalsItemVal;
+					//}
+				}
+			}
+		}
+
+		//console.log('refObj = ');
+		//console.log(refObj);
+	};
 	// track a page load
 	s3.w_trackPage = function (details) {
 		var referenceObj = details || pageDetails,
@@ -3917,7 +3997,8 @@
 
 		// Predict expected pageName for dupe/trackOnce to decide whether to keep or ignore new impressions being passed
 		dcPageName = detailsCopy.pageName || '0';
-		
+		// change any details async (in order of calls)
+		s3.w_changeIf(detailsCopy);
 		currPredictedPageName = (detailsCopy.s_pageName || (detailsCopy.formName ? detailsCopy.formName + (detailsCopy.formType || '0') + dcPageName : (detailsCopy.transactionType ? detailsCopy.transactionType + dcPageName : (detailsCopy.subSite || '0') + (detailsCopy.pageName ? (detailsCopy.pageNamePrefixes || '0') + dcPageName : decodeURIComponent(util.getPageName(util.pageURL)))))) + (detailsCopy.pageType || '0') + (detailsCopy.dialogTitle || '0') + (detailsCopy.itemName || '0') + (detailsCopy.pageNameReplace || '0'); // replace undefined's with '0' to shorten value
 		/*
 		console.log('s.getPageName(s.pageURL) ' + s.getPageName(s.pageURL));
