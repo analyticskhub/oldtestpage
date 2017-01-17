@@ -3956,6 +3956,8 @@
 	// track a page load
 	s3.w_trackPage = function (details) {
 		var referenceObj = details || pageDetails,
+		lastPredictedPageName = s3.c_r('lppn'),
+		currPredictedPageName,
 		detailsCopy; //,
 		
 		// remove this property in case it was set manually. This is for internal code logic only
@@ -4020,62 +4022,32 @@
 			detailsCopy._drop = 1;
 			s3.w_pgTrkStatus = 'blocked'; // don't collect banners for pages being aborted or meeting trackDedupe/trackOnce rules
 		} else {
-			//console.log('s3.c_r(impTmp) = ' + s3.c_r('impTmp'));
-			// merge any previous temp impressions from cookie from last page call
-			tempImpressions = s3.c_r('impTmp');
-			if (tempImpressions) {
-				detailsCopy.preImprs = tempImpressions; // add any passed impressions for this page to the pageDetails
-				s3.c_w('impTmp', 0, new Date(0));
-			}
-
-			// add any async impressions sent before very first trackPage in window load the impTmp cookie for next track (combine with other impTmp values collected after trackPage in 'started' mode)
-			//ABU ZZZ 
-			//s3.w_trackImpression(s3.w_asyncImp);
 
 			// set 'Last Predicted PageName' to current name being sent, to compare next call
 			s3.c_w('lppn', currPredictedPageName, new Date(+new Date() + (30 * 60 * 1000))); // keep last page name in cookie for 24 hours for impressions etc.
 		}
 		// always reset after first trackPage call
-		s3.w_asyncImp = '';
-		s3.clearVars
+		// clear s object vars ready for new step of 1-page	 forms
 		//s3.w_clearOmniVars();
-		
-			if (detailsCopy.s_abort) { // any value in s.abort (or s_abort) will prevent tracking from being sent
-				// re-set abort details after changeIf
-				detailsCopy._drop = 1;
-				s3.w_pgTrkStatus = 'blocked'; // don't collect banners for pages being aborted or meeting trackDedupe/trackOnce rules
-			} else {
-				if (!detailsCopy._drop) {
-					s3.w_pgTrkStatus = 'sent'; // ok to start collecting banners for this page
-					s3.w_perfTracked = true; // prevent from re-running
-
-					// collect and remove data only if it is likely to actually be sent
-					s3.w_collectStoredData();
-
-					// collect any previous addEvents that were not sent, then clear the cookie
-					/*while (storedEventsCount--) {
-						s.w_addEvt(storedEventsArray[storedEventsCount]);
-					}*/
-					s3.c_w('addEvts', 0, new Date(0));
-				}
-			}	
-		
-		//s3.contextData = util.cleanJSON (digital);
-		digital = s3.AnalyticsContextData(detailsCopy)
-		s3.contextData = digital;
-		//s3.contextData['dd'] = dd;
-		//s3.contextData.dd = JSON.stringify(dd);
-		//s3.contextData.dd = JSON.stringify(dd).replace(/\./g, '.'); // replace dots here to fix bug in Omniture debugger context data display
+		s3.clearVars
 		s3.w_log('pageDetails',unescape(JSON.stringify(detailsCopy, null, 4).replace(/\\u([\w\d]{4})/g, '%u$1')));
 		if (!detailsCopy._drop) {
+			s3.w_pgTrkStatus = 'sent'; // ok to start collecting banners for this page
+			s3.w_perfTracked = true; // prevent from re-running
+			digital = s3.AnalyticsContextData(detailsCopy)
+			s3.contextData = digital;
+			// collect and remove data only if it is likely to actually be sent
+			s3.w_collectStoredData();
 			s3.t();
 			console.log('f():w_trackPage s3.t()');
 			util.trackImprs();
 			s3.w_endTrckng();
+			s3.w_log('context data', unescape(JSON.stringify(digital, null, 4).replace(/\\u([\w\d]{4})/g, '%u$1')));
 		}else{
 			s3.w_log('drop',true)
+			
 		}
-		s3.w_log('context data', unescape(JSON.stringify(digital, null, 4).replace(/\\u([\w\d]{4})/g, '%u$1')));
+		
 	}
 
 	// Do things after pixel sent
@@ -4302,7 +4274,9 @@
 		//}
 		//}
 	}
-
+	// capture URL
+	s3.eVar26 = 'D=Referer+"' + util.getLoc().hash.replace(util.guidRgx, '(GUID)') + '"'; // this is the full unprocessed page URL from HTTP header (includes hash)
+	s3.prop26 = 'D=g'; // this is the filtered page URL from JS document (will include hash if any)
 	/*s3.ActivityMap.link = function(ele, linkName) {
 		if (ele) {
 			var objectId = ele.getAttribute('data-s-object-id');
