@@ -3953,6 +3953,26 @@
 		//console.log('refObj = ');
 		//console.log(refObj);
 	};
+	// track a page only once per window load (for single page applications). All names sent stored in array to compare for all further calls until reset or page reloaded (array cleared)
+	s3.w_pageTracked = function (pgName) {
+		var lp,
+		tracked = false;
+
+		s3.w_trackedPages = s3.w_trackedPages || [];
+		lp = s3.w_trackedPages.length;
+		while (lp--) {
+			if (s3.w_trackedPages[lp] === pgName) {
+				// already been tracked this page load
+				tracked = true;
+				break;
+			}
+		}
+		if (!tracked) {
+			s3.w_trackedPages.push(pgName);
+		}
+		//console.log('tracked '+pgName+'? '+tracked + '. s.w_trackedPages = '+s.w_trackedPages);
+		return tracked;
+	};
 	// track a page load
 	s3.w_trackPage = function (details) {
 		var referenceObj = details || pageDetails,
