@@ -1218,6 +1218,7 @@
 	pdProductID = '',
 	pdInSession = false, // if page is in secure/unsecure area
 	pdPageType = '',
+	pdPageStep = '',
 	channelManagerKeywords,
 	channelManagerSearchType = false,
 	pageDetails = window.pageDetails || {};
@@ -1411,7 +1412,6 @@
 		pageTypeAlt, // for tracking other page types, and applying a rule to classify other pages
 		pdProductID = util.prodArr(pageDetails.productID || ''), // products string converted into array
 		paymentProduct, // for products string where required
-		pdPageStep = lowerCaseVal(pageDetails.pageStep, 1), // local var reference
 		pdFormName = lowerCaseVal(cleanText(pageDetails.formName)),
 		pdFormType = lowerCaseVal(cleanText(pageDetails.formType)),
 		//---- wbg|form|app|*au ---- 
@@ -1468,7 +1468,7 @@
 		getQuerystringParam = util.getQueryParam ;//, 
 		//pdPreImprs = cleanText(pageDetails.preImprs);
 		pdPageType = lowerCaseVal(pageDetails.pageType); // local var reference
-
+		pdPageStep = lowerCaseVal(pageDetails.pageStep, 1); // local var reference
 		// Set values for microsites. This may be commented out for other domains
 		/*ABU: TODO Other domain*/
 		//digital['dd.brand']= pageBrand
@@ -1982,11 +1982,11 @@
 			//s.products = (pageDetails.productID?';' + pageDetails.productID.replace(/,/g,',;'):'');
 			switch (pdPageStep) {
 			case 'start':
-				//appendEvent(context,'enqStart');
+				appendEvent(context,'enqStart');
 				//appendEvent(53);
 				// serialise enquiry start
 				//Abu todo serialise event ZZZZ
-				util.addSerialiseEvt(context,'event28',util.serialise(eventSerialisationKey, pdPageStep));
+				//util.addSerialiseEvt(context,'event28',util.serialise(eventSerialisationKey, pdPageStep));
 				//appendEvent('event28' + util.serialise(eventSerialisationKey, pdPageStep));
 				break;
 			case 'complete':
@@ -1995,7 +1995,7 @@
 				// serialise enquiry complete
 				//Abu todo serialise event ZZZZ
 				//appendEvent(context,'enqCompleteSerialised', util.serialise(eventSerialisationKey, pdPageStep));
-				util.addSerialiseEvt(context,'event29',util.serialise(eventSerialisationKey, pdPageStep));
+				//util.addSerialiseEvt(context,'event29',util.serialise(eventSerialisationKey, pdPageStep));
 				//appendEvent('event29' + s2.w_serialise(eventSerialisationKey, pdPageStep));
 				if (pdTransactionId) {
 					context['dd.transactionID'] = context['dd.applicationID'] = 'enq_' + util.createTransID(pdTransactionId);
@@ -2065,7 +2065,9 @@
 				//s2.eVar39 = 'D=xact';
 			}
 			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-			context['dd.journeyType'] = lowerCaseVal(pdJourneyType);
+			if (pdJourneyType) {
+				context['dd.journeyType'] = lowerCaseVal(pdJourneyType);
+			}
 			// form-type
 			if (pdFormIsStp) {
 				context['dd.formType'] = 'stp' + '_' + (lowerCaseVal(pdFormVariant) || 'na');
@@ -2073,9 +2075,13 @@
 				context['dd.formType'] = 'non-stp';
 			}
 			// account-type
-			context['dd.accountType'] = lowerCaseVal(pdAccountType);
+			if(pdAccountType){
+				context['dd.accountType'] = lowerCaseVal(pdAccountType);
+			}
 			//business-type
-			context['dd.businessType'] = lowerCaseVal(pdBusinessType);
+			if(pdBusinessType){
+				context['dd.businessType'] = lowerCaseVal(pdBusinessType);
+			}
 
 			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 
@@ -2087,11 +2093,11 @@
 					break;
 				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 				case 'start':
-					//appendEvent(context,'appStart');
+					appendEvent(context,'appStart');
 					//appendEvent(21);
 					//ABU todo serilize event ZZZZ
 					//appendEvent(context,'appStartSerialised',util.serialise(eventSerialisationKey, pdPageStep));
-					util.addSerialiseEvt(context,'event26',util.serialise(eventSerialisationKey, pdPageStep));
+					//util.addSerialiseEvt(context,'event26',util.serialise(eventSerialisationKey, pdPageStep));
 					//appendEvent('event26' + s2.w_serialise(eventSerialisationKey, pdPageStep));
 
 					//console.log('s.events = ' + s.events);
@@ -2111,11 +2117,11 @@
 					//appendEvent(22);
 					// mark serial stamp as complete once hit. re-use same stamp if starting same form again if not completed, generate new serial if form has been completed (in the same origin)
 					//ABU todo serilize event ZZZZ
-					util.addSerialiseEvt(context,'event27',util.serialise(eventSerialisationKey, pdPageStep));
+					//util.addSerialiseEvt(context,'event27',util.serialise(eventSerialisationKey, pdPageStep));
 					//s3.events = s3.apl(s3.events, 'event71' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
 					//s3.events=s3.apl(s3.events,"event1",",",1);
 					//appendEvent('event27' + util.serialise(eventSerialisationKey, pdPageStep));
-					console.log(eventSerialisationKey);
+					//console.log(eventSerialisationKey);
 					//context['dd.transactionID'] = pdTransactionId;
 					// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 					if (pdTransactionId) {
@@ -4056,6 +4062,18 @@
 			s3.w_perfTracked = true; // prevent from re-running
 			digital = s3.AnalyticsContextData(detailsCopy)
 			s3.contextData = digital;
+			if (digital['ev_appStart']){
+				s3.events = s3.apl(s3.events, 'event26' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
+			}
+			if (digital['ev_appComplete']){
+				s3.events = s3.apl(s3.events, 'event27' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
+			}
+			if (digital['ev_enqStart']){
+				s3.events = s3.apl(s3.events, 'event28' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
+			}
+			if (digital['ev_enqComplete']){
+				s3.events = s3.apl(s3.events, 'event29' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
+			}
 			// collect and remove data only if it is likely to actually be sent
 			s3.w_collectStoredData();
 			s3.t();
