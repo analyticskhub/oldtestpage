@@ -1230,7 +1230,6 @@
 	channelManagerSearchType = false,
 	pageDetails = window.pageDetails || {};
 	pageNameDynamicVariable = 'D=pageName'; // zzzzz change to D.pageName to reduce pixel
-	lastSentPage = util.cookieRead('lastPage')|| '';
 
 	// Brand specific
 	if (/(?:^|\.)banksa\.com\.au$/i.test(util.getLoc().hostname)) {
@@ -4121,8 +4120,10 @@
 
 				// store length of the pixel just fired in a cookie, to extract on next page load
 				s3.c_w('lastPixelLen', lastPixelLength);
+				//util.cookieWrite('lastPage', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000)));
+				s3.c_w('lastPage', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
 				if (!digital._drop) {
-						util.cookieWrite('lastPage', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000)));
+						
 						console.log('previousPage'+ s3.pageName);	
 						s3.w_pgTrkStatus = 'sent';
 				}
@@ -4198,9 +4199,12 @@
 
 	// capture user-agent
 	s3.prop27 = 'D=User-Agent'; // capture with proc rule to increase capture (non-JS), reduce JS size and reduce pixel length
-
+	
+	var lastSentPage = s3.c_r('lastPage')|| '';
+	console.log('last Page'+ lastSentPage );
 	//Previous page
 	if(lastSentPage){
+	
 		digital['dd.previousPage'] = lastSentPage;
 		var lastPixelLength = s3.c_r('lastPixelLen')
 		digital['dd.lastPixelLength'] = lastPixelLength;
