@@ -4097,17 +4097,17 @@
 
 	// Do things after pixel sent
 	s3.w_endTrckng = function () {
-		console.log('w_endTrckng:'+s3.kb);
+		console.log('w_endTrckng:'+s3.qb);
 		// record length of last pixel	
 		//var sVisitorNamespace = s.visitorNamespace,
 		//s = s.rc ? s.rc[sVisitorNamespace] : 0,
 		//var lastPixel = window['s_i_' + s3.account],
 		//lastPixelSrc = lastPixel && lastPixel.getAttribute('src'),
 		//lastPixelSrc = lastPixel && lastPixel.src,
-		//var lastPixelSrc = window['s_i_' + s3.account].src === 'undefined' ? window['s_i_' + s3.account].src: s3.kb,
+		//var lastPixelSrc = window['s_i_' + s3.account].src === 'undefined' ? window['s_i_' + s3.account].src: s3.qb,
 		setTimeout(function(){
-			console.log('timeout:'+s3.kb);
-			var lastPixelSrc = s3.kb||'';
+			console.log('timeout:'+s3.qb);
+			var lastPixelSrc = s3.qb||'';
 			lastPixelLength = 0;
 			s3.w_log('s_code', s3.pageName);
 
