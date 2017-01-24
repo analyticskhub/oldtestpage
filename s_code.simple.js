@@ -1348,8 +1348,132 @@
 	//channelManagerKeywords,
 	//channelManagerSearchType = false,
 	//dVar = s3.w_dVar,
-	pidQuerystring;
+	pidQuerystring,
+	lastSentPage = s3.c_r('lastPage')|| '';
+	
+	console.log('last Page'+ lastSentPage );
+	//Previous page
+	if(lastSentPage){
+	
+		digital['dd.previousPage'] = lastSentPage;
+		var lastPixelLength = s3.c_r('lastPixelLen')
+		digital['dd.lastPixelLength'] = lastPixelLength;
+	}
 
+	// External Campaigns
+	//if(!s.campaign){
+	//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+	s3.campaign = util.getValOnce(util.lCase(util.getQueryParam('cid', '', util.getLoc().href)), 's3_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
+	//}
+	if (s3.campaign) {
+		s3.eVar16 = 'D=v0';
+		s3.eVar17 = 'D=v0';
+		s3.eVar18 = s3.crossVisitParticipation(s3.campaign, 's3_ev18', '30', '5', '>', 'event22'); // this is cleared every time event22 fires. i.e. Application Complete step
+	}
+
+	//console.log('ORIG s.list2  = ' + s.list2); // impressions from banner cookie related to previous page, collected after it loaded
+	//console.log('pdPreImprs    = ' + pdPreImprs); // any other impressions passed for the current page after trackPage was called, but before it completed (and scanning links)
+	/* ABU var pdPreImprs = pageDetails.preImprs;
+	pdPreImprs = pdPreImprs ? pdPreImprs.split(',') : [];
+	for (prpty = 0; prpty < pdPreImprs.length; prpty++) {
+		s3.list2 = s3.apl(s3.list2, pdPreImprs[prpty], ',', 2);
+	}*/
+	//console.log('NEW s.list2   = ' + s.list2); // combined list of impressions for previous page
+	if (s3.list2) {
+		//s3.w_addEvt(11);
+		util.addEvt(digital,'intImpressions');
+	}
+
+	// Internal banner clicks
+	pidQuerystring = util.lCase(util.getQueryParam('pid', '', util.getLoc().href));
+	//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+	s3.eVar22 = util.getValOnce(pidQuerystring, 's3_pid', 30, 'm');
+	//}
+
+	// count every pid click for comparison to getValueOnce count
+	if (pidQuerystring) {
+		//appendEvent(10);
+		util.addEvt(digital,'pidTotalClicks');
+	}
+
+	//if(s.eVar22&&!s.eVar65){
+	if (s3.eVar22) {
+		//appendEvent(12);
+		util.addEvt(digital,'intClickThroughs');
+		s3.eVar20 = s3.crossVisitParticipation(s3.eVar22, 's3_ev20', '30', '5', '>', 'event22');
+	}
+	//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+	s3.eVar65 = util.getValOnce(util.lCase(util.getQueryParam('ref', '', util.getLoc().href)), 'refPrm', 30, 'm');
+	//}
+	// incoming links from AFS-group sites
+	//if(s.eVar22&&s.eVar65){
+	// ref is now just an additional parameter for tracking links from other sites
+	if (s3.eVar65) {
+		//appendEvent(72);
+		util.addEvt(digital,'afs-group');
+	}
+	//else{
+	//	s.eVar65='';
+	//}
+
+	// Combined Internal External Stack
+	if (s3.eVar22) {
+		s3.eVar19 = s3.crossVisitParticipation(s3.eVar22, 's3_ev19', '30', '10', '>', 'event22');
+	}
+	if (s3.campaign) {
+		s3.eVar19 = s3.crossVisitParticipation(s3.campaign, 's3_ev19', '30', '10', '>', 'event22');
+	}
+
+	// Paid/Natural Search Keyword
+	s3.prop18 = pageNameDynamicVariable; // set to just pageName as default
+	s3._channelParameter = 'Campaign|cid';
+	s3.channelManager('cid','','s3_c_m');
+
+	//channelManagerKeywords = cleanText(s._keywords || ''); // filter search keywords a bit - strip multiple spaces etc.
+	channelManagerKeywords = util.clean(s3._keywords); // filter search keywords a bit - strip multiple spaces etc.
+
+	if (s3._channel === 'Natural Search') {
+		channelManagerSearchType = 'NS';
+		// prop18 seo keywords and entry page
+		s3.prop18 = 'D="' + channelManagerKeywords + '|"+pageName';
+	}
+	//if(s._channel==='Campaign'&&/^sem:/i.test(s._campaign)){ // if cid param, and value starts with 'sem:' (just check for any CID). confirm identifier for PPC tracking codes
+	if (s3._channel === 'Campaign' && channelManagerKeywords !== 'n/a') { // only if cid param exists and keywords are found, it's paid search. We may not have keywords if they are not passed by the search engine (usually for NS)
+		channelManagerSearchType = 'PS';
+	}
+	if (channelManagerSearchType) {
+		s3.eVar11 = channelManagerKeywords === 'n/a' ? 'Keyword Unavailable' : channelManagerKeywords;
+		s3.prop11 = s3.dVar(11);
+
+		s3.eVar12 = s3.crossVisitParticipation(channelManagerSearchType + '|' + channelManagerKeywords, 's3_ev12', '30', '5', '>', 'event22');
+	}
+
+	s3.eVar29 = s3.getDaysSinceLastVisit('s3_lv');
+	s3.prop39 = "vid"+Visitor.version+","+util.version+",App"+ s3.version;
+
+	if (/^sitesearch$/.test(pdPageType)) {
+		//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
+		s3.eVar14 = util.getValOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
+		if (s3.eVar14) {
+			s3.prop14 = s3.dVar(14);
+			// split search term into keywords
+			s3.list1 = util.clean(s3.eVar14.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
+			//s.eVar15 = pageBrand + ':' + (pageSite==='banking'?'secure':'public'); // OTP doesnt have site search
+			s3.w_addEvt(14);
+			//s.eVar30 = 'sitesearch:' + pdSearchResults; // use pdPageType here in place of text sitesearch string
+			s3.eVar30 = pdPageType + ':' + pdSearchResults;
+			//if(s.eVar30==='sitesearch:0'){
+			//console.log(pdSearchResults);
+			//if (s.eVar30 === pdPageType + ':0') {
+			if (pdSearchResults === '0') {
+				s3.w_addEvt(16);
+			}
+		} //else{
+		//	s.eVar14 = notSet;
+		//}
+		//}
+	}
+	// capture URL
 	s3.pageName = digital['dd.pageName'];
 	s3.products = util.valReplace(util.valReplace(s3.w_prodStr(pdProductID, pageDetails), util.lStor('get', 'analytics_productsReplace')), pageDetails.productsReplace); // global + local replace
 	//Visit number
@@ -4200,130 +4324,7 @@
 	// capture user-agent
 	s3.prop27 = 'D=User-Agent'; // capture with proc rule to increase capture (non-JS), reduce JS size and reduce pixel length
 	
-	var lastSentPage = s3.c_r('lastPage')|| '';
-	console.log('last Page'+ lastSentPage );
-	//Previous page
-	if(lastSentPage){
 	
-		digital['dd.previousPage'] = lastSentPage;
-		var lastPixelLength = s3.c_r('lastPixelLen')
-		digital['dd.lastPixelLength'] = lastPixelLength;
-	}
-
-	// External Campaigns
-	//if(!s.campaign){
-	//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-	s3.campaign = util.getValOnce(util.lCase(util.getQueryParam('cid', '', util.getLoc().href)), 's3_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
-	//}
-	if (s3.campaign) {
-		s3.eVar16 = 'D=v0';
-		s3.eVar17 = 'D=v0';
-		s3.eVar18 = s3.crossVisitParticipation(s3.campaign, 's3_ev18', '30', '5', '>', 'event22'); // this is cleared every time event22 fires. i.e. Application Complete step
-	}
-
-	//console.log('ORIG s.list2  = ' + s.list2); // impressions from banner cookie related to previous page, collected after it loaded
-	//console.log('pdPreImprs    = ' + pdPreImprs); // any other impressions passed for the current page after trackPage was called, but before it completed (and scanning links)
-	/* ABU var pdPreImprs = pageDetails.preImprs;
-	pdPreImprs = pdPreImprs ? pdPreImprs.split(',') : [];
-	for (prpty = 0; prpty < pdPreImprs.length; prpty++) {
-		s3.list2 = s3.apl(s3.list2, pdPreImprs[prpty], ',', 2);
-	}*/
-	//console.log('NEW s.list2   = ' + s.list2); // combined list of impressions for previous page
-	if (s3.list2) {
-		//s3.w_addEvt(11);
-		util.addEvt(digital,'intImpressions');
-	}
-
-	// Internal banner clicks
-	pidQuerystring = util.lCase(util.getQueryParam('pid', '', util.getLoc().href));
-	//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-	s3.eVar22 = util.getValOnce(pidQuerystring, 's3_pid', 30, 'm');
-	//}
-
-	// count every pid click for comparison to getValueOnce count
-	if (pidQuerystring) {
-		//appendEvent(10);
-		util.addEvt(digital,'pidTotalClicks');
-	}
-
-	//if(s.eVar22&&!s.eVar65){
-	if (s3.eVar22) {
-		//appendEvent(12);
-		util.addEvt(digital,'intClickThroughs');
-		s3.eVar20 = s3.crossVisitParticipation(s3.eVar22, 's3_ev20', '30', '5', '>', 'event22');
-	}
-	//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-	s3.eVar65 = util.getValOnce(util.lCase(util.getQueryParam('ref', '', util.getLoc().href)), 'refPrm', 30, 'm');
-	//}
-	// incoming links from AFS-group sites
-	//if(s.eVar22&&s.eVar65){
-	// ref is now just an additional parameter for tracking links from other sites
-	if (s3.eVar65) {
-		//appendEvent(72);
-		util.addEvt(digital,'afs-group');
-	}
-	//else{
-	//	s.eVar65='';
-	//}
-
-	// Combined Internal External Stack
-	if (s3.eVar22) {
-		s3.eVar19 = s3.crossVisitParticipation(s3.eVar22, 's3_ev19', '30', '10', '>', 'event22');
-	}
-	if (s3.campaign) {
-		s3.eVar19 = s3.crossVisitParticipation(s3.campaign, 's3_ev19', '30', '10', '>', 'event22');
-	}
-
-	// Paid/Natural Search Keyword
-	s3.prop18 = pageNameDynamicVariable; // set to just pageName as default
-	s3._channelParameter = 'Campaign|cid';
-	s3.channelManager('cid','','s3_c_m');
-
-	//channelManagerKeywords = cleanText(s._keywords || ''); // filter search keywords a bit - strip multiple spaces etc.
-	channelManagerKeywords = util.clean(s3._keywords); // filter search keywords a bit - strip multiple spaces etc.
-
-	if (s3._channel === 'Natural Search') {
-		channelManagerSearchType = 'NS';
-		// prop18 seo keywords and entry page
-		s3.prop18 = 'D="' + channelManagerKeywords + '|"+pageName';
-	}
-	//if(s._channel==='Campaign'&&/^sem:/i.test(s._campaign)){ // if cid param, and value starts with 'sem:' (just check for any CID). confirm identifier for PPC tracking codes
-	if (s3._channel === 'Campaign' && channelManagerKeywords !== 'n/a') { // only if cid param exists and keywords are found, it's paid search. We may not have keywords if they are not passed by the search engine (usually for NS)
-		channelManagerSearchType = 'PS';
-	}
-	if (channelManagerSearchType) {
-		s3.eVar11 = channelManagerKeywords === 'n/a' ? 'Keyword Unavailable' : channelManagerKeywords;
-		s3.prop11 = s3.dVar(11);
-
-		s3.eVar12 = s3.crossVisitParticipation(channelManagerSearchType + '|' + channelManagerKeywords, 's3_ev12', '30', '5', '>', 'event22');
-	}
-
-	s3.eVar29 = s3.getDaysSinceLastVisit('s3_lv');
-	s3.prop39 = "vid"+Visitor.version+","+util.version+",App"+ s3.version;
-
-	if (/^sitesearch$/.test(pdPageType)) {
-		//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
-		s3.eVar14 = util.getValOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
-		if (s3.eVar14) {
-			s3.prop14 = s3.dVar(14);
-			// split search term into keywords
-			s3.list1 = util.clean(s3.eVar14.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
-			//s.eVar15 = pageBrand + ':' + (pageSite==='banking'?'secure':'public'); // OTP doesnt have site search
-			s3.w_addEvt(14);
-			//s.eVar30 = 'sitesearch:' + pdSearchResults; // use pdPageType here in place of text sitesearch string
-			s3.eVar30 = pdPageType + ':' + pdSearchResults;
-			//if(s.eVar30==='sitesearch:0'){
-			//console.log(pdSearchResults);
-			//if (s.eVar30 === pdPageType + ':0') {
-			if (pdSearchResults === '0') {
-				s3.w_addEvt(16);
-			}
-		} //else{
-		//	s.eVar14 = notSet;
-		//}
-		//}
-	}
-	// capture URL
 	s3.eVar26 = 'D=Referer+"' + util.getLoc().hash.replace(util.guidRgx, '(GUID)') + '"'; // this is the full unprocessed page URL from HTTP header (includes hash)
 	s3.prop26 = 'D=g'; // this is the filtered page URL from JS document (will include hash if any)
 	/*s3.ActivityMap.link = function(ele, linkName) {
