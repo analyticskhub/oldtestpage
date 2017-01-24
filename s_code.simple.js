@@ -1216,7 +1216,7 @@
 	
 	if (s3.w_prod) {
 		s3_account ="wbg-banking-prd"
-		s3.sa(s_account);
+		s3.sa(s3_account);
 	}
 	s3.visitor=Visitor.getInstance("3A4B7BAF56F01DA67F000101@AdobeOrg")
 	/************************** CONFIG SECTION **************************/
@@ -1441,7 +1441,7 @@
 		cleanText = util.clean,
 		appendEvent = util.addEvt,
 		// store copy in s object for clicks etc to refer to previous details (pageName etc.)
-		pageDetails = pageData, //|| util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
+		pageDetails = pageData || pageDetails, //|| util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
 		pdPageName = cleanText(pageDetails.pageName),
 		pdDialogTitle = cleanText(pageDetails.dialogTitle), // captures titles of dialogs in OTP and CTRT code for dynamic campaign landing page. Value is appended to end of page name.
 		sPageNameTemp = '',
