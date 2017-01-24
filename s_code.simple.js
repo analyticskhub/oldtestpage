@@ -76,7 +76,7 @@
 	util.pathExcludeList=''; // elements to exclude from the path - index.html? default.aspx for info?
 	util.pathExcludeDelim = ';'; // portion of the path to exclude - was ;
 	util.siteID= '';  //s.siteID set in doPlugins to allow changing to 'app' based on visitorID cookie from apps
-	util.version = 'U0.02';
+	util.version = 'U0.03';
 	//util.codeVers="vid"+visitor.version+","+util.version;
 	util.location = window.location;
 	// moved from original responsive CSS function in analytics.js
@@ -1127,13 +1127,14 @@
 	var pageBrand='',
 	pageSite='',
 	digital={},
-	pdProductID = '',
 	pdInSession = false, // if page is in secure/unsecure area
 	pdPageType = '',
 	pdPageStep = '',
 	channelManagerKeywords,
 	channelManagerSearchType = false,
-	pageDetails = window.pageDetails || {};
+	//pageDetails = window.pageDetails || {};
+	pageDetails = util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
+	pdProductID = util.prodArr(pageDetails.productID || ''),
 	pageNameDynamicVariable = 'D=pageName'; // zzzzz change to D.pageName to reduce pixel
 
 	// Brand specific
@@ -1440,12 +1441,12 @@
 		cleanText = util.clean,
 		appendEvent = util.addEvt,
 		// store copy in s object for clicks etc to refer to previous details (pageName etc.)
-		pageDetails = pageData || util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
+		pageDetails = pageData, //|| util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
 		pdPageName = cleanText(pageDetails.pageName),
 		pdDialogTitle = cleanText(pageDetails.dialogTitle), // captures titles of dialogs in OTP and CTRT code for dynamic campaign landing page. Value is appended to end of page name.
 		sPageNameTemp = '',
 		pageTypeAlt, // for tracking other page types, and applying a rule to classify other pages
-		pdProductID = util.prodArr(pageDetails.productID || ''), // products string converted into array
+		//pdProductID = util.prodArr(pageDetails.productID || ''), // products string converted into array
 		paymentProduct, // for products string where required
 		pdFormName = lowerCaseVal(cleanText(pageDetails.formName)),
 		pdFormType = lowerCaseVal(cleanText(pageDetails.formType)),
