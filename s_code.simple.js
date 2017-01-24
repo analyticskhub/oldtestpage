@@ -496,101 +496,6 @@
 	util.isHomePage = function (u) {
 		return /^\/((default|index)\.html?)?$/.test(util.getLoc().pathname);
 	};
-	util.trackImprs = function () {
-		var lp,
-		targetSet,
-		targetItem,
-		linkHref,
-		attrHref,
-		linkPid,
-		pidRecordedFlag = 'data-analytics-pid-imp',
-		arrImprs = [];
-
-		//targetSet = document.getElementsByTagName('A');
-		targetSet = util.qSA(document, "a[href*='pid\\=']", 'A', 'href', (/pid=/i));
-
-		lp = targetSet.length;
-		while (lp--) {
-			// check for any links with pid= and add them to the impressions list
-			// THIS BLOCK SHOULD RUN AFTER S.T(), ELSE DOPLUGINS WILL TRACK IMPRESSIONS WITH THE CURRENT PAGE (post-load impressions are only meaningfully reported against previous page)
-			targetItem = targetSet[lp];
-
-			// if it's an anchor link, look in the anchor only, not full URL in case already a pid click parameter in current querystring
-			attrHref = targetItem.getAttribute('href');
-			linkHref = /^#/.test(attrHref) ? attrHref : targetItem.href;
-			linkPid = util.getQueryParam('pid', '', linkHref);
-
-			
-			if (linkPid) {
-			console.log(targetItem.href);
-			console.log('s.w_trackImprs found pid: ' + linkPid);
-			console.log('Visible size?: ' + targetItem.offsetWidth + 'x' + targetItem.offsetHeight + '. Vis test === ' + (linkPid && util.isVisible(0, targetItem)));
-			}
-			
-
-			// fix for IE bug with inline and block elements stating offsets incorrectly
-			//ieDisplayNoneBug = target[lp].currentStyle && target[lp].currentStyle.display === 'none' ? true : false;
-
-			// not an impression if the element is not visible
-			//if (linkPid && (target[lp].offsetWidth > 0 && target[lp].offsetHeight > 0)) {
-			//if (linkPid && (target[lp].offsetWidth > 0 && target[lp].offsetHeight > 0) && !ieDisplayNoneBug) {
-			//if (linkPid && s.w_isVis(0, targetItem)) {
-			if (linkPid && util.isVisible(0, targetItem) && !targetItem.getAttribute(pidRecordedFlag)) {
-
-				// if not already collected on this window load
-				//window.console && console.log(linkPid + ' collected? = ' + targetItem.getAttribute(pidRecordedFlag));
-
-				arrImprs.push(linkPid.replace(/,/g, '%2C')); // encode commas in url pid's so they arent split into multiple impressions
-
-				// set a flag
-				targetItem.setAttribute(pidRecordedFlag, '1');
-			}
-		}
-		if (arrImprs) {
-			window.console && console.log('s.w_trackImprs to send = ' + arrImprs.join(','));
-			util.trackImpression(arrImprs.join(','));
-		}
-	};
-	util.trackImpression = function (detail) {
-		var lp,
-		len,
-		newData,
-		items,
-		ckName = 'visImpTmp',
-		detailObj = detail,
-		attrHref,
-		linkHref,
-		pidRecordedFlag = 'data-analytics-pid-imp';
-		if (!util.isPageHidden()) {
-			if (detailObj && detailObj.nodeName === 'A') {
-				if (util.isVisible(0, detailObj) && !detailObj.getAttribute(pidRecordedFlag)) {
-					attrHref = detailObj.getAttribute('href');
-					linkHref = /^#/.test(attrHref) ? attrHref : detailObj.href;
-					detail = util.getQueryParam('pid', '', linkHref);
-					if (detail) {
-						detailObj.setAttribute(pidRecordedFlag, '1');
-					}
-				} else {
-					detail = 0;
-				}
-			}
-			if (detail && ckName) {
-				newData = String(detail || '');
-				items = newData.split(',');
-				newData = s3.c_r(ckName) || '';
-				for (lp = 0, len = items.length; lp < len; lp++) {
-					if (items[lp]) {
-						newData = s3.apl(newData, util.lCase(items[lp]), ',', 2);
-					}
-				}
-				// if the cookie has more than five banners send a custom request to prevent the string becoming truncated? How long are the pid's? evar=255 chars
-				//s.c_w('banners',newData);
-					s3.c_w(ckName, newData, new Date(+new Date() + (24 * 60 * 60 * 1000))); // keep impressions in cookie for 24 hours
-				
-			}
-		}
-		return newData;
-	};
 	util.getPageName = function (u) {
 		var v = u || String(util.pageURL),
 		x = v.indexOf(':'),
@@ -4089,6 +3994,101 @@
 		//console.log('refObj = ');
 		//console.log(refObj);
 	};
+	s3.trackImprs = function () {
+		var lp,
+		targetSet,
+		targetItem,
+		linkHref,
+		attrHref,
+		linkPid,
+		pidRecordedFlag = 'data-analytics-pid-imp',
+		arrImprs = [];
+
+		//targetSet = document.getElementsByTagName('A');
+		targetSet = util.qSA(document, "a[href*='pid\\=']", 'A', 'href', (/pid=/i));
+
+		lp = targetSet.length;
+		while (lp--) {
+			// check for any links with pid= and add them to the impressions list
+			// THIS BLOCK SHOULD RUN AFTER S.T(), ELSE DOPLUGINS WILL TRACK IMPRESSIONS WITH THE CURRENT PAGE (post-load impressions are only meaningfully reported against previous page)
+			targetItem = targetSet[lp];
+
+			// if it's an anchor link, look in the anchor only, not full URL in case already a pid click parameter in current querystring
+			attrHref = targetItem.getAttribute('href');
+			linkHref = /^#/.test(attrHref) ? attrHref : targetItem.href;
+			linkPid = util.getQueryParam('pid', '', linkHref);
+
+			
+			if (linkPid) {
+			console.log(targetItem.href);
+			console.log('s.w_trackImprs found pid: ' + linkPid);
+			console.log('Visible size?: ' + targetItem.offsetWidth + 'x' + targetItem.offsetHeight + '. Vis test === ' + (linkPid && util.isVisible(0, targetItem)));
+			}
+			
+
+			// fix for IE bug with inline and block elements stating offsets incorrectly
+			//ieDisplayNoneBug = target[lp].currentStyle && target[lp].currentStyle.display === 'none' ? true : false;
+
+			// not an impression if the element is not visible
+			//if (linkPid && (target[lp].offsetWidth > 0 && target[lp].offsetHeight > 0)) {
+			//if (linkPid && (target[lp].offsetWidth > 0 && target[lp].offsetHeight > 0) && !ieDisplayNoneBug) {
+			//if (linkPid && s.w_isVis(0, targetItem)) {
+			if (linkPid && util.isVisible(0, targetItem) && !targetItem.getAttribute(pidRecordedFlag)) {
+
+				// if not already collected on this window load
+				//window.console && console.log(linkPid + ' collected? = ' + targetItem.getAttribute(pidRecordedFlag));
+
+				arrImprs.push(linkPid.replace(/,/g, '%2C')); // encode commas in url pid's so they arent split into multiple impressions
+
+				// set a flag
+				targetItem.setAttribute(pidRecordedFlag, '1');
+			}
+		}
+		if (arrImprs) {
+			window.console && console.log('s.w_trackImprs to send = ' + arrImprs.join(','));
+			s3.trackImpression(arrImprs.join(','));
+		}
+	};
+	s3.trackImpression = function (detail) {
+		var lp,
+		len,
+		newData,
+		items,
+		ckName = 'visImpTmp',
+		detailObj = detail,
+		attrHref,
+		linkHref,
+		pidRecordedFlag = 'data-analytics-pid-imp';
+		if (!util.isPageHidden()) {
+			if (detailObj && detailObj.nodeName === 'A') {
+				if (util.isVisible(0, detailObj) && !detailObj.getAttribute(pidRecordedFlag)) {
+					attrHref = detailObj.getAttribute('href');
+					linkHref = /^#/.test(attrHref) ? attrHref : detailObj.href;
+					detail = util.getQueryParam('pid', '', linkHref);
+					if (detail) {
+						detailObj.setAttribute(pidRecordedFlag, '1');
+					}
+				} else {
+					detail = 0;
+				}
+			}
+			if (detail && ckName) {
+				newData = String(detail || '');
+				items = newData.split(',');
+				newData = s3.c_r(ckName) || '';
+				for (lp = 0, len = items.length; lp < len; lp++) {
+					if (items[lp]) {
+						newData = s3.apl(newData, util.lCase(items[lp]), ',', 2);
+					}
+				}
+				// if the cookie has more than five banners send a custom request to prevent the string becoming truncated? How long are the pid's? evar=255 chars
+				//s.c_w('banners',newData);
+					s3.c_w(ckName, newData, new Date(+new Date() + (24 * 60 * 60 * 1000))); // keep impressions in cookie for 24 hours
+				
+			}
+		}
+		return newData;
+	};
 	// track a page only once per window load (for single page applications). All names sent stored in array to compare for all further calls until reset or page reloaded (array cleared)
 	s3.w_pageTracked = function (pgName) {
 		var lp,
@@ -4208,7 +4208,7 @@
 			s3.w_collectStoredData();
 			s3.t();
 			console.log('f():w_trackPage s3.t()');
-			util.trackImprs();
+			s3.trackImprs();
 			s3.w_endTrckng();
 			s3.w_log('context data', unescape(JSON.stringify(digital, null, 4).replace(/\\u([\w\d]{4})/g, '%u$1')));
 		}else{
