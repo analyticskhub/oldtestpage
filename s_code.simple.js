@@ -1223,7 +1223,7 @@
 	s3.visitor=Visitor.getInstance("3A4B7BAF56F01DA67F000101@AdobeOrg")
 	/************************** CONFIG SECTION **************************/
 	/* You may add or alter any code config here. */
-	s3.w_codeVers = '20170214 dev "+Host';
+	s3.w_codeVers = '20170214 dev';
 	s3.charSet="UTF-8"
 	s3.cookieDomainPeriods=3
 	/* Conversion Config */
