@@ -1136,6 +1136,7 @@
 	pageDetails = util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
 	pdSearchTerm = util.clean(pageDetails.searchTerm),
 	pdProductID = util.prodArr(pageDetails.productID || ''),
+	pdFormName = util.lCase(util.clean(pageDetails.formName)),
 	pageNameDynamicVariable = 'D=pageName'; // zzzzz change to D.pageName to reduce pixel
 
 	// Brand specific
@@ -1431,6 +1432,49 @@
 	// copy and paste implementation plug-ins here - See "Implementation Plug-ins" @
 	// https://marketing.adobe.com/resources/help/en_US/sc/implement/#Implementation_Plugins
 	// Plug-ins can then be used in the s_doPlugins(s) function above 
+	if(!s3.__ccucr)
+		{
+			s3.c_rr = s3.c_r;
+			s3.__ccucr = true;
+			function s3_c_r(k)
+			{
+				var s3 = this, d = new Date, v = s3.c_rr(k), c = s3.c_rspers(), i, m, e;
+				if(v) return v; k = s3.escape ? s3.escape(k) : encodeURIComponent(k);
+				i = c.indexOf(' ' + k + '='); c = i < 0 ? s3.c_rr('s3_sess') : c;
+				i = c.indexOf(' ' + k + '='); m = i < 0 ? i : c.indexOf('|', i);
+				e = i < 0 ? i : c.indexOf(';', i); m = m > 0 ? m : e;
+				v = i < 0 ? '' : s3.unescape ? s3.unescape(c.substring(i + 2 + k.length, m < 0 ? c.length : m)) : decodeURIComponent(c.substring(i + 2 + k.length, m < 0 ? c.length : m));
+				return v;
+			}
+			function s3_c_rspers()
+			{
+				var s3 = this, cv = s3.c_rr("s3_pers"), date = new Date().getTime(), expd = null, cvarr = [], vcv = "";
+				if(!cv) return vcv; cvarr = cv.split(";"); for(var i = 0, l = cvarr.length; i < l; i++)  { expd = cvarr[i].match(/\|([0-9]+)$/);
+				if(expd && parseInt(expd[1]) >= date) { vcv += cvarr[i] + ";"; } } return vcv;
+			}
+			s3.c_rspers = s3_c_rspers;
+			s3.c_r = s3.cookieRead = s3_c_r;
+		}
+	if(!s3.__ccucw)
+		{
+			s3.c_wr = s3.c_w;
+			s3.__ccucw = true;
+			function s3_c_w(k, v, e)
+			{
+				var s3 = this, d = new Date, ht = 0, pn = 's3_pers', sn = 's3_sess', pc = 0, sc = 0, pv, sv, c, i, t, f;
+				d.setTime(d.getTime() - 60000); if(s3.c_rr(k)) s3.c_wr(k, '', d); k = s3.escape ? s3.escape(k) : encodeURIComponent(k);
+				pv = s3.c_rspers(); i = pv.indexOf(' ' + k + '='); if(i > -1) { pv = pv.substring(0, i) + pv.substring(pv.indexOf(';', i) + 1); pc = 1; }
+				sv = s3.c_rr(sn); i = sv.indexOf(' ' + k + '='); if(i > -1) { sv = sv.substring(0, i) + sv.substring(sv.indexOf(';', i) + 1);
+				sc = 1; } d = new Date; if(e) { if(e == 1) e = new Date, f = e.getYear(), e.setYear(f + 5 + (f < 1900 ? 1900 : 0));
+				if(e.getTime() > d.getTime()) {  pv += ' ' + k + '=' + (s3.escape ? s3.escape(v) : encodeURIComponent(v)) + '|' + e.getTime() + ';';
+				pc = 1; } } else { sv += ' ' + k + '=' + (s3.escape ? s3.escape(v) : encodeURIComponent(v)) + ';';
+				sc = 1; } sv = sv.replace(/%00/g, ''); pv = pv.replace(/%00/g, ''); if(sc) s3.c_wr(sn, sv, 0);
+				if(pc) { t = pv; while(t && t.indexOf(';') != -1) { var t1 = parseInt(t.substring(t.indexOf('|') + 1, t.indexOf(';')));
+				t = t.substring(t.indexOf(';') + 1); ht = ht < t1 ? t1 : ht; } d.setTime(ht); s3.c_wr(pn, pv, d); }
+				return v == s3.c_r(s3.unescape ? s3.unescape(k) : decodeURIComponent(k));
+			}
+			s3.c_w = s3.cookieWrite = s3_c_w;
+		}
 	s3.AnalyticsContextData = function (pageData) {
 		var _tempContext = {},
 		context={},
@@ -1449,7 +1493,7 @@
 		pageTypeAlt, // for tracking other page types, and applying a rule to classify other pages
 		//pdProductID = util.prodArr(pageDetails.productID || ''), // products string converted into array
 		paymentProduct, // for products string where required
-		pdFormName = lowerCaseVal(cleanText(pageDetails.formName)),
+		//pdFormName = lowerCaseVal(cleanText(pageDetails.formName)),
 		pdFormType = lowerCaseVal(cleanText(pageDetails.formType)),
 		//---- wbg|form|app|*au ---- 
 		pdnewFormName = lowerCaseVal(cleanText(pageDetails.newFormName)),
@@ -1499,6 +1543,7 @@
 		pdPageNamePrefixPair = cleanText(pageDetails.pageNamePrefixes).split('|'),
 		pdPageNamePrefix,
 		pdFeaturedContent,
+		isSearchResultLanding,
 		formTypeOverride,
 		//lastSentPage = util.cookieRead('lastPage')|| '',
 		getValueOnce = util.getValOnce,
@@ -1758,7 +1803,7 @@
 			}
 			break;
 		case 'sitesearch':
-			/* s3.eVar14 = util.getValOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
+			 s3.eVar14 = util.getValOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
 				if (s3.eVar14) {
 					s3.prop14 = s3.dVar(14);
 					// split search term into keywords
@@ -1775,7 +1820,7 @@
 					}
 				}
 		
-			*/
+			/*
 			//s.eVar14 = getValueOnce(lowerCaseVal(getQuerystringParam('query','',fullLocObj.href)).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
 			//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
 			context['dd.searchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
@@ -1802,11 +1847,11 @@
 			} //else{
 			//	s.eVar14 = notSet;
 			//}
-			//} 
+			//} **/
 			break;
 		case 'faqsearch':
 			// pageDetails passed from function call on faq search result div load
-			context['dd.faqSearchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 'faq', 30, 'm');
+			context['dd.faqSearchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 's3_faq', 30, 'm');
 			//s2.eVar58 = getValueOnce(s2.w_srchTerm(pdSearchTerm), 'faq', 30, 'm');
 			if (context['dd.faqSearchTerm']) {
 				//s2.prop58 = dVar(58);
@@ -2496,7 +2541,7 @@
 
 			// track page number for search results etc.
 			if(pdPageNumber){
-				context['dd.visitNumber'] = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
+				context['dd.pageNumber'] = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
 			}
 			//s2.prop8 = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
 
@@ -2649,7 +2694,7 @@
 
 			// Featured content - fid/wbcfrom - for secondary promo tracking (Patrick)
 			//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-			pdFeaturedContent = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 'feat', 30, 'm');
+			pdFeaturedContent = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 's3_feat', 30, 'm');
 			//s2.eVar60 = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 'feat', 30, 'm');
 			//}
 			if (pdFeaturedContent) {
@@ -2728,7 +2773,50 @@
 				//s2.w_addEvt(15);
 				// clickthru event from "search results page" is triggered when prop16 is set
 			}
+			
+			// search results details *au
+			// new way to track clickthru, rank, result category etc
+			// convention for search result details eVar
+			//search-source|result-type|searched-keyword|result-category|result-rank
+			// example output: source:search-page|type:natural|kw:low-rate-card|cat:services|rank:1
+			// example output non natural type: source:search-page|type:recommended|kw:low-rate-card
+			// example output non natural type: source:search-page|type:quicklinks|kw:low-rate-card
+			// AEM release 1.1 updated type query param to result-type
+			isSearchResultLanding = lowerCaseVal(getQuerystringParam('searchsource', '', fullLocObj.href));
+			if (isSearchResultLanding) {
+				var searchOrigin,
+					searchResultType,
+					searchKeyword,
+					searchResultCategory,
+					searchResultRank;
+				searchOrigin = lowerCaseVal(getQuerystringParam('searchsource', '', fullLocObj.href));
+				searchResultType = lowerCaseVal(getQuerystringParam('result-type', '', fullLocObj.href));
+				searchKeyword = lowerCaseVal(getQuerystringParam('kw', '', fullLocObj.href));
+				searchResultCategory = lowerCaseVal(getQuerystringParam('cat', '', fullLocObj.href));
 
+
+				switch (searchResultType) {
+					case 'natural':
+						searchResultRank = lowerCaseVal(getQuerystringParam('rank', '', fullLocObj.href));
+						s.prop16 = searchResultRank;
+						if (s.prop16) {
+							s.w_addEvt(15);
+						}
+						s.eVar13 = 'source:' + searchOrigin + '|' + 'type:' + searchResultType + '|' + 'kw:' + searchKeyword + '|' + 'cat:' + searchResultCategory + '|' + 'rank:' + searchResultRank;
+						break;
+					case 'recommended':
+					case 'quicklinks':
+						s.eVar13 = 'source:' + searchOrigin + '|' + 'type:' + searchResultType + '|' + 'kw:' + searchKeyword;
+						// added event15 to include recommend and quicklinks for clickthru tracing *au 24/08
+						s.w_addEvt(15);
+						break;
+				}
+			}
+			//search type var to understand type of search feature used .. suggested/predictive/simillar to ..
+			wbcSearchType = lowerCaseVal(getQuerystringParam('searchtype', '', fullLocObj.href));
+			if (wbcSearchType) {
+				s.eVar15 = 'searchtype:' + wbcSearchType;
+			}
 			// Previous Page name
 			//s.prop15 = s.getPreviousValue(sPageNameTemp, 'gpv_p15', '');
 			//if (s.prop15 === sPageNameTemp) {
@@ -2937,54 +3025,6 @@
 	s3.dVar = function (id) {
 		return s3['eVar' + id] ? 'D=v' + id : '';
 	};
-	/*
-	 * Cookie Combining Utility v.5
-	 */
-
-	if(!s3.__ccucr)
-	{
-		s3.c_rr = s3.c_r;
-		s3.__ccucr = true;
-		function c_r(k)
-		{
-			var s = this, d = new Date, v = s3.c_rr(k), c = s3.c_rspers(), i, m, e;
-			if(v) return v; k = s3.escape ? s3.escape(k) : encodeURIComponent(k);
-			i = c.indexOf(' ' + k + '='); c = i < 0 ? s3.c_rr('s3_sess') : c;
-			i = c.indexOf(' ' + k + '='); m = i < 0 ? i : c.indexOf('|', i);
-			e = i < 0 ? i : c.indexOf(';', i); m = m > 0 ? m : e;
-			v = i < 0 ? '' : s3.unescape ? s3.unescape(c.substring(i + 2 + k.length, m < 0 ? c.length : m)) : decodeURIComponent(c.substring(i + 2 + k.length, m < 0 ? c.length : m));
-			return v;
-		}
-		function c_rspers()
-		{
-			var s = this, cv = s3.c_rr("s3_pers"), date = new Date().getTime(), expd = null, cvarr = [], vcv = "";
-			if(!cv) return vcv; cvarr = cv.split(";"); for(var i = 0, l = cvarr.length; i < l; i++)  { expd = cvarr[i].match(/\|([0-9]+)$/);
-			if(expd && parseInt(expd[1]) >= date) { vcv += cvarr[i] + ";"; } } return vcv;
-		}
-		s3.c_rspers = c_rspers;
-		s3.c_r = s3.cookieRead = c_r;
-	}
-	if(!s3.__ccucw)
-	{
-		s3.c_wr = s3.c_w;
-		s3.__ccucw = true;
-		function c_w(k, v, e)
-		{
-			var s3 = this, d = new Date, ht = 0, pn = 's3_pers', sn = 's3_sess', pc = 0, sc = 0, pv, sv, c, i, t, f;
-			d.setTime(d.getTime() - 60000); if(s3.c_rr(k)) s3.c_wr(k, '', d); k = s3.escape ? s3.escape(k) : encodeURIComponent(k);
-			pv = s3.c_rspers(); i = pv.indexOf(' ' + k + '='); if(i > -1) { pv = pv.substring(0, i) + pv.substring(pv.indexOf(';', i) + 1); pc = 1; }
-			sv = s3.c_rr(sn); i = sv.indexOf(' ' + k + '='); if(i > -1) { sv = sv.substring(0, i) + sv.substring(sv.indexOf(';', i) + 1);
-			sc = 1; } d = new Date; if(e) { if(e == 1) e = new Date, f = e.getYear(), e.setYear(f + 5 + (f < 1900 ? 1900 : 0));
-			if(e.getTime() > d.getTime()) {  pv += ' ' + k + '=' + (s3.escape ? s3.escape(v) : encodeURIComponent(v)) + '|' + e.getTime() + ';';
-			pc = 1; } } else { sv += ' ' + k + '=' + (s3.escape ? s3.escape(v) : encodeURIComponent(v)) + ';';
-			sc = 1; } sv = sv.replace(/%00/g, ''); pv = pv.replace(/%00/g, ''); if(sc) s3.c_wr(sn, sv, 0);
-			if(pc) { t = pv; while(t && t.indexOf(';') != -1) { var t1 = parseInt(t.substring(t.indexOf('|') + 1, t.indexOf(';')));
-			t = t.substring(t.indexOf(';') + 1); ht = ht < t1 ? t1 : ht; } d.setTime(ht); s3.c_wr(pn, pv, d); }
-			return v == s3.c_r(s3.unescape ? s3.unescape(k) : decodeURIComponent(k));
-		}
-		s3.c_w = s3.cookieWrite = c_w;
-	}
-
 
 	/*
 	 * Plugin channelManager v3.01 - Tracking External Traffic
@@ -4197,7 +4237,7 @@
 		// clear s object vars ready for new step of 1-page	 forms
 		//s3.w_clearOmniVars();
 		s3.clearVars
-		s3.w_log('pageDetails',unescape(JSON.stringify(detailsCopy, null, 4).replace(/\\u([\w\d]{4})/g, '%u$1')));
+		s3.w_log('s3 pageDetails',unescape(JSON.stringify(detailsCopy, null, 4).replace(/\\u([\w\d]{4})/g, '%u$1')));
 		if (!detailsCopy._drop) {
 			s3.w_pgTrkStatus = 'sent'; // ok to start collecting banners for this page
 			s3.w_perfTracked = true; // prevent from re-running
@@ -4221,9 +4261,9 @@
 			console.log('f():w_trackPage s3.t()');
 			s3.trackImprs();
 			s3.w_endTrckng();
-			s3.w_log('context data', unescape(JSON.stringify(digital, null, 4).replace(/\\u([\w\d]{4})/g, '%u$1')));
+			s3.w_log('context data s3', unescape(JSON.stringify(digital, null, 4).replace(/\\u([\w\d]{4})/g, '%u$1')));
 		}else{
-			s3.w_log('drop',true)
+			s3.w_log('s3_drop',true)
 			
 		}
 		
@@ -4243,7 +4283,7 @@
 			console.log('timeout:'+s3.qb);
 			var lastPixelSrc = s3.qb||'';
 			lastPixelLength = 0;
-			s3.w_log('s_code', s3.pageName);
+			s3.w_log('s3_code', s3.pageName);
 
 			//var lastPixelSrc = window["s2"].kb
 			if (lastPixelSrc) { // changed to lastPixel.getAttribute('src') to avoid invalid pointer error in IE11 when reading .src
@@ -4588,7 +4628,7 @@
 	else if("object"==typeof c&&"object"==typeof c.dests)for(var b=0;b<c.dests.length;++b){var d=c.dests[b];"object"==typeof d&&"string"==typeof d.c&&"string"==typeof d.id&&"aa."==d.id.substr(0,3)&&(a.ta[d.id]=new Image,a.ta[d.id].alt="",a.ta[d.id].src=d.c)}};a.sb=function(c){a.i||a.Bb();a.i.push(c);a.ma=a.C();a.Ra()};a.Bb=function(){a.i=a.Db();a.i||(a.i=[])};a.Db=function(){var c,b;if(a.ra()){try{(b=h.localStorage.getItem(a.pa()))&&(c=h.JSON.parse(b))}catch(d){}return c}};a.ra=function(){var c=!0;a.trackOffline&&
 	a.offlineFilename&&h.localStorage&&h.JSON||(c=!1);return c};a.Ia=function(){var c=0;a.i&&(c=a.i.length);a.q&&c++;return c};a.ka=function(){if(a.q&&(a.B&&a.B.complete&&a.B.F&&a.B.va(),a.q))return;a.Ja=n;if(a.qa)a.ma>a.N&&a.Pa(a.i),a.ua(500);else{var c=a.nb();if(0<c)a.ua(c);else if(c=a.Fa())a.q=1,a.Eb(c),a.Ib(c)}};a.ua=function(c){a.Ja||(c||(c=0),a.Ja=setTimeout(a.ka,c))};a.nb=function(){var c;if(!a.trackOffline||0>=a.offlineThrottleDelay)return 0;c=a.C()-a.Oa;return a.offlineThrottleDelay<c?0:a.offlineThrottleDelay-
 	c};a.Fa=function(){if(0<a.i.length)return a.i.shift()};a.Eb=function(c){if(a.debugTracking){var b="AppMeasurement Debug: "+c;c=c.split("&");var d;for(d=0;d<c.length;d++)b+="\n\t"+a.unescape(c[d]);a.P(b)}};a.fb=function(){return a.marketingCloudVisitorID||a.analyticsVisitorID};a.Y=!1;var q;try{q=JSON.parse('{"x":"y"}')}catch(u){q=null}q&&"y"==q.x?(a.Y=!0,a.X=function(a){return JSON.parse(a)}):h.$&&h.$.parseJSON?(a.X=function(a){return h.$.parseJSON(a)},a.Y=!0):a.X=function(){return null};a.Ib=function(c){var b,
-	d,f;a.fb()&&2047<c.length&&("undefined"!=typeof XMLHttpRequest&&(b=new XMLHttpRequest,"withCredentials"in b?d=1:b=0),b||"undefined"==typeof XDomainRequest||(b=new XDomainRequest,d=2),b&&(a.AudienceManagement&&a.AudienceManagement.isReady()||0!=a.usePostbacks)&&(a.Y?b.Ba=!0:b=0));!b&&a.Sa&&(c=c.substring(0,2047));!b&&a.d.createElement&&(0!=a.usePostbacks||a.AudienceManagement&&a.AudienceManagement.isReady())&&(b=a.d.createElement("SCRIPT"))&&"async"in b&&((f=(f=a.d.getElementsByTagName("HEAD"))&&f[0]?
+	d,f;a.fb()&&4047<c.length&&("undefined"!=typeof XMLHttpRequest&&(b=new XMLHttpRequest,"withCredentials"in b?d=1:b=0),b||"undefined"==typeof XDomainRequest||(b=new XDomainRequest,d=2),b&&(a.AudienceManagement&&a.AudienceManagement.isReady()||0!=a.usePostbacks)&&(a.Y?b.Ba=!0:b=0));!b&&a.Sa&&(c=c.substring(0,4047));!b&&a.d.createElement&&(0!=a.usePostbacks||a.AudienceManagement&&a.AudienceManagement.isReady())&&(b=a.d.createElement("SCRIPT"))&&"async"in b&&((f=(f=a.d.getElementsByTagName("HEAD"))&&f[0]?
 	f[0]:a.d.body)?(b.type="text/javascript",b.setAttribute("async","async"),d=3):b=0);b||(b=new Image,b.alt="",b.abort||"undefined"===typeof h.InstallTrigger||(b.abort=function(){b.src=n}));b.Da=function(){try{b.F&&(clearTimeout(b.F),b.F=0)}catch(a){}};b.onload=b.va=function(){a.ab(c);b.Da();a.rb();a.ga();a.q=0;a.ka();if(b.Ba){b.Ba=!1;try{a.doPostbacks(a.X(b.responseText))}catch(d){}}};b.onabort=b.onerror=b.Ga=function(){b.Da();(a.trackOffline||a.qa)&&a.q&&a.i.unshift(a.qb);a.q=0;a.ma>a.N&&a.Pa(a.i);
 	a.ga();a.ua(500)};b.onreadystatechange=function(){4==b.readyState&&(200==b.status?b.va():b.Ga())};a.Oa=a.C();if(1==d||2==d){var e=c.indexOf("?");f=c.substring(0,e);e=c.substring(e+1);e=e.replace(/&callback=[a-zA-Z0-9_.\[\]]+/,"");1==d?(b.open("POST",f,!0),b.send(e)):2==d&&(b.open("POST",f),b.send(e))}else if(b.src=c,3==d){if(a.Ma)try{f.removeChild(a.Ma)}catch(g){}f.firstChild?f.insertBefore(b,f.firstChild):f.appendChild(b);a.Ma=a.B}b.F=setTimeout(function(){b.F&&(b.complete?b.va():(a.trackOffline&&
 	b.abort&&b.abort(),b.Ga()))},5E3);a.qb=c;a.B=h["s_i_"+a.replace(a.account,",","_")]=b;if(a.useForcedLinkTracking&&a.J||a.A)a.forcedLinkTrackingTimeout||(a.forcedLinkTrackingTimeout=250),a.ha=setTimeout(a.ga,a.forcedLinkTrackingTimeout)};a.rb=function(){if(a.ra()&&!(a.Na>a.N))try{h.localStorage.removeItem(a.pa()),a.Na=a.C()}catch(c){}};a.Pa=function(c){if(a.ra()){a.Ra();try{h.localStorage.setItem(a.pa(),h.JSON.stringify(c)),a.N=a.C()}catch(b){}}};a.Ra=function(){if(a.trackOffline){if(!a.offlineLimit||
@@ -4603,6 +4643,7 @@
 	c.bubbles,c.cancelable,c.view,c.detail,c.screenX,c.screenY,c.clientX,c.clientY,c.ctrlKey,c.altKey,c.shiftKey,c.metaKey,c.button,c.relatedTarget)}catch(n){b=0}b&&(b["s_fe_"+a._in]=b.s_fe=1,c.stopPropagation(),c.stopImmediatePropagation&&c.stopImmediatePropagation(),c.preventDefault(),a.l=c.target,a.J=b)}}}}}catch(p){a.clickObject=0}}},a.b&&a.b.attachEvent?a.b.attachEvent("onclick",a.v):a.b&&a.b.addEventListener&&(navigator&&(0<=navigator.userAgent.indexOf("WebKit")&&a.d.createEvent||0<=navigator.userAgent.indexOf("Firefox/2")&&
 	h.MouseEvent)&&(a.Ca=1,a.useForcedLinkTracking=1,a.b.addEventListener("click",a.v,!0)),a.b.addEventListener("click",a.v,!1))):setTimeout(a.Qa,30)};a.Qa();a.loadModule("ActivityMap")}
 	/*This function is modified to support s3*/
+	/*(2047 IE limit) is changed t 4047 to avoid htr request*/
 	function s3_gi(a){var h,n=window.s_c_il,p,l,r=a.split(","),s,q,u=0;if(n)for(p=0;!u&&p<n.length;){h=n[p];if("s_c"==h._c&&(h.account||h.oun))if(h.account&&h.account==a)u=1;else for(l=h.account?h.account:h.oun,l=h.allAccounts?h.allAccounts:l.split(","),s=0;s<r.length;s++)for(q=0;q<l.length;q++)r[s]==l[q]&&(u=1);p++}u||(h=new AppMeasurement);h.setAccount?h.setAccount(a):h.sa&&h.sa(a);return h}AppMeasurement.getInstance=s3_gi;window.s_objectID||(window.s_objectID=0);
 	function s_pgicq(){var a=window,h=a.s_giq,n,p,l;if(h)for(n=0;n<h.length;n++)p=h[n],l=s3_gi(p.oun),l.setAccount(p.un),l.setTagContainer(p.tagContainerName);a.s_giq=0}s_pgicq();
 
