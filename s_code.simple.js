@@ -1223,6 +1223,7 @@
 	s3.visitor=Visitor.getInstance("3A4B7BAF56F01DA67F000101@AdobeOrg")
 	/************************** CONFIG SECTION **************************/
 	/* You may add or alter any code config here. */
+	s3.w_codeVers = '20170214 dev "+Host';
 	s3.charSet="UTF-8"
 	s3.cookieDomainPeriods=3
 	/* Conversion Config */
@@ -1357,8 +1358,7 @@
 	}
 
 	s3.eVar29 = s3.getDaysSinceLastVisit('s3_lv');
-	s3.prop39 = "vid"+Visitor.version+","+util.version+",App"+ s3.version;
-
+	s3.prop39 = 'D="'+'vid'+Visitor.version+','+util.version+',App'+ s3.version + ',c'+ s3.w_codeVers +' "+Host';
 	/*if (/^sitesearch$/.test(pdPageType)) {
 		//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
 		s3.eVar14 = util.getValOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
