@@ -1134,6 +1134,7 @@
 	channelManagerSearchType = false,
 	//pageDetails = window.pageDetails || {};
 	pageDetails = util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
+	pdSearchTerm = util.clean(pageDetails.searchTerm),
 	pdProductID = util.prodArr(pageDetails.productID || ''),
 	pageNameDynamicVariable = 'D=pageName'; // zzzzz change to D.pageName to reduce pixel
 
@@ -1357,7 +1358,7 @@
 	s3.eVar29 = s3.getDaysSinceLastVisit('s3_lv');
 	s3.prop39 = "vid"+Visitor.version+","+util.version+",App"+ s3.version;
 
-	if (/^sitesearch$/.test(pdPageType)) {
+	/*if (/^sitesearch$/.test(pdPageType)) {
 		//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
 		s3.eVar14 = util.getValOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
 		if (s3.eVar14) {
@@ -1378,7 +1379,7 @@
 		//	s.eVar14 = notSet;
 		//}
 		//}
-	}
+	}*/
 	// capture URL
 	s3.pageName = digital['dd.pageName'];
 	s3.products = util.valReplace(util.valReplace(s3.w_prodStr(pdProductID, pageDetails), util.lStor('get', 'analytics_productsReplace')), pageDetails.productsReplace); // global + local replace
@@ -1475,7 +1476,7 @@
 		pdTransactionId = pageDetails.appReference || '',
 		prchId,
 		pdFormStatus = lowerCaseVal(cleanText(pageDetails.formStatus)), // local var reference
-		pdSearchTerm = cleanText(pageDetails.searchTerm),
+		//pdSearchTerm = cleanText(pageDetails.searchTerm),
 		pdSearchResults = String((String(pageDetails.searchResults) || notSet) > -1 ? util.cap(pageDetails.searchResults, 5000) : notSet), // need to differentiate between undefined, 0, '0' and ''.
 		pdItemName = cleanText(pageDetails.itemName), // item name for faq and atm
 		pageExperience = pageDetails.experience || pageDetails.siteExperience || '',
@@ -1756,26 +1757,34 @@
 				break;
 			}
 			break;
-		/*ABU moving this section to doPlugins section 
 		case 'sitesearch':
-			//if(s.w_pgLoad){ // getValOnce would be cleared on every page click/doPlugins in this pageType case required???? test.
-
-			/ *
-			if(s.w_pgLoad){
-			alert(1);
-			s.w_trackLinkIntSearch(); // move to linkTracking section to run after every trackPage
-			}
-			 * /
-
+			/* s3.eVar14 = util.getValOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
+				if (s3.eVar14) {
+					s3.prop14 = s3.dVar(14);
+					// split search term into keywords
+					s3.list1 = util.clean(s3.eVar14.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
+					//s.eVar15 = pageBrand + ':' + (pageSite==='banking'?'secure':'public'); // OTP doesnt have site search
+					s3.w_addEvt(14);
+					//s.eVar30 = 'sitesearch:' + pdSearchResults; // use pdPageType here in place of text sitesearch string
+					s3.eVar30 = pdPageType + ':' + pdSearchResults;
+					//if(s.eVar30==='sitesearch:0'){
+					//console.log(pdSearchResults);
+					//if (s.eVar30 === pdPageType + ':0') {
+					if (pdSearchResults === '0') {
+						s3.w_addEvt(16);
+					}
+				}
+		
+			*/
 			//s.eVar14 = getValueOnce(lowerCaseVal(getQuerystringParam('query','',fullLocObj.href)).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
 			//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
-			context['dd.searchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 'stv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
+			context['dd.searchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
 			//s2.eVar14 = getValueOnce(s2.w_srchTerm(pdSearchTerm), 'stv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
 			
 			if (context['dd.searchTerm']) {
 				//s2.prop14 = dVar(14); //Not required
 				// split search term into keywords
-				context['dd.list1'] = cleanText(context['dd.searchTerm'].replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
+				s3.list1 = cleanText(context['dd.searchTerm'].replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
 				//s2.list1 = cleanText(s2.eVar14.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
 				//s.eVar15 = pageBrand + ':' + (pageSite==='banking'?'secure':'public'); // OTP doesnt have site search
 				appendEvent(context,'intSearch');
@@ -1793,8 +1802,8 @@
 			} //else{
 			//	s.eVar14 = notSet;
 			//}
-			//}
-			break;***/
+			//} 
+			break;
 		case 'faqsearch':
 			// pageDetails passed from function call on faq search result div load
 			context['dd.faqSearchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 'faq', 30, 'm');
@@ -1986,8 +1995,9 @@
 			break;
 			}
 			 */
-
+			
 			if (pdPageStep === 'complete') {
+				context['dd.loginStatus'] = 'logged in';
 				appendEvent(context,'login');
 				//appendEvent(46);
 			}
