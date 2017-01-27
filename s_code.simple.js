@@ -1,4 +1,4 @@
-	/*
+	/* v2
 	 ============== DO NOT ALTER ANYTHING BELOW THIS LINE ! ============
 
 	 Adobe Visitor API for JavaScript version: 2.0.0
@@ -643,7 +643,7 @@
 
 	// maintain serialisation for the same form/product/any item and reset after complete of same form
 	util.serialise = function (serialKey, formStep) {
-		var lStorKey = 'analytics_aoSerials',
+		var lStorKey = 'appmeasurement_aoSerials',
 		keyName = serialKey && String(serialKey).replace(/\W/g, ''),
 		serialStore = util.lStor('get', lStorKey),
 		dateStamp = new Date(),
@@ -1124,20 +1124,12 @@
 	//s.w_changeIf(pageDetails, true); // zzzzz enable to change any values with replace etc. for weird issues that may come up.
 
 	/******** initial config ********/
-	var pageBrand='',
+	var 
+	pageBrand='',
 	pageSite='',
 	digital={},
-	pdInSession = false, // if page is in secure/unsecure area
-	pdPageType = '',
-	pdPageStep = '',
-	channelManagerKeywords,
-	channelManagerSearchType = false,
-	//pageDetails = window.pageDetails || {};
-	pageDetails = util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
-	pdSearchTerm = util.clean(pageDetails.searchTerm),
-	pdProductID = util.prodArr(pageDetails.productID || ''),
-	pdFormName = util.lCase(util.clean(pageDetails.formName)),
-	pageNameDynamicVariable = 'D=pageName'; // zzzzz change to D.pageName to reduce pixel
+	pdInSession = false; // if page is in secure/unsecure area
+
 
 	// Brand specific
 	if (/(?:^|\.)banksa\.com\.au$/i.test(util.getLoc().hostname)) {
@@ -1253,22 +1245,1468 @@
 	s3.usePlugins=true
 	function s_doPlugins(s3) {
 
-	var pdPreImprs = pageDetails.preImprs,
-	//channelManagerKeywords,
-	//channelManagerSearchType = false,
+	//var _tempContext = {},
+	//digital={},
+	//pageBrand='',
+	//pageSite='',
+	var trackingPage = (!s3.linkObject)||(s3.linkObject=='');
+		//pageDetails = trackingPage ? pageDetails : s3.w_queue.shift(); // links need to get details from any previous page call if available. In OTP window.pageDetails is not necessarily what was passed to trackPage()	
+	var notSet = '(not set)', // to identify missing values
+	lowerCaseVal = util.lCase,
+	fullLocObj = util.getLoc(), // update each call
+	cleanText = util.clean,
+	appendEvent = util.addEvt,
 	//dVar = s3.w_dVar,
+	// store copy in s object for clicks etc to refer to previous details (pageName etc.)
+	pageDetails = trackingPage ? s3.w_queue.shift()|| window.pageDetails : (util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {}),
+	pdPageName = cleanText(pageDetails.pageName|| ''),
+	pdDialogTitle = cleanText(pageDetails.dialogTitle), // captures titles of dialogs in OTP and CTRT code for dynamic campaign landing page. Value is appended to end of page name.
+	sPageNameTemp = '',
+	pageTypeAlt, // for tracking other page types, and applying a rule to classify other pages
+	pdProductID = util.prodArr(pageDetails.productID || ''), // products string converted into array
+	paymentProduct, // for products string where required
+	pdFormName = lowerCaseVal(cleanText(pageDetails.formName)),
+	pdFormType = lowerCaseVal(cleanText(pageDetails.formType)),
+	//---- wbg|form|app|*au ---- 
+	pdnewFormName = lowerCaseVal(cleanText(pageDetails.newFormName)),
+	pdJourneyType = lowerCaseVal(cleanText(pageDetails.journeyType)),
+	pdAccountType = lowerCaseVal(cleanText(pageDetails.accountType)),
+	pdBusinessType = lowerCaseVal(cleanText(pageDetails.businessType)),
+	pdFormIsStp = lowerCaseVal(cleanText(pageDetails.formIsSTP)),
+	pdFormVariant = lowerCaseVal(cleanText(pageDetails.formVariant)),
+	journeyTypeOverride,
+	pdProductCount,
+	pdAppStatus = pageDetails.applicationStatus,
+	//--- wbg|form|app|*au ----
+	//pdInSession = false, // if page is in secure/unsecure area
+	pdEexternalSiteName = lowerCaseVal(cleanText(pageDetails.externalSiteName)),
+	pdSelfserviceDetails = lowerCaseVal(cleanText(pageDetails.selfserviceDetail)), // for selfservice details tracking
+	pdTransactionType = lowerCaseVal(pageDetails.transactionType), // for transactions
+	pdTransactionAmount = pageDetails.transactionAmount || '', // for transactions, value should be in nnnn[.nn] format - without thousand separator. decimal is optional, but should be separated by dot (period)
+	transactionMerch = [], // for transactions - quantity + details etc.
+	pdTransactionQty = pageDetails.transactionQty || '', // for transactions - multiple payments quantity
+	pdTransactionDetails = lowerCaseVal(cleanText(pageDetails.transactionDetails || '')), // for transactions - multiple payments quantity
+	formNameAlt, // Payments use pdTransactionType as part of form name, instead of formName
+	//pdTransactionId = pageDetails.transactionID || '', // for transactions - confirm uniqueness - '[CID:...]' on Domino
+	//prchId = pdTransactionId || '', // local copy for purchaseID manipulation
+	//Anil new appReference
+	pdTransactionId = pageDetails.appReference || '',
+	prchId,
+	pdFormStatus = lowerCaseVal(cleanText(pageDetails.formStatus)), // local var reference
+	pdSearchTerm = cleanText(pageDetails.searchTerm),
+	pdSearchResults = String((String(pageDetails.searchResults) || notSet) > -1 ? util.cap(pageDetails.searchResults, 5000) : notSet), // need to differentiate between undefined, 0, '0' and ''.
+	pdItemName = cleanText(pageDetails.itemName), // item name for faq and atm
+	pageExperience = pageDetails.experience || pageDetails.siteExperience || '',
+	trackingOverrideEnabled = false, // for trackingOverride
+	prpty, // local var for looping properties
+	friendlyModules,
+	channelManagerKeywords,
+	channelManagerSearchType = false,
+	clickMapOid,
+	visitorLifecycle,
+	visitorLifecycleAware = 'Aware',
+	visitorLifecycleEngaged = 'Engaged',
+	visitorLifecycleConverted = 'Converted',
+	visitorLifecycleRetained = 'Retained',
+	dateZero = new Date(0), // old date used to clear cookies
+	datePlusOneYear = new Date(+new Date() + 31536000000), // 31536000000 = 365*24*60*60*1000 = 1 year
+	pageNamePathArray,
+	pdPageNumber = pageDetails.pageNumber,
+	pdSubSite = cleanText(pageDetails.subSite),
+	pdPageNamePrefixPair = cleanText(pageDetails.pageNamePrefixes).split('|'),
+	pdPageNamePrefix,
+	pdFeaturedContent,
 	pidQuerystring,
-	lastSentPage = s3.c_r('lastPage')|| '';
-	
-	console.log('last Page'+ lastSentPage );
-	//Previous page
-	if(lastSentPage){
-	
-		digital['dd.previousPage'] = lastSentPage;
-		var lastPixelLength = s3.c_r('lastPixelLen')
-		digital['dd.lastPixelLength'] = lastPixelLength;
+	isSearchResultLanding,
+	formTypeOverride,
+	getValueOnce = util.getValOnce,
+	getQuerystringParam = util.getQueryParam, 
+	pdPreImprs = cleanText(pageDetails.preImprs),
+	pdPageType = lowerCaseVal(pageDetails.pageType), // local var reference
+	pdPageStep = lowerCaseVal(pageDetails.pageStep, 1), // local var reference
+	pageNameDynamicVariable = 'D=pageName'; // zzzzz change to D.pageName to reduce pixel
+	// Set values for microsites. This may be commented out for other domains
+	/*ABU: TODO Other domain*/
+	//digital['dd.brand']= pageBrand
+	//digital['dd.site'] = pageBrand + ':' + pageSite + (pdSubSite ? (pageDetails.subSiteSeparator || '-') + pdSubSite : ''); // with subSite like APPS - brand:site-subSite:section.
+	//util.siteID = digital['dd.site'];
+	util.siteID = pageBrand + ':' + pageSite + (pdSubSite ? (pageDetails.subSiteSeparator || '-') + pdSubSite : ''); // with subSite like APPS - brand:site-subSite:section.
+	// switch short/long forms based on in/out of session URLs
+	if (pdFormType === 'checkurl') {
+		pdFormType = pdInSession ? 'short' : 'long';
 	}
 
+
+	// Store formName when starting on a long version, to keep tracking as long after logging in and using short form.
+	// When same form in same session, keep as 'long'. Reset at any long start step, or non-long version of the same form
+	/*
+	if (pdPageStep === 'start') {
+	if (pdFormName && pdFormType === 'long') {
+	s.c_w('frmTypOv', pdPageType + pdFormName);
+	} else {
+	if (s.c_r('frmTypOv') === pdPageType + pdFormName) { // only remove cookie if on same form again
+	s.c_w('frmTypOv', 0, dateZero);
+	}
+	}
+	} else {
+	if (s.c_r('frmTypOv') === pdPageType + pdFormName) {
+	pdFormType = 'long-' + pdFormType; // only if pdFormType is different to current...
+	}
+	}
+	 */
+
+	// adjusted to adapt to the journey - e.g. long-short, long-concise
+	//if (pdFormType) {
+	/*if (pdPageType && pdFormName) {
+		//if (pdPageStep === 'start') {
+		//if (pdPageStep === 'start' && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys
+		if ((pdPageStep === 'start' || pdPageStep === 'intro') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
+			util.cookieWrite('frmTypOv', pdPageType + pdFormName + '-' + pdFormType);  
+			//s2.c_w('frmTypOv', pdPageType + pdFormName + '-' + pdFormType); // prefix should also include pdSubSite to avoid clash on multi-sites?
+		} else {
+			formTypeOverride = /(.*)-(.*)/.exec(util.cookieRead('frmTypOv'));
+			//formTypeOverride = /(.*)-(.*)/.exec(s2.c_r('frmTypOv'));
+			//console.log('formTypeOverride[1] = ' + formTypeOverride[1]);
+			//console.log('formTypeOverride[2] = ' + formTypeOverride[2]);
+
+			// if the override matches the current form
+			if (formTypeOverride && formTypeOverride[1] === pdPageType + pdFormName) { // prefix should also include pdSubSite to avoid clash on multi-sites?
+				pdFormType = formTypeOverride[2] + (pdFormType && pdFormType !== formTypeOverride[2] ? '-' + pdFormType : '');
+			}
+		}
+	}*/
+	//---- wbg|form|app|*au ---- 
+	if (pdPageType && pdnewFormName) {
+		//if (pdPageStep === 'start') {
+		//if (pdPageStep === 'start' && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys
+		//if ((pdPageStep === 'start' || pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
+		if ((pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
+			s3.c_r('journeyTypOv', pdPageType + pdnewFormName + '-' + pdJourneyType);
+			//util.cookieWrite('journeyTypOv', pdPageType + pdnewFormName + '-' + pdJourneyType);
+			//s2.c_w('frmTypOv', pdPageType + pdFormName + '-' + pdFormType); // prefix should also include pdSubSite to avoid clash on multi-sites?
+		} else {
+			journeyTypeOverride = /(.*)-(.*)/.exec(s3.c_r('journeyTypOv'));
+			//journeyTypeOverride = /(.*)-(.*)/.exec(util.cookieRead('journeyTypOv'));
+			//console.info('journeyTypeOverride', journeyTypeOverride)
+			//journeyTypeOverride = /(.*)-(.*)/.exec(s2.c_r('frmTypOv'));
+			//console.log('journeyTypeOverride[1] = ' + journeyTypeOverride[1]);
+			//console.log('journeyTypeOverride[2] = ' + journeyTypeOverride[2]);
+
+			// if the override matches the current form
+			if (journeyTypeOverride && journeyTypeOverride[1] === pdPageType + pdnewFormName) { // prefix should also include pdSubSite to avoid clash on multi-sites?
+				pdJourneyType = journeyTypeOverride[2] + (pdJourneyType && pdJourneyType !== journeyTypeOverride[2] ? '-' + pdJourneyType : '');
+
+			}
+		}
+	}
+	//---- wbg|form|app|*au ---- 
+		
+	//console.log('pdFormType = ' + pdFormType);
+
+	// Dynamic pageName prefix for in- and out-of-session pages to uniquely identify the page in separate path/section
+	// Prefix value should be two pipe delimited values. The values can be matching, or either value may be blank.
+	pdPageNamePrefix = pdPageNamePrefixPair.length === 2 ? cleanText(pdInSession ? pdPageNamePrefixPair[0] : pdPageNamePrefixPair[1]) : '';
+
+	// Payments use pdTransactionType as part of page and form name, instead of formName
+	//formNameAlt = pdFormName || pdTransactionType;
+	//formNameAlt = pdFormName ? (pdFormName + (pdFormType ? ':' + pdFormType : '')) : pdTransactionType; // to switch short/long form type when required
+	//---- wbg|form|app|*au ---- 
+	formNameAlt = pdnewFormName || pdTransactionType; // to switch short/long form type when required
+	//---- wbg|form|app|*au ---- 
+
+
+	// set pageName syntax for forms
+	if (formNameAlt || (/^(?:tool|survey|selfservice|registration|payment|login|enquiry|application)$/).test(pdPageType)) { // pageType considered to be a form, use form syntax for pageName
+		formNameAlt = formNameAlt || notSet;
+		var newPageType;
+		newPageType = pdPageType;
+
+		newPageType = lowerCaseVal(
+			newPageType.replace(/application/i, 'app')
+				.replace(/enquiry/i, 'enq')
+				.replace(/quote/i, 'quo')
+				.replace(/selfservice/i, 'ser')
+				.replace(/registration/i, 'reg')
+				.replace(/payment/i, 'pay')
+				.replace(/survey/i, 'sur')
+		);
+		sPageNameTemp = util.siteID + ':' + (newPageType || notSet) + ':' + formNameAlt + (pdPageName ? ':' + pdPageName : ''); // with subSite coming from s.siteID
+		//sPageNameTemp = s2.siteID + ':' + (pdPageType || notSet) + ':' + formNameAlt + (pdPageName ? ':' + pdPageName : ''); // with subSite coming from s.siteID
+		//sPageNameTemp = s.siteID + ':' + (pdSubSite ? pdSubSite + ':' : '') + (pdPageType || notSet) + ':' + formNameAlt + (pdPageName ? ':' + pdPageName : '');
+	} else {
+		if (pdPageName) {
+			// orig name code -
+			//sPageNameTemp = s.siteID + ':' + pdPageName;
+			// now with switch for in/out of session prefix -
+			//sPageNameTemp = s.siteID + ':' + (pdPageNamePrefix ? pdPageNamePrefix + ':' : '') + pdPageName;
+			//sPageNameTemp = s.siteID + ':' + (pdSubSite ? pdSubSite + ':' : '') + (pdPageNamePrefix ? pdPageNamePrefix + ':' : '') + pdPageName;
+			//sPageNameTemp = s2.siteID + ':' + (pdPageNamePrefix ? pdPageNamePrefix + ':' : '') + pdPageName; // with subSite coming from s.siteID
+			sPageNameTemp = util.siteID + ':' + (pdPageNamePrefix ? pdPageNamePrefix + ':' : '') + pdPageName; // with subSite coming from s.siteID
+		} else {
+			// else use getPageName plugin to get details directly from URL
+			//sPageNameTemp = s.getPageName(s.pageURL); // may be decodeURIComponent(s.pageURL) for consistent URL format when errors/encoded chars. e.g %2F in OTP - may remove encoded chars in querystring though
+			//sPageNameTemp = decodeURIComponent(s.getPageName(s.pageURL)); // may be decodeURIComponent(s.pageURL) for consistent URL format when errors/encoded chars. e.g %2F in OTP - may remove encoded chars in querystring though
+			//sPageNameTemp = decodeURIComponent(s.getPageName(s.pageURL)).replace(/^(.+?:.+?:)/, '$1' + (pdSubSite ? pdSubSite + ':' : '')); // may be decodeURIComponent(s.pageURL) for consistent URL format when errors/encoded chars. e.g %2F in OTP - may remove encoded chars in querystring though
+			//sPageNameTemp = decodeURIComponent(s2.getPageName(s2.pageURL)); // may be decodeURIComponent(s.pageURL) for consistent URL format when errors/encoded chars. e.g %2F in OTP - may remove encoded chars in querystring though
+			sPageNameTemp = decodeURIComponent(util.getPageName(util.pageURL)); // may be decodeURIComponent(s.pageURL) for consistent URL format when errors/encoded chars. e.g %2F in OTP - may remove encoded chars in querystring though
+			//console.log(sPageNameTemp);
+		}
+	}
+	//alert(sPageNameTemp +'||||'+ pdPageName);
+	// If pageName override (overrides are any pageDetails properties named as 's_...') set, use it to replace all path and section details, else all those details must be passed as individual overrides (Individual overrides can still be set though)
+	sPageNameTemp = cleanText((pageDetails.s_pageName || sPageNameTemp) + (pdDialogTitle ? ':' + pdDialogTitle : ''));
+
+	// format pageName and replace long URL details
+	sPageNameTemp = lowerCaseVal(
+			sPageNameTemp.replace(/:personal-banking(\:|$)/i, ':pers$1')
+			.replace(/:business-banking(\:|$)/i, ':bus$1')
+			.replace(/:corporate-banking(\:|$)/i, ':corp$1')
+			.replace(/:about-westpac(\:|$)/i, ':about$1')
+			.replace(/:secure:banking(\:|$)/i, ':olb$1') // Abbreviate the path for olb
+			.replace(/(.*:)(.*?:emulationbanking)(\:|$)/i, '$1olb$3') // Abbreviate the path for emulation
+			.replace(/^((?:[\.\w\-]*?:){2})mobile$/i, '$1mobile:home') // set mobile root pages as a type of home page. mobile home page being overtaken by OTP and may be different?
+			.replace(/(.+:atm:.+):-?\d+(.\d+)?:\d+(.\d+)$/i, '$1') // remove coords from atm detail pages
+			//.replace(/(?:\s|%20)+/g, ' ') // replace these characters (or multiples of) with single space
+			.replace(/(?:-|_)+/g, '-') // replace these characters (or multiples of) with single dash
+	);
+	/*ABU: TODO Dynamic variable not supported 
+	// pageName eVar
+	//ABU dd.pageName
+	s2.eVar21 = pageNameDynamicVariable;
+	
+	// hierarchy
+	s2.hier1 = pageNameDynamicVariable;
+	*/
+	
+	// common event58 for branchdetail, atmdetail, teamdetail pages
+	if (/^(?:branch|atm|team)detail$/.test(pdPageType)) {
+		//s.events = s.apl(s.events, 'event58', ',', 2); // using shorter function call like appendEvent(58);
+		appendEvent(digital,'branchATMdetail');
+		//appendEvent(58);
+	}
+
+	// this should work for identifying both application and enquiry forms for serialisation
+	//ABU TODO
+	eventSerialisationKey = ((pdProductID && pdProductID[0] && pdProductID[0].prod) || '') + pdFormName; // if the product or form name changes between start and complete steps, or journey crosses domain origin (localStorage), the serialisation won't reset at complete step in that serial range (e.g. visit).
+	eventSerialisationKey = eventSerialisationKey ? eventSerialisationKey + pdFormType : false; // without formType, the same product or form name in a different journeys could be deduped, e.g. skipping some start events. If prod and form are blank, dont use only formType - it could dedupe many other forms of the same type. Would require subSite in key if same pageType + formName shouldn't be joined across different subSite + formType (e.g. should long-short form across two different subSites match?)
+	
+	// determine tracking scenario
+	switch (pdPageType) {
+	case 'form':
+		if (pdPageStep && pdTransactionId) {
+			digital['dd.applicationID'] = digital['dd.transactionID'] = pdPageStep + '_' + pdTransactionId[0].Id;
+			//s2.transactionID = pdPageStep + '_' + pdTransactionId;
+			//s2.eVar39 = 'D=xact';
+		}
+		if (pdPageStep === 'save') {
+			//s.transactionID = pdTransactionId ? 'save_' + pdTransactionId : '';
+			//s.eVar39 = 'D=xact';
+			appendEvent(digital,'formSave');
+			//appendEvent(73);
+		}
+		if (pdPageStep === 'retrieve') {
+			appendEvent(digital,'formRetrieve');
+			//appendEvent(74);
+		}
+		break;
+	case 'tool':
+		//s.eVar23 = 'tool:'+pdFormName; // remove all these from switch cases, capture once for all forms
+		//s.prop23 = 'D=v23';
+		//s.eVar62 = lowerCaseVal(pdFormName,1);
+		digital['dd.toolName']= pdFormName || notSet;
+		appendEvent(digital,'toolUsage');
+		
+		//s2.eVar62 = pdFormName || notSet;
+		//s2.prop62 = dVar(62);
+		//appendEvent(68);
+		break;
+	case 'survey':
+		//s.eVar23 = 'survey:'+pdFormName;
+		//s.prop23 = 'D=v23';
+		/*
+		switch(pdPageStep){
+		//case 'start':
+		//	appendEvent(55); // now common for all forms
+		//	break;
+		case 'complete':
+		s.eVar28 = (pageDetails.surveyScore||notSet);
+		appendEvent(64);
+		break;
+		}
+		 */
+		if (pdPageStep === 'complete') {
+			digital['dd.score'] = util.fixZero(pageDetails.surveyScore) || notSet;
+			appendEvent(digital,'surveyResponse');
+			//s2.eVar28 = s2.w_fixZero(pageDetails.surveyScore) || notSet;
+			//appendEvent(64);
+		}
+		break;
+	case 'selfservice':
+		//s.eVar23 = 'selfserv:'+pdFormName;
+		//s.prop23 = 'D=v23';
+		//s.eVar38 = lowerCaseVal(pdFormName,1);
+		digital['dd.selfserviceName'] = pdFormName || notSet;
+		//s2.eVar38 = pdFormName || notSet;
+		//s2.prop38 = dVar(38);
+		if(pdExternalSiteName){
+			digital['dd.ExtAcct'] = pdExternalSiteName|| notSet;
+		}
+		//s2.eVar64 = lowerCaseVal(pageDetails.externalSiteName);
+
+		switch (pdPageStep) {
+		case 'start':
+			appendEvent(digital,'selfServiceStart');
+			//appendEvent(35);
+			break;
+		case 'complete':
+			appendEvent(digital,'selfServiceComplete');
+			//appendEvent(36);
+			if (pdSelfserviceDetails) {
+				digital['dd.selfserviceDetails']= pdSelfserviceDetails || notSet;
+				//s2.eVar46 = pdSelfserviceDetails || notSet;
+				//s2.prop46 = dVar(46);
+				// self service detail var to capture type of self service, introduced as part of Nov 16E1  Wlive release  *au
+			}
+			break;
+		case 'forgotpasswordstart':
+			appendEvent(digital,'forgotPassword');
+			appendEvent(digital,'selfServiceStart');
+			//appendEvent(48);
+			//appendEvent(35);
+			break;
+		case 'forgotpasswordcomplete':
+			appendEvent(digital,'selfServiceComplete');
+			//appendEvent(36);
+			break;
+		}
+		break;
+	case 'sitesearch':
+		 s3.eVar14 = util.getValOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
+			if (s3.eVar14) {
+				s3.prop14 = s3.dVar(14);
+				// split search term into keywords
+				s3.list1 = util.clean(s3.eVar14.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
+				//s.eVar15 = pageBrand + ':' + (pageSite==='banking'?'secure':'public'); // OTP doesnt have site search
+				s3.w_addEvt(14);
+				//s.eVar30 = 'sitesearch:' + pdSearchResults; // use pdPageType here in place of text sitesearch string
+				s3.eVar30 = pdPageType + ':' + pdSearchResults;
+				//if(s.eVar30==='sitesearch:0'){
+				//console.log(pdSearchResults);
+				//if (s.eVar30 === pdPageType + ':0') {
+				if (pdSearchResults === '0') {
+					s3.w_addEvt(16);
+				}
+			}
+	
+		/*
+		//s.eVar14 = getValueOnce(lowerCaseVal(getQuerystringParam('query','',fullLocObj.href)).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
+		//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
+		digital['dd.searchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
+		//s2.eVar14 = getValueOnce(s2.w_srchTerm(pdSearchTerm), 'stv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
+		
+		if (digital['dd.searchTerm']) {
+			//s2.prop14 = dVar(14); //Not required
+			// split search term into keywords
+			s3.list1 = cleanText(digital['dd.searchTerm'].replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
+			//s2.list1 = cleanText(s2.eVar14.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
+			//s.eVar15 = pageBrand + ':' + (pageSite==='banking'?'secure':'public'); // OTP doesnt have site search
+			appendEvent(digital,'intSearch');
+			//appendEvent(14);
+			//s.eVar30 = 'sitesearch:' + pdSearchResults; // use pdPageType here in place of text sitesearch string
+			digital['dd.itemCount'] = pdPageType + ':' + pdSearchResults;
+			//s2.eVar30 = pdPageType + ':' + pdSearchResults;
+			//if(s.eVar30==='sitesearch:0'){
+			//console.log(pdSearchResults);
+			//if (s.eVar30 === pdPageType + ':0') {
+			if (pdSearchResults === '0') {
+				appendEvent(digital,'intSearchZeroResults');
+				//appendEvent(16);
+			}
+		} //else{
+		//	s.eVar14 = notSet;
+		//}
+		//} **/
+		break;
+	case 'faqsearch':
+		// pageDetails passed from function call on faq search result div load
+		digital['dd.faqSearchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 's3_faq', 30, 'm');
+		//s2.eVar58 = getValueOnce(s2.w_srchTerm(pdSearchTerm), 'faq', 30, 'm');
+		if (digital['dd.faqSearchTerm']) {
+			//s2.prop58 = dVar(58);
+			appendEvent(digital,'faqSearch');
+			//appendEvent(65);
+			//s.eVar30 = 'faqsearch:' + pdSearchResults;
+			digital['dd.itemCount'] = pdPageType + ':' + pdSearchResults;
+			//s2.eVar30 = pdPageType + ':' + pdSearchResults;
+		}
+		break;
+	case 'branchsearch':
+		// pageDetails passed from function call on branch search result div load
+		sPageNameTemp += ':searchresults';
+
+		//if(s.w_pgLoad){ // getValOnce would be cleared on every page click/doPlugins in this pageType case
+		//s.eVar44 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_brnch',0); // hash numbers, postcodes
+		//s.eVar44 = getValueOnce(s.w_srchTerm(),'s_brnch',0); // hash numbers, keep postcodes in function
+		digital['dd.branchSearchLocation'] = util.srchTerm(pdSearchTerm); // hash numbers, keep postcodes. not val once, every time
+		//s2.eVar44 = s2.w_srchTerm(pdSearchTerm); // hash numbers, keep postcodes. not val once, every time
+		if (digital['dd.branchSearchLocation']) {
+			//s2.prop44 = dVar(44);
+			digital['dd.branchSearchFilters'] = pageDetails.searchFilters || notSet;
+			appendEvent(digital,'branchSearch');
+			//s2.prop45 = pageDetails.searchFilters || notSet;
+			//appendEvent(57);
+			//s.eVar30 = 'branchsearch:' + pdSearchResults;
+			digital['dd.itemCount'] = pdPageType + ':' + pdSearchResults;
+			//s2.eVar30 = pdPageType + ':' + pdSearchResults;
+			//if(s.eVar30==='branchsearch:0'){
+			//if (s.eVar30 === pdPageType + ':0') {
+			if (pdSearchResults === '0') {
+				appendEvent(digital,'intSearchZeroResults');
+				//appendEvent(16);
+			}
+		}
+		//}
+		break;
+		//case 'branchdetail':
+		//appendEvent(58);
+		// common events set above
+		//	break;
+	case 'atmdetail':
+		//sPageNameTemp=sPageNameTemp.replace(/:-?\d+(.\d+)?:\d+(.\d+)$/i,':'+lowerCaseVal(pageDetails.itemName,1));
+		sPageNameTemp += ':' + lowerCaseVal(pdItemName.replace(/\s/g, ''), 1);
+		// common events set above
+		//appendEvent(58);
+		break;
+		//case 'teamdetail':
+		// common events set above
+		//appendEvent(58);
+		//	break;
+	case 'registration':
+		//s.eVar23 = 'reg:'+s.eVar6+':'+pdFormName; // does the brand from the URL make sense here? Is it required, or should it be external site name?
+		//s.prop23 = 'D=v23';
+		//s.eVar45 = lowerCaseVal(pdFormName,1); // should brand and external site name be included here?
+		switch (pdPageStep) {
+		case 'start':
+			appendEvent(digital,'registrationStart');
+			//appendEvent(51);
+			break;
+		case 'complete':
+			appendEvent(digital,'registrationComplete');
+			//appendEvent(52);
+			//appendEvent(46); // this should be set automatically by session/cookie server-side process in OTP/online banking
+			break;
+		}
+		break;
+	case 'product':
+		//s.products = ';' + (pageDetails.productID||notSet).replace(/,/g,',;');
+		switch (pdPageStep) {
+		case 'view':
+			appendEvent(digital,'customProdView');
+			//appendEvent(13);
+			break;
+			//case 'selection': // product selection event/page not applicable/required
+			//	appendEvent(32);
+			//	break;
+		case 'comparison':
+			appendEvent(digital,'prodCompare');
+			//appendEvent(30);
+			break;
+		}
+		break;
+	case 'payment':
+		// s.eVar37 = lowerCaseVal(pdTransactionType,1);
+
+		// payment status captured as merchandising eVar to relate to payment amount. two methods -
+		//pdProductID=[{'prod':'payment:'+lowerCaseVal(pdTransactionType,1),'events':(pdPageStep==='complete'?'payment:'+lowerCaseVal(pdTransactionType,1)+(pdFormStatus?':'+pdFormStatus:'')+'='+pdTransactionAmount:'')}]; // capture status directly appended to pdTransactionType details
+		//pdProductID=[{'prod':'payment:'+lowerCaseVal(pdTransactionType,1),'events':(pdPageStep==='complete'?'payment:'+lowerCaseVal(pdTransactionType,1)+'='+pdTransactionAmount:'')}]; // generic form status applied to merch in prod string processing
+		// generic form status applied to merch in prod string processing
+
+		if (pdTransactionQty) {
+			transactionMerch.push('payment:qty:' + pdTransactionQty);
+		}
+		if (pdTransactionDetails) {
+			transactionMerch.push(pdTransactionDetails);
+		}
+
+		// Currently set only for steps below. Otherwise products tracks as 'payment:(not set)' in review step etc.
+		paymentProduct = [{
+				'prod' : 'payment:' + (pdTransactionType || notSet),
+				//'events' : ((pdPageStep === 'complete' || pdPageStep === 'effectpayment') ? 'payment:' + (pdTransactionType || notSet) + '=' + pdTransactionAmount : '') // complete or effectpayment should set the payment/product details.
+				'events' : /^(complete|effectpayment|bulkpaymentapproval)$/.test(pdPageStep) ? 'payment:' + (pdTransactionType || notSet) + '=' + pdTransactionAmount : '', // complete or effectpayment should set the payment/product details.
+				//'merch' : pdTransactionQty ? 'options=payment:qty:' + pdTransactionQty : ''
+				'merch' : transactionMerch.length ? 'options=' + transactionMerch.join('+') : ''
+			}
+		];
+
+		switch (pdPageStep) {
+		case 'start':
+			appendEvent(digital,'paymentStart');
+			//appendEvent(38);
+			pdProductID = paymentProduct;
+			break;
+			//case 'pinauthorisation':
+			//	appendEvent(42); // not used
+			//	break;
+		case 'complete':
+			appendEvent(digital,'paymentComplete');
+			//appendEvent(39);
+			pdProductID = paymentProduct;
+
+			// removed to reduce reference IDs. payment ref not required
+			//s.transactionID = pdTransactionId ? 'pay_' + pdTransactionId : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
+			//s.eVar39 = 'D=xact';
+
+			//s.purchaseID = prchId; // serialise all events with revenue/value. confirm uniqueness. maybe only capture in transactionID/xact
+			//appendEvent('purchase'); // TODO. serialise payments to de-dupe amounts?
+
+			break;
+		case 'businessstart':
+			// payment submitted/created, awating approval. business OTP 1.2
+			appendEvent(digital,'busPaymentStart');
+			//appendEvent(42);
+			pdProductID = paymentProduct;
+			break;
+		case 'createpayment':
+			// payment submitted/created, awating approval. business OTP 1.2
+			appendEvent(digital,'busPaymentCreated');
+			//appendEvent(43);
+			pdProductID = paymentProduct;
+			break;
+		case 'authorisepayment':
+			// intermediate approval step. business OTP 1.2
+			//s.eVar42 = lowerCaseVal(pageDetails.businessAuthType, 1); // not used
+			//s.prop42 = dVar(42);
+			appendEvent(digital,'busPaymentAuthorised');
+			//appendEvent(44);
+			pdProductID = paymentProduct;
+			break;
+		case 'effectpayment':
+			// final approval step, payment processed/scheduled. business OTP 1.2
+			appendEvent(digital,'busPaymentEffected');
+			//appendEvent(45);
+			pdProductID = paymentProduct;
+			break;
+		case 'bulkpaymentapproval':
+			// final bulk approval step. business OTP 1.2 step name also above, in setting paymentProduct
+			appendEvent(digital,'busBulkApprovals');
+			//appendEvent(37); // bulk payment approval completed step
+			pdProductID = paymentProduct;
+			break;
+		}
+		break;
+	case 'login':
+		//s.eVar23 = 'login:'+s.eVar6+':'+pdFormName; // does the brand from the URL make sense here? Is it required, or should it be external site name? eWise?
+		//if(/^(?:firsttime|complete)$/i.test(pdPageStep)){
+		//	s.eVar40 = 'logged in';
+		//s.prop40 = 'D=v40';
+		//}
+
+		/*
+		switch (pdPageStep) {
+		case 'lockout':
+		appendEvent(49);
+		break;
+		//case 'firsttime':
+		//	appendEvent(47); // removed due to inaccurate implementation
+		//appendEvent(46); // this should be set automatically by session/cookie server-side process in OTP/online banking
+		//s.eVar32 = 'stop';
+		//	break;
+		case 'complete':
+		// login complete step probably won't be used directly in OTP
+		appendEvent(46);
+		//	//s.eVar33 = 'start';
+		break;
+		}
+		 */
+		
+		if (pdPageStep === 'complete') {
+			digital['dd.loginStatus'] = 'logged in';
+			appendEvent(digital,'login');
+			//appendEvent(46);
+		}
+
+		break;
+	case 'logout':
+		//s.eVar23 = 'logout:'+s.eVar6+':'+pdFormName; // does the brand from the URL make sense here? Is it required, or should it be external site name?
+		digital['dd.loginStatus'] = 'logged out';
+		//s2.eVar40 = 'logged out';
+		//s.prop40 = 'D=v40';
+		break;
+
+		/*
+		case 'livechat': // triggered on live person popup winfdow, not on page or click
+		switch(pdPageStep){
+		case 'start':
+		s.eVar57 = (s.eVar57||'{LivePerson Session ID}'); // check value
+		s.prop57 = 'D=v57';
+		appendEvent(63);
+		break;
+		}
+		break;
+		 */
+	case 'enquiry':
+		// was 'lead'
+		//s.eVar23 = 'lead:'+pdFormName;
+		//s.prop23 = 'D=v23';
+		//s.products = (pageDetails.productID?';' + pageDetails.productID.replace(/,/g,',;'):'');
+		switch (pdPageStep) {
+		case 'start':
+			appendEvent(digital,'enqStart');
+			//appendEvent(53);
+			// serialise enquiry start
+			//Abu todo serialise event ZZZZ
+			//util.addSerialiseEvt(digital,'event28',util.serialise(eventSerialisationKey, pdPageStep));
+			//appendEvent('event28' + util.serialise(eventSerialisationKey, pdPageStep));
+			break;
+		case 'complete':
+			appendEvent(digital,'enqComplete');
+			//appendEvent(54);
+			// serialise enquiry complete
+			//Abu todo serialise event ZZZZ
+			//appendEvent(digital,'enqCompleteSerialised', util.serialise(eventSerialisationKey, pdPageStep));
+			//util.addSerialiseEvt(digital,'event29',util.serialise(eventSerialisationKey, pdPageStep));
+			//appendEvent('event29' + s2.w_serialise(eventSerialisationKey, pdPageStep));
+			if (pdTransactionId) {
+				digital['dd.transactionID'] = digital['dd.applicationID'] = 'enq_' + util.createTransID(pdTransactionId);
+			}
+			//s.transactionID='enq_'+pdTransactionId; // prefix to avoid duplicates with other applications etc.
+			//digital['dd.applicationID']  = digital['dd.transactionID'] = pdTransactionId[0].Id ? 'enq_' + pdTransactionId[0].Id : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
+			//s2.transactionID = pdTransactionId ? 'enq_' + pdTransactionId : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
+			//s2.eVar39 = 'D=xact'; //ABU not sure 'D=xact' replacemint  ZZZ 
+
+			//s.purchaseID = prchId; // serialise all events like application complete. confirm uniqueness across all types and platforms
+			//appendEvent('purchase');
+
+			break;
+		}
+		break;
+	case 'faq':
+		//s.eVar58 = lowerCaseVal(pageDetails.itemName,1);
+		//s.prop58 = 'D=v58';
+		//appendEvent(65);
+		sPageNameTemp += ':' + lowerCaseVal(pdItemName, 1);
+		break;
+
+		/*
+		case 'enquiry':
+		//s.eVar23 = 'enquiry:'+pdFormName;
+		//s.prop23 = 'D=v23';
+		s.eVar43 = lowerCaseVal(pdFormName,1);
+		s.prop43 = 'D=v43';
+		//s.products = ';' + (pageDetails.productID||notSet).replace(/,/g,',;');
+		switch(pdPageStep){
+		case 'complete':
+		appendEvent(50);
+		s.transactionID=pdTransactionId;
+		s.eVar39='D=xact'; // for enquiry? capture whenever set?
+		break;
+		}
+		break;
+		 */
+
+	case 'application':
+		//s.eVar23 = 'appl:'+pdFormName;
+		//s.prop23 = 'D=v23';
+		//s.products = (pageDetails.productID?';' + pageDetails.productID.replace(/,/g,',;'):'');
+
+		//s.prop68 = (pageDetails.businessABN||notSet); // ABN not required
+
+		//		s.eVar37 = lowerCaseVal(pdTransactionType,1);
+
+		/*
+		if(/^(?:save|complete)$/i.test(pdPageStep)){ // different reference number specified between save and complete?
+		//s.eVar39=pdTransactionId;
+		//s.transactionID='D=v39';
+		s.transactionID=pdTransactionId;
+		s.eVar39='D=xact';
+		}
+		 */
+
+		//eventSerialisationKey = (pdProductID && pdProductID[0] && pdProductID[0].prod) || pdFormName;
+		//eventSerialisationKey = eventSerialisationKey ? eventSerialisationKey + pdFormType : 0;
+
+		//eventSerialisationKey = ((pdProductID && pdProductID[0] && pdProductID[0].prod) || '') + pdFormName; // if the product or form name changes between start and complete steps, or journey crosses domain origin (localStorage), the serialisation won't reset at complete step in that serial range (e.g. visit).
+		//eventSerialisationKey = eventSerialisationKey ? eventSerialisationKey + pdFormType : false; // without formType, the same product or form name in a different journeys could be deduped, e.g. skipping some start events. If prod and form are blank, dont use only formType - it could dedupe many other forms of the same type.
+
+		if (pdPageStep && pdTransactionId) {
+			digital['dd.transactionID'] = digital['dd.applicationID'] = pdPageStep + '_' + pdTransactionId[0].Id;
+			//s2.transactionID = pdPageStep + '_' + pdTransactionId;
+			//s2.eVar39 = 'D=xact';
+		}
+		// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+		if (pdJourneyType) {
+			digital['dd.journeyType'] = lowerCaseVal(pdJourneyType);
+		}
+		// form-type
+		if (pdFormIsStp) {
+			digital['dd.formType'] = 'stp' + '_' + (lowerCaseVal(pdFormVariant) || 'na');
+		} else {
+			digital['dd.formType'] = 'non-stp';
+		}
+		// account-type
+		if(pdAccountType){
+			digital['dd.accountType'] = lowerCaseVal(pdAccountType);
+		}
+		//business-type
+		if(pdBusinessType){
+			digital['dd.businessType'] = lowerCaseVal(pdBusinessType);
+		}
+
+		// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+
+		switch (pdPageStep) {
+			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+			case 'welcome':
+				appendEvent(digital, 'welcome');
+
+				break;
+			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+			case 'start':
+				appendEvent(digital,'appStart');
+				//appendEvent(21);
+				//ABU todo serilize event ZZZZ
+				//appendEvent(digital,'appStartSerialised',util.serialise(eventSerialisationKey, pdPageStep));
+				//util.addSerialiseEvt(digital,'event26',util.serialise(eventSerialisationKey, pdPageStep));
+				//appendEvent('event26' + s2.w_serialise(eventSerialisationKey, pdPageStep));
+
+				//console.log('s.events = ' + s.events);
+				//s.eVar31 = 'start';
+
+				break;
+			case 'save':
+				appendEvent(digital,'appSaved');
+				//appendEvent(24);
+				break;
+			case 'retrieve':
+				appendEvent(digital,'appRetrieved');
+				//appendEvent(23);
+				break;
+			case 'complete':
+				appendEvent(digital,'appComplete');
+				//appendEvent(22);
+				// mark serial stamp as complete once hit. re-use same stamp if starting same form again if not completed, generate new serial if form has been completed (in the same origin)
+				//ABU todo serilize event ZZZZ
+				//util.addSerialiseEvt(digital,'event27',util.serialise(eventSerialisationKey, pdPageStep));
+				//s3.events = s3.apl(s3.events, 'event71' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
+				//s3.events=s3.apl(s3.events,"event1",",",1);
+				//appendEvent('event27' + util.serialise(eventSerialisationKey, pdPageStep));
+				//console.log(eventSerialisationKey);
+				//digital['dd.transactionID'] = pdTransactionId;
+				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+				if (pdTransactionId) {
+					digital['dd.transactionID'] =  digital['dd.applicationID'] = util.createTransID(pdTransactionId);
+				}
+				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+				//s2.transactionID = pdTransactionId;
+				//s.eVar39 = 'D=xact'; // if multiple transacation ID's, what happens on forms without productID? are there any without products? Have form txn ID + multi prod IDs?
+				//s.purchaseID = 'D=v39';
+				//s.purchaseID = 'D=xact';
+
+				/*
+				if(/^\[CID:.+\]/i.test(prchId)){ // updated to ignore case for some domino forms
+				// if using CID format, take last 20 chars of CID cookie (if exists)+timestamp
+				prchId = /.{1,20}(?=\])/.exec(prchId.replace(/(-|\s|:|^\[CID)/gi,''))[0];
+				}
+				// always trim purchaseID to first 20 chars only
+				s.purchaseID = prchId.substring(0,20);
+				 */
+				if (pdTransactionId) {
+					prchId = lowerCaseVal(cleanText(pageDetails.appReference[0].Id || ''))
+				}
+				digital['dd.purchaseID'] = prchId; 
+				//s2.purchaseID = prchId; // confirm uniqueness
+				//s.events = s.apl(s.events,'purchase',',',2);
+				appendEvent(digital,'purchase');
+				//appendEvent('purchase'); // only when approved? (not declined, referred, customer declined). Only really used for serialising, so maybe always fire?...
+
+				//s.eVar31 = 'stop';
+				//s.eVar32 = 'start';
+				//s.eVar33 = 'stop';
+
+				// apply transactionType and transactionAmount against first product if legacy values exist
+				if (pdProductID && pdProductID[0] && !pdProductID[0].events) {
+					//pdProductID[0].events=lowerCaseVal(pdTransactionType,1)+(pdFormStatus?':'+pdFormStatus:'')+'='+pdTransactionAmount; // apply status directly to first product
+					//pdProductID[0].events=lowerCaseVal(pdTransactionType,1)+'='+pdTransactionAmount; // generic pdFormStatus applied during prod string processing
+					pdProductID[0].events = (pdTransactionType || notSet) + '=' + pdTransactionAmount; // generic pdFormStatus applied during prod string processing
+				}
+				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+				if (pdFormIsStp && pdAppStatus) {
+					// call applicationStatus function here with pdAppStatus as argument
+					digital['dd.applicationStatus'] = util.appStatusSetup(pdAppStatus);
+				}
+				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+
+				// track status of whole form submission (even though form may include multiple products)
+				// pdFormStatus is applied directly to merchandising with every transaction amount band
+				/*
+				switch (pdFormStatus) {
+				case 'approved':
+				appendEvent(18);
+				break;
+				case 'declined':
+				appendEvent(19);
+				break;
+				case 'referred':
+				appendEvent(20);
+				break;
+				}
+				 */
+
+				//if (/^approved($|:upsell|:downsell$)/i.test(pdFormStatus)) {
+				if (/^approved(?!:downselldeclined)/i.test(pdFormStatus)) {
+					appendEvent(digital,'appApproved');
+					//appendEvent(18);
+				}
+				//if (pdFormStatus === 'declined') {
+				if (/^declined/i.test(pdFormStatus)) {
+					appendEvent(digital,'appDeclined');
+					//appendEvent(19);
+				}
+				//if (pdFormStatus === 'referred') {
+				if (/^referred/i.test(pdFormStatus)) {
+					appendEvent(digital,'appReferred');
+					//appendEvent(20);
+				}
+				if (pdFormStatus === 'approved:downselldeclined') {
+					appendEvent(digital,'appCustDeclined');
+					//appendEvent(25);
+				}
+
+				break;
+		}
+		break;
+	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+	case 'quote':
+		// *au
+		switch (pdPageStep) {
+			case 'start':
+				appendEvent(digital, 'quoteStart');
+				if (pdTransactionId) {
+					digital['dd.transactionID'] = digital['dd.applicationID'] = 'quote_' + util.createTransID(pdTransactionId);
+				}
+
+				break;
+			case 'save':
+				appendEvent(digital, 'quoteSaved');
+				if (pdTransactionId) {
+					digital['dd.transactionID'] = digital['dd.applicationID'] = 'quote_' + util.createTransID(pdTransactionId);
+				}
+
+				break;
+			case 'retrieve':
+				appendEvent(digital, 'quoteRetrieved');
+
+				break;
+			case 'complete':
+				appendEvent(digital, 'quoteComplete');
+				if (pdTransactionId) {
+					digital['dd.transactionID'] =  digital['dd.applicationID'] = 'quote_' + util.createTransID(pdTransactionId);
+				}
+				break;
+		}
+		break;
+	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+		case 'servererror':
+			// 404, 500 etc. on page load
+			// align pageName for errors to correspond to similar section details of other pages
+			sPageNameTemp = util.siteID + ':err:' + lowerCaseVal(pageDetails.errorCode, 1) + ':' + util.pageURL;
+			//console.log(sPageNameTemp);
+			pageNamePathArray = sPageNameTemp.split(':').slice(0, 4); // provide truncated path for section details, if error page (remove URL)
+			if (String(pageDetails.errorCode) === '404') {
+				digital['dd.pageType'] = 'errorPage';
+				//s2.pageType = 'errorPage';
+			}
+			break;
+
+			// pageerror pageType doesn't make sense - errors would usually occur on another pageType
+			//case 'pageerror': // not required? always capture errors if set?
+			//s.prop17=s.siteID+':'+lowerCaseVal(s.prop17||pageDetails.errorCode,1); // different approach for form errors below
+			//	s.prop17=lowerCaseVal(s.prop17||pageDetails.errorCode,1); // stored in list prop
+			//	break;
+		}
+
+		// apply any global pageName replace
+		//sPageNameTemp = s.w_valReplace(sPageNameTemp, 'appmeasurement_pageNameReplace');
+		sPageNameTemp = util.valReplace(util.valReplace(sPageNameTemp, util.lStor('get', 'appmeasurement_pageNameReplace')), pageDetails.pageNameReplace); // global + local replace
+		//sPageNameTemp = s2.w_valReplace(s2.w_valReplace(sPageNameTemp, s2.w_lStor('get', 'appmeasurement_pageNameReplace')), pageDetails.pageNameReplace); // global + local replace
+		// standard changeIf syntax, operating on pageName property only
+		//sPageNameTemp = changeIf({
+		//		'pageName' : sPageNameTemp,
+		//		'changeIf' : s.w_lStor('get', 'appmeasurement_pageNameReplace')
+		//	}).pageName; // analytics_pageNameReplace > analytics_pageNameChange = originPageNameChange
+
+		// remove any detail for this page only
+		//sPageNameTemp = sPageNameTemp.replace(new RegExp(pageDetails.pageNameReplace, 'gi'), ''); // remove anything matching pageNameReplace regex. if not used, use changeIf instead?
+		//sPageNameTemp = changeIf({
+		//		'pageName' : sPageNameTemp,
+		//		'changeIf' : pageDetails.pageNameReplace
+		//	}).pageName; // pageNameReplace > pageNameChange = pageNameChange
+
+		// copy pageName details to section eVars -
+		// now copying longest detail to all section vars for more accurate reporting on page views in/below that section
+		// -----------------------------------------------------------------------------------------------------------------------------
+		pageNamePathArray = pageNamePathArray || sPageNameTemp.split(':');
+		console.log(pageNamePathArray);
+		console.log(sPageNameTemp);
+		//s.w_pathArr = pageNamePathArray; // for use outside this function
+		// New version with experience removed from pageName -
+		
+		//Abu to investigate ZZZ
+		digital['dd.brand']= pageNamePathArray[0]; // Brand
+		digital['dd.site']     = pageNamePathArray[1]? pageNamePathArray.slice(0, 2).join(':') : digital['dd.brand'];
+		digital['dd.section1'] = pageNamePathArray[2]? pageNamePathArray.slice(0, 3).join(':') : digital['dd.site'] ;
+		digital['dd.section2'] = pageNamePathArray[3]? pageNamePathArray.slice(0, 4).join(':') : digital['dd.section1'] ;
+		digital['dd.section3'] = pageNamePathArray[4]? pageNamePathArray.slice(0, 5).join(':') : digital['dd.section2'] ;
+		digital['dd.section4'] = pageNamePathArray[5]? pageNamePathArray.slice(0, 6).join(':') : digital['dd.section3'] ;
+				
+		//dd.brand = pageNamePathArray[0]; // Brand
+		//s2.eVar6 = pageNamePathArray[0]; // Brand
+		//s2.prop6 = dVar(6);
+		//if (pageNamePathArray[1]) { // Site
+		
+		//Abu to investigate ZZZ
+		//dd.site =  pageNamePathArray.slice(0, 2).join(':');
+		//s2.eVar1 = pageNamePathArray.slice(0, 2).join(':');
+		//s2.prop1 = dVar(1);
+		//}
+		//if (pageNamePathArray[2]) { // Site section
+
+
+		
+		//s2.eVar2 = pageNamePathArray.slice(0, 3).join(':');
+		//s2.prop2 = dVar(2);
+		
+		//ABU Not required DynamicVariable
+		//if (s2.eVar2 === sPageNameTemp) {
+		//	s2.eVar2 = s2.prop2 = pageNameDynamicVariable;
+		//}
+		//}
+		//if (pageNamePathArray[3]) { // Sub section
+		
+		//s2.eVar3 = pageNamePathArray.slice(0, 4).join(':');
+		//s2.prop3 = dVar(3);
+		//ABU Not required DynamicVariable
+		//if (s2.eVar3 === sPageNameTemp) {
+		//	s2.eVar3 = s2.prop3 = pageNameDynamicVariable;
+		//}
+		//}
+		//if (pageNamePathArray[4]) { // Sub sub section
+		
+		//s2.eVar4 = pageNamePathArray.slice(0, 5).join(':');
+		//s2.prop4 = dVar(4);
+		//ABU Not required DynamicVariable
+		//if (s2.eVar4 === sPageNameTemp) {
+		//	s2.eVar4 = s2.prop4 = pageNameDynamicVariable;
+		//}
+		//}
+		//if (pageNamePathArray[5]) { // Sub sub sub section
+		
+		//s2.eVar5 = pageNamePathArray.slice(0, 6).join(':');
+		//s2.prop5 = dVar(5);
+		//ABU Not required DynamicVariable
+		//if (s2.eVar5 === sPageNameTemp) {
+		//	s2.eVar5 = s2.prop5 = pageNameDynamicVariable;
+		//}
+		//}
+
+		// server from full domain
+		//ABU server is move to do_plugins
+		//s.server = lowerCaseVal(fullLocObj.hostname);
+		//digital['dd.server'] = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(util.codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
+		//s2.server = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(s2.w_codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
+
+		// experience from app/pageDetails
+		//s.eVar7=pageExperience; // mob/mobapp/tab/tabapp is mobile suite, everything else is desktop
+		//s.eVar7 = s.linkName ? 'link' : pageExperience; // switch to 'link' for link tracking
+		// switch to '(link)' for link tracking where experience may not be set/available in pageDetails?
+		//s.eVar7 = s.linkName ? (pageExperience || '(link)') : pageExperience;
+		digital['dd.experience'] = digital['dd.channel'] = pageExperience||util.getExp();
+		
+		//s2.eVar7 = pageExperience;
+		//s2.channel = dVar(7);
+
+		// standard form name details
+		//formNameAlt=(pdFormName||pdTransactionType); // Payments use pdTransactionType as part of form name, not the formName from pageDetails
+		if (pdPageType && formNameAlt) {
+			//s.eVar23 = s.eVar6+':'+pdPageType+':'+formNameAlt; // excludes sub-domain, e.g. - wbc:application
+			var newPageType;
+			newPageType = pdPageType;
+
+			newPageType = lowerCaseVal(
+				newPageType.replace(/application/i, 'app')
+					.replace(/enquiry/i, 'enq')
+					.replace(/quote/i, 'quo')
+					.replace(/selfservice/i, 'ser')
+					.replace(/registration/i, 'reg')
+					.replace(/payment/i, 'pay')
+					.replace(/survey/i, 'sur')
+			);
+			digital['dd.formName'] = util.siteID + ':' + newPageType + ':' + formNameAlt; // includes sub-domain, e.g. - wbc:online:application // if this matches v3, D=v3 could be used here
+			//s2.eVar23 = util.siteID + ':' + pdPageType + ':' + formNameAlt; // includes sub-domain, e.g. - wbc:online:application // if this matches v3, D=v3 could be used here
+			//s2.prop23 = dVar(23);
+
+			if (pdPageStep === 'start') {
+				appendEvent(digital,'formStart');
+				//appendEvent(55);
+			}
+			if (pdPageStep === 'complete') {
+				appendEvent(digital,'formComplete');
+				//appendEvent(56);
+			}
+		}
+
+		// details to track on full page loads only. i.e. not on every click...
+		/*
+		if(s.w_pgLoad){
+		// if available after page load
+		s.list2=s.c_r('banners'); // check suitable cookie name. this should contain a comma separated list of banners seen on previous page
+		if(s.list2){
+		appendEvent(11);
+		s.c_w('banners',0,new Date(0));
+		}
+
+		// capture number of form validation errors from cookie
+		if(s.c_r('errCount')){
+		s.prop17=s.c_r('errCode');
+		//s.eVar30 = (s.prop17.indexOf(s.w_inlErr+',')>-1? s.prop17 : 'defined errors') + ':' + s.c_r('errCount');
+		s.eVar30 = 'errors:' + s.c_r('errCount');
+		s.c_w('errCode',0,new Date(0));
+		s.c_w('errCount',0,new Date(0));
+		}
+
+		// Navigation menu ID
+		s.prop59=s.c_r('s_nav');
+		s.c_w('s_nav','',new Date(0)); // remove s_nav cookie after tracking
+
+		// if search results 'click past' rank cookie has been set from result link click, track the rank and click event and delete the cookie.
+		s.prop16=s.c_r('cpr'); // The cookie is set on search results link clicks with the rank of the link
+		if(s.prop16){
+		appendEvent(15);
+		s.c_w('cpr','',new Date(0)); // delete cookie after tracking
+		}
+		}
+		 */
+
+		// Rules to track a cross-section of key page types without pageType specified
+		if (pageSite === 'www') {
+			pageTypeAlt = 'www:' + notSet; // default for unspecified pages
+			//if(sPageNameTemp==='wbc:www:home'){
+			if (/^wbc:www:(?:mobile:)?home$/i.test(sPageNameTemp)) { // desktop or mobile home page as www:home page type
+				pageTypeAlt = 'www:home';
+			}
+			//console.log(pageNamePathArray);
+			if (/^(?:pers|bus|corp)$/.test(pageNamePathArray[2])) {
+				//if (!s.eVar3) {
+				if (pageNamePathArray.length === 3) {
+					pageTypeAlt = 'www:section home'; // i.e. 1st directory only.
+				}
+				//if (!s.eVar4) {
+				if (pageNamePathArray.length === 4) {
+					pageTypeAlt = 'www:product home'; // i.e. to 2nd directory only.
+				}
+			}
+		}
+		/*
+		if(s.w_site==='banking'){
+		pageTypeAlt='banking:'+notSet; // page types on banking - can be populated in pageType key in RESX if required
+		}
+		if(/^(?:info|ruby|dav)$/i.test(s.w_site)){
+		pageTypeAlt='microsite'; // page types for mactel etc.?
+		}
+		 */
+		digital['dd.pageType'] = pdPageType || pageTypeAlt;
+		//s2.prop7 = pdPageType || pageTypeAlt;
+
+		// track page number for search results etc.
+		if(pdPageNumber){
+			digital['dd.pageNumber'] = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
+		}
+		//s2.prop8 = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
+
+		// Visit number
+		//s.eVar8 = s.w_cap(s.getVisitNum(365), 1000);
+		//ABU TODO   zzzz
+		//s2.eVar8 = s2.w_cap(s2.getVisitNum(365), 1000) + s2.w_extCkSfx; // appends if external cookie data
+		//if(s.eVar8>1000){
+		//	s.eVar8='1000+';
+		//}
+
+		// days since last visit
+		//s.eVar29=s.getDaysSinceLastVisit('s_lv',1);
+		//s.eVar29=(s.eVar29==='0'?'zero':s.eVar29);
+		//s.eVar29=s.w_fixZero(s.eVar29);
+		//ABU TODO ZZZZ
+		//s2.eVar29 = s2.w_cap(s2.w_fixZero(s2.getDaysSinceLastVisit('s_lv', 1)), 1000) + s2.w_extCkSfx; // appends if external cookie data
+		//if(s.eVar29>1000){
+		//	s.eVar29='1000+';
+		//}
+
+		// visitor id
+		//ABU s2.eVar25 = s2.prop25 = (customVisitorID ? 'D=vid' : 'D=s_vi'); // if s.visitorID passed from mobile app to hybrid pages, variable will be vid, else use FP-cookie name
+		
+		//ABU TODO ZZZZ
+		//s2.eVar25 = s2.prop25 = (customVisitorID ? 'D=vid' : 'D=s_mid');
+		//s.prop25 = s.eVar25;
+		
+
+
+		// page status
+		//s.prop40 = pageStatus;
+		//s.prop40 = pdInSession ? 'secure' : 'unsecure'; // switching based on URL
+		digital['dd.pageStatus'] = pdInSession ? 'logged in' : 'public'; // switching based on URL
+		//s2.prop40 = pdInSession ? 'logged in' : 'public'; // switching based on URL
+
+		// site language from page if set
+		//s.eVar63 = lowerCaseVal(pageDetails.language||'en'); // only captured in prop63
+		digital['dd.lang'] = lowerCaseVal(pageDetails.language || 'en');
+		//s2.prop63 = lowerCaseVal(pageDetails.language || 'en');
+		//s.prop63 = 'D=v63';
+
+		// Day Of Week, Time Of Day
+		//var s_tpA = s.getTimeParting('s','+10');
+		//s.eVar10 = s_tpA[1]+'|'+s_tpA[2]; // Adobe orig converted format
+		digital['dd.dayTime'] = util.timePart(); // local time in shorter format
+		//s2.eVar10 = s2.w_timePart(); // local time in shorter format
+		//s2.prop10 = dVar(10);
+
+		// External Campaigns
+		//if(!s.campaign){
+		//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+		//digital['dd.campaign'] = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
+		//s2.campaign = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
+		//}
+
+		//ABU TODO
+		/*if (s2.campaign) {
+			s2.eVar16 = 'D=v0';
+			s2.eVar17 = 'D=v0';
+			s2.eVar18 = crossVisitPrtcptn(s2.campaign, 's_ev18', '30', '5', '>', 'event22'); // this is cleared every time event22 fires. i.e. Application Complete step
+		}
+
+		//console.log('ORIG s.list2  = ' + s.list2); // impressions from banner cookie related to previous page, collected after it loaded
+		//console.log('pdPreImprs    = ' + pdPreImprs); // any other impressions passed for the current page after trackPage was called, but before it completed (and scanning links)
+		pdPreImprs = pdPreImprs ? (pdPreImprs||'').split(',') : [];
+		for (prpty = 0; prpty < pdPreImprs.length; prpty++) {
+			digital['dd.list2'] = util.apl(digital['dd.list2'], pdPreImprs[prpty], ',', 2);
+			//s2.list2 = s2.apl(s2.list2, pdPreImprs[prpty], ',', 2);
+		}
+		//console.log('NEW s.list2   = ' + s.list2); // combined list of impressions for previous page
+		
+		if (digital['dd.list2']) {
+			appendEvent(digital,'intImpressions');
+			//s2.w_addEvt(11);
+		}
+
+		// Internal banner clicks
+		pidQuerystring = lowerCaseVal(getQuerystringParam('pid', '', fullLocObj.href));
+		//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+		digital['dd.intCampaign']  = getValueOnce(pidQuerystring, 'u_pid', 30, 'm');
+		//s2.eVar22 = getValueOnce(pidQuerystring, 's_pid', 30, 'm');
+		//}
+
+		// count every pid click for comparison to getValueOnce count
+		if (pidQuerystring) {
+			appendEvent(digital,'pidTotalClicks');
+			//appendEvent(10);
+		}
+
+		//if(s.eVar22&&!s.eVar65){
+		if (digital['dd.intCampaign']) {
+			appendEvent(digital,'intClickThroughs');
+			//appendEvent(12);
+			//ABU todo zzz`
+			//s2.eVar20 = crossVisitPrtcptn(s2.eVar22, 's_ev20', '30', '5', '>', 'event22');
+		}
+		//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+		digital['dd.extSite']  = getValueOnce(lowerCaseVal(getQuerystringParam('ref', '', fullLocObj.href)), 'refPrm', 30, 'm');
+		//s2.eVar65 = getValueOnce(lowerCaseVal(getQuerystringParam('ref', '', fullLocObj.href)), 'refPrm', 30, 'm');
+		//}
+		// incoming links from AFS-group sites
+		//if(s.eVar22&&s.eVar65){
+		// ref is now just an additional parameter for tracking links from other sites
+		if (digital['dd.extSite'] ) {
+			appendEvent(digital,'linkClicksAFS');
+			//appendEvent(72);
+		}
+		//else{
+		//	s.eVar65='';
+		//}
+		*/
+		// Page modules shown on dashboard
+		// refer to widget name mapping in resx to lookup friendly names
+		//pdModules=lowerCaseVal((pageDetails.modules||'').replace(/\B[aeiou]\B|\s|widget/gi,'').replace(/accnts/gi,'acts').replace(/pymnts/gi,'pmts'));
+		//pdModules=(pageDetails.modules||'').replace(/\B[aeiou]\B|\s|widget/gi,'').replace(/accnts/gi,'acts').replace(/pymnts/gi,'pmts');
+		//pdModules=(pageDetails.modules||'').split(',');
+		//pdModules = pdModules.split(',');
+		//ABU REMOVE MODULE 
+		/*friendlyModules = util.moduleLookup((pageDetails.modules || '').split(','), (pageDetails.moduleKey || '').split(','));
+
+		//s.eVar55 = getValueOnce((friendlyModules ? (/:overview:dashboard$/i.test(sPageNameTemp) ? 'grid' : 'list') + ',' + friendlyModules : ''), 'mdlVar', 0); // modules will be in grid format on overview/dashboard
+		dd.pageModuleSet = getValueOnce((pageDetails.moduleLayout || '') + (friendlyModules ? ',' + friendlyModules : ''), 'mdlVar', 30, 'm'); // modules will be in grid format on overview/dashboard
+		//s2.eVar55 = getValueOnce((pageDetails.moduleLayout || '') + (friendlyModules ? ',' + friendlyModules : ''), 'mdlVar', 30, 'm'); // modules will be in grid format on overview/dashboard
+
+		//s.prop55 = 'D=v55';
+		//s2.prop55 = dVar(55);
+
+		// call every time on dashboard page to compare current to previous modules and diff for added/removed
+		// except when only switching profiles. when switching profile, modules change, but not through direct modification.
+		if (userSwitchedProfile) {
+			// when switching, update stored module set to current profile modules
+			s2.c_w('mdlSet', friendlyModules);
+		} else {
+			// track as a module change
+			s2.prop64 = s2.w_checkModuleChanges('mdlSet', friendlyModules);
+			if (s2.prop64) {
+				appendEvent(70);
+			}
+		} */
+
+		/*ABU TODO Click map to Actifity MAP
+		// clear invalid clickmap values generated for custom links
+		clickMapOid = (/(.*oid%3D)(.*?)(%26|$)/).exec(s2.c_r('s_sq'));
+		if (clickMapOid && clickMapOid[2]) {
+			if (!(/_[0-9]+$/).test(clickMapOid[2])) {
+				s.c_w('s_sq', 0, dateZero); // remove invalid s_sq cookie
+			}
+		}*/
+
+		// Featured content - fid/wbcfrom - for secondary promo tracking (Patrick)
+		//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
+		pdFeaturedContent = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 's3_feat', 30, 'm');
+		//s2.eVar60 = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 'feat', 30, 'm');
+		//}
+		if (pdFeaturedContent) {
+			digital['dd.featuredContent'] = pdFeaturedContent;
+			appendEvent(digital,'featuredContent');
+			//appendEvent(66);
+			//s2.prop60 = dVar(60);
+		}
+		
+		//ABU toDO crossVisitPrtcptn 
+		// Combined Internal External Stack
+		/*if (s2.eVar22) {
+			s2.eVar19 = crossVisitPrtcptn(s2.eVar22, 's_ev19', '30', '10', '>', 'event22');
+		}
+		if (s2.campaign) {
+			s2.eVar19 = crossVisitPrtcptn(s2.campaign, 's_ev19', '30', '10', '>', 'event22');
+		}*/
+
+		// Paid/Natural Search Keyword
+		//ABU toDO
+		/*s2.prop18 = pageNameDynamicVariable; // set to just pageName as default
+		s2._channelParameter = 'Campaign|cid';
+		s2.w_channelManager('cid');
+
+		//channelManagerKeywords = cleanText(s._keywords || ''); // filter search keywords a bit - strip multiple spaces etc.
+		channelManagerKeywords = cleanText(s2._keywords); // filter search keywords a bit - strip multiple spaces etc.
+
+		if (s2._channel === 'Natural Search') {
+			channelManagerSearchType = 'NS';
+			// prop18 seo keywords and entry page
+			s2.prop18 = 'D="' + channelManagerKeywords + '|"+pageName';
+		}
+		//if(s._channel==='Campaign'&&/^sem:/i.test(s._campaign)){ // if cid param, and value starts with 'sem:' (just check for any CID). confirm identifier for PPC tracking codes
+		if (s2._channel === 'Campaign' && channelManagerKeywords !== 'n/a') { // only if cid param exists and keywords are found, it's paid search. We may not have keywords if they are not passed by the search engine (usually for NS)
+			channelManagerSearchType = 'PS';
+		}
+		if (channelManagerSearchType) {
+			s2.eVar11 = channelManagerKeywords === 'n/a' ? 'Keyword Unavailable' : channelManagerKeywords;
+			s2.prop11 = dVar(11);
+
+			s2.eVar12 = crossVisitPrtcptn(channelManagerSearchType + '|' + channelManagerKeywords, 's_ev12', '30', '5', '>', 'event22');
+		}*/
+
+		// Lifecycle. consider re-setting to avoid build up to later levels?
+		//ABU toDO
+		/*visitorLifecycle = s2.c_r('s_lfcl');
+		if (visitorLifecycle === '') { // No previous lifecycle cookie
+			if (!s2.c_w('testCkie', 'set', new Date(+new Date() + 10000))) { // test if lifecycle cookie can be set to prevent events from re-firing
+				visitorLifecycle = 'No cookies';
+			} else {
+				s2.c_w('testCkie', 0, dateZero);
+				visitorLifecycle = visitorLifecycleAware;
+				appendEvent(6);
+			}
+		}
+		if (visitorLifecycle === visitorLifecycleAware && (/\b(event(13|21|30|31|54|61|63|68))\b/i).test(s2.events)) { // Confirm Engagement status criteria
+			visitorLifecycle = visitorLifecycleEngaged;
+			appendEvent(7);
+		}
+		if (visitorLifecycle === visitorLifecycleEngaged && (/\b(event(22))\b/i).test(s2.events)) { // Conversion status criteria
+			visitorLifecycle = visitorLifecycleConverted;
+			appendEvent(8);
+		}
+		if (visitorLifecycle === visitorLifecycleConverted && (/\b(event(46))\b/i).test(s2.events) && s2.getVisitNum(365) > 1) { // Retention status criteria
+			visitorLifecycle = visitorLifecycleRetained;
+			appendEvent(9);
+		}
+		s2.c_w('s_lfcl', visitorLifecycle, datePlusOneYear);
+		s2.eVar36 = visitorLifecycle + s2.w_extCkSfx; // appends if external cookie data
+		s2.prop36 = dVar(36);
+		*/
+		// search results clickthru event for auto suggest results only *au
+		wbcfromQuerystring = lowerCaseVal(getQuerystringParam('wbcfrom', '', fullLocObj.href));
+		if (/sitesearch:autosuggest:results/i.test(wbcfromQuerystring)) {
+			appendEvent(digital,'intSearchClickThru');
+			//s2.w_addEvt(15);
+			// clickthru event from "search results page" is triggered when prop16 is set
+		}
+		
+		// search results details *au
+		// new way to track clickthru, rank, result category etc
+		// convention for search result details eVar
+		//search-source|result-type|searched-keyword|result-category|result-rank
+		// example output: source:search-page|type:natural|kw:low-rate-card|cat:services|rank:1
+		// example output non natural type: source:search-page|type:recommended|kw:low-rate-card
+		// example output non natural type: source:search-page|type:quicklinks|kw:low-rate-card
+		// AEM release 1.1 updated type query param to result-type
+		isSearchResultLanding = lowerCaseVal(getQuerystringParam('searchsource', '', fullLocObj.href));
+		if (isSearchResultLanding) {
+			var searchOrigin,
+				searchResultType,
+				searchKeyword,
+				searchResultCategory,
+				searchResultRank;
+			searchOrigin = lowerCaseVal(getQuerystringParam('searchsource', '', fullLocObj.href));
+			searchResultType = lowerCaseVal(getQuerystringParam('result-type', '', fullLocObj.href));
+			searchKeyword = lowerCaseVal(getQuerystringParam('kw', '', fullLocObj.href));
+			searchResultCategory = lowerCaseVal(getQuerystringParam('cat', '', fullLocObj.href));
+
+
+			switch (searchResultType) {
+				case 'natural':
+					searchResultRank = lowerCaseVal(getQuerystringParam('rank', '', fullLocObj.href));
+					s3.prop16 = searchResultRank;
+					if (s3.prop16) {
+						s3.w_addEvt(15);
+					}
+					s3.eVar13 = 'source:' + searchOrigin + '|' + 'type:' + searchResultType + '|' + 'kw:' + searchKeyword + '|' + 'cat:' + searchResultCategory + '|' + 'rank:' + searchResultRank;
+					break;
+				case 'recommended':
+				case 'quicklinks':
+					s3.eVar13 = 'source:' + searchOrigin + '|' + 'type:' + searchResultType + '|' + 'kw:' + searchKeyword;
+					// added event15 to include recommend and quicklinks for clickthru tracing *au 24/08
+					s3.w_addEvt(15);
+					break;
+			}
+		}
+		//search type var to understand type of search feature used .. suggested/predictive/simillar to ..
+		wbcSearchType = lowerCaseVal(getQuerystringParam('searchtype', '', fullLocObj.href));
+		if (wbcSearchType) {
+			s3.eVar15 = 'searchtype:' + wbcSearchType;
+		}
+		// Previous Page name
+		//s.prop15 = s.getPreviousValue(sPageNameTemp, 'gpv_p15', '');
+		//if (s.prop15 === sPageNameTemp) {
+		//	s.prop15 = pageNameDynamicVariable;
+		//}
+		// refactored and referencing lastPg cookie
+
+		//s2.prop15 = lastSentPage === sPageNameTemp ? pageNameDynamicVariable : lastSentPage;
+		
+		
+		// Previous pixel length
+		//s2.prop69 = s2.w_cap(s2.c_r('lastReqLen'), 5000);
+		//if(s.prop69>5000){
+		//	s.prop69='5000+';
+		//}
+
+		// capture URL
+		//s.eVar26 = 'D=Referer'; // this is the full unprocessed page URL from HTTP header (excludes hash)
+		//s.eVar26 = 'D=Referer' + (fullLocObj.hash ? '+"' + fullLocObj.hash + '"' : ''); // this is the full unprocessed page URL from HTTP header (includes hash)
+		//s2.eVar26 = 'D=Referer+"' + fullLocObj.hash.replace(s2.w_guidRgx, '(GUID)') + '"'; // this is the full unprocessed page URL from HTTP header (includes hash)
+
+		//s2.prop26 = 'D=g'; // this is the filtered page URL from JS document (will include hash if any)
+
+
+		// track scode version
+		//digital['dd.analyticsVersion'] = util.codeVers;
+		//s2.prop39 = s2.w_codeVers;
+
+		// track site + source data version/details + pageKey for page audit.
+		// dont capture in IE - makes pixel too long
+		//ABU TODO no if (!s.isie) { // as of s_code version H.26.2, s.isie == false in IE11 due to useragent change in IE 11 to distinguish its DOM compatibility vs. older versions
+			digital['dd.pageAudit']= pageSite + ':' + lowerCaseVal(pageDetails.src, 1) + ':' + lowerCaseVal(pageDetails.pageKey, 1);
+			//s2.prop13 = pageSite + ':' + lowerCaseVal(pageDetails.src, 1) + ':' + lowerCaseVal(pageDetails.pageKey, 1);
+		//}
+
+		// Site release version - set on OTP pages, apps, public? etc.
+		digital['dd.siteVersion'] = pageSite + ':' + lowerCaseVal(pageDetails.siteVersion, 1);
+		//s2.eVar52 = pageSite + ':' + lowerCaseVal(pageDetails.siteVersion, 1);
+		//s2.prop52 = dVar(52);
+
+		// fid (3rd-party fallback visitor ID) not required when on first party collection domain (i.e. westpac.com.au). What if other domain? (we capture s_vi not fid)
+		//if(/\.westpac\.com\.au$/i.test(location.hostname)){
+		//if (/\.westpac\.com\.au$/i.test(fullLocObj.hostname)) {
+		//if (s2.w_coreDomain) {
+		//	s2.fid = ''; // Not used for implementations that use first-party cookies.
+		//}
+
+		/*s2.plugins = ''; // empty to prevent tracking plugins. not available for reporting in SC15
+
+		// clean referrer to reduce length and remove session details (creates too many values), etc.
+		//s.testRef='https://uat.banking.westpac.com.au/cust/wps/portal/wodp/c1/04_SB8K8xLLM9MSSzPy8xBz9CP0os3gvRx9X04_SB8K8xLLM9MSSzPy8xBz9CP0os3gvRx9X04_SB8K8xLLM9MSSzPy8xBz9CP0os3gvRx9X';
+		//s.referrer=s.w_cleanURL(s.testRef,2);
+		//s.referrer=s.w_cleanURL('',2);
+		//s.referrer=s.w_cleanURL(null,2);
+		if (!s2.w_refSent) { // added to match adobe approach in AppMeasurement v1.4.3
+			s2.w_refSent = true;
+
+			s2.referrer = s2.w_cleanURL(document.referrer, 2);
+
+			// set s.referrer here if able to identify sources otherwise incorrectly tracked as 'None' or 'Unspecified'. e.g. app links etc...
+			// nativeAppVersion
+			// file://native.app/?cid=app_abc_123
+
+			// edm
+			if (/\:edm\:/i.test(s2.campaign)) {
+				s2.referrer = 'mail://edm.cid/?cid=' + cleanText(s2.campaign) + '&referrer=' + (s2.referrer || notSet); // Force any :edm: CID to Email Referrer Type
+			}
+		}*/
+
+		// convert product array into Omniture-format string
+		//sProductsTemp = s.w_prodStr(pdProductID, pageDetails);
+		// run replace function on s.products
+		//console.log('ORIG s.products = ' + s.products);
+		//s.products = s.w_valReplace(s.w_prodStr(pdProductID, pageDetails), 'appmeasurement_productsReplace');  // global replace
+		//s2.products = s2.w_valReplace(s2.w_valReplace(s2.w_prodStr(pdProductID, pageDetails), s2.w_lStor('get', 'appmeasurement_productsReplace')), pageDetails.productsReplace); // global + local replace
+		//s.products = changeIf({
+		//		's.products' : s.w_prodStr(pdProductID, pageDetails),
+		//		'changeIf' : s.w_lStor('get', 'appmeasurement_productsReplace')
+		//	})['s.products'];
+		//console.log('NEW  s.products = ' + s.products);
+
+		// option to prevent sending two matching pageNames in a row
+		//if (!pageDetails.s_abort) {
+		//	clicks on page overwriting the stored value with this logic
+		//
+		//	repeatCall = !getValueOnce(sPageNameTemp, 'lastPg', 0); // this should prevent consecutive calls of same pageName. e.g. mobile 'select' screen nav, and confirmation screens as a way to serialise events
+		//	if (/true/i.test(pageDetails.trackDedupe) && repeatCall) {
+		//		s.abort = true;
+		//	}
+		//}
+
+
+		// only compare to the cookie value that was read, don't write at the same time (with getValOnce)
+		// this logic needs to match logic in trackPage function to prevent impressions being collected etc.
+
+		//if (/true/i.test(pageDetails.trackDedupe) && lastSentPage === sPageNameTemp) {
+		//if ((/true/i.test(pageDetails.trackDedupe) && lastSentPage === sPageNameTemp) || (/true/i.test(pageDetails.trackOnce) && s.w_pageTracked(sPageNameTemp))) {
+		//if ((/true/i.test(pageDetails.trackDedupe) && lastSentPage === sPageNameTemp) || ((/true/i.test(pageDetails.trackOnce) && s.w_pageTracked(sPageNameTemp)) || s.w_globalDrop(pageDetails))) {
+		// check if this page should be fired or has met a condition to drop
+		//if (pageDetails._drop) {
+		//	s.abort = true;
+
+		//s.w_pgTrkStatus = 'blocked';
+		//s.c_w('impTmp', 0, new Date(0)); // clear any tmp banners of aborted pages
+		//}
+
+		// populate s.pageName from local var
+		//s2.pageName = sPageNameTemp;
+		digital['dd.pageName'] = sPageNameTemp;
+			
+	
+	
 	// External Campaigns
 	//if(!s.campaign){
 	//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
@@ -1383,7 +2821,7 @@
 	}*/
 	// capture URL
 	s3.pageName = digital['dd.pageName'];
-	s3.products = util.valReplace(util.valReplace(s3.w_prodStr(pdProductID, pageDetails), util.lStor('get', 'analytics_productsReplace')), pageDetails.productsReplace); // global + local replace
+	s3.products = util.valReplace(util.valReplace(s3.w_prodStr(pdProductID, pageDetails), util.lStor('get', 'appmeasurement_productsReplace')), pageDetails.productsReplace); // global + local replace
 	//Visit number
 	s3.eVar8 = util.cap(util.getVisitNum(365), 1000);
 	s3.eVar21 = pageNameDynamicVariable; // pageName eVar
@@ -1396,11 +2834,34 @@
 	s3.server  = util.lCase(util.getLoc().hostname); //ABU remove + (/\s(banking|dev)\s/i.test(util.codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
 	//s2.server = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(s2.w_codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
 
+	var lastSentPage = s3.c_r('lastPage')|| '';
+	console.log('last Page'+ lastSentPage );
+	//Previous page
+	if(lastSentPage){
+		digital['dd.previousPage'] = lastSentPage;
+		var lastPixelLength = s3.c_r('lastPixelLen')
+		digital['dd.lastPixelLength'] = lastPixelLength;
+	}
+	
 	// use implementation plug-ins that are defined below
 	// in this section. For example, if you copied the append
 	// list plug-in code below, you could call:
 	s3.events=s3.apl(s3.events,"event1",",",1);
-
+	s3.contextData = digital;
+	
+	//serialise events
+	if (digital['ev_appStart']){
+		s3.events = s3.apl(s3.events, 'event26' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
+	}
+	if (digital['ev_appComplete']){
+		s3.events = s3.apl(s3.events, 'event27' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
+	}
+	if (digital['ev_enqStart']){
+		s3.events = s3.apl(s3.events, 'event28' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
+	}
+	if (digital['ev_enqComplete']){
+		s3.events = s3.apl(s3.events, 'event29' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
+	}
 	if (typeof util.w_wtT.complete === 'function') {
 		util.w_wtT.complete(s3);
 	}
@@ -1432,6 +2893,11 @@
 	// copy and paste implementation plug-ins here - See "Implementation Plug-ins" @
 	// https://marketing.adobe.com/resources/help/en_US/sc/implement/#Implementation_Plugins
 	// Plug-ins can then be used in the s_doPlugins(s) function above 
+	
+	/*
+	* Plugin: Cookiecombined utility v0.5.
+	*/
+	
 	if(!s3.__ccucr)
 		{
 			s3.c_rr = s3.c_r;
@@ -1475,1459 +2941,6 @@
 			}
 			s3.c_w = s3.cookieWrite = s3_c_w;
 		}
-	s3.AnalyticsContextData = function (pageData) {
-		var _tempContext = {},
-		context={},
-		//pageBrand='',
-		//pageSite='',
-		notSet = '(not set)', // to identify missing values
-		lowerCaseVal = util.lCase,
-		fullLocObj = util.getLoc(), // update each call
-		cleanText = util.clean,
-		appendEvent = util.addEvt,
-		// store copy in s object for clicks etc to refer to previous details (pageName etc.)
-		pageDetails = pageData || pageDetails, //|| util.w_wtT.pageDetails || window.digitalData || window.pageDetails || {},
-		pdPageName = cleanText(pageDetails.pageName),
-		pdDialogTitle = cleanText(pageDetails.dialogTitle), // captures titles of dialogs in OTP and CTRT code for dynamic campaign landing page. Value is appended to end of page name.
-		sPageNameTemp = '',
-		pageTypeAlt, // for tracking other page types, and applying a rule to classify other pages
-		//pdProductID = util.prodArr(pageDetails.productID || ''), // products string converted into array
-		paymentProduct, // for products string where required
-		//pdFormName = lowerCaseVal(cleanText(pageDetails.formName)),
-		pdFormType = lowerCaseVal(cleanText(pageDetails.formType)),
-		//---- wbg|form|app|*au ---- 
-		pdnewFormName = lowerCaseVal(cleanText(pageDetails.newFormName)),
-		pdJourneyType = lowerCaseVal(cleanText(pageDetails.journeyType)),
-		pdAccountType = lowerCaseVal(cleanText(pageDetails.accountType)),
-		pdBusinessType = lowerCaseVal(cleanText(pageDetails.businessType)),
-		pdFormIsStp = lowerCaseVal(cleanText(pageDetails.formIsSTP)),
-		pdFormVariant = lowerCaseVal(cleanText(pageDetails.formVariant)),
-		journeyTypeOverride,
-		pdProductCount,
-		pdAppStatus = pageDetails.applicationStatus,
-		//--- wbg|form|app|*au ----
-		//pdInSession = false, // if page is in secure/unsecure area
-		pdSelfserviceDetails = lowerCaseVal(cleanText(pageDetails.selfserviceDetail)), // for selfservice details tracking
-		pdTransactionType = lowerCaseVal(pageDetails.transactionType), // for transactions
-		pdTransactionAmount = pageDetails.transactionAmount || '', // for transactions, value should be in nnnn[.nn] format - without thousand separator. decimal is optional, but should be separated by dot (period)
-		transactionMerch = [], // for transactions - quantity + details etc.
-		pdTransactionQty = pageDetails.transactionQty || '', // for transactions - multiple payments quantity
-		pdTransactionDetails = lowerCaseVal(cleanText(pageDetails.transactionDetails || '')), // for transactions - multiple payments quantity
-		formNameAlt, // Payments use pdTransactionType as part of form name, instead of formName
-		//pdTransactionId = pageDetails.transactionID || '', // for transactions - confirm uniqueness - '[CID:...]' on Domino
-		//prchId = pdTransactionId || '', // local copy for purchaseID manipulation
-		//Anil new appReference
-		pdTransactionId = pageDetails.appReference || '',
-		prchId,
-		pdFormStatus = lowerCaseVal(cleanText(pageDetails.formStatus)), // local var reference
-		//pdSearchTerm = cleanText(pageDetails.searchTerm),
-		pdSearchResults = String((String(pageDetails.searchResults) || notSet) > -1 ? util.cap(pageDetails.searchResults, 5000) : notSet), // need to differentiate between undefined, 0, '0' and ''.
-		pdItemName = cleanText(pageDetails.itemName), // item name for faq and atm
-		pageExperience = pageDetails.experience || pageDetails.siteExperience || '',
-		trackingOverrideEnabled = false, // for trackingOverride
-		prpty, // local var for looping properties
-		friendlyModules,
-		//channelManagerKeywords,
-		//channelManagerSearchType = false,
-		clickMapOid,
-		visitorLifecycle,
-		visitorLifecycleAware = 'Aware',
-		visitorLifecycleEngaged = 'Engaged',
-		visitorLifecycleConverted = 'Converted',
-		visitorLifecycleRetained = 'Retained',
-		dateZero = new Date(0), // old date used to clear cookies
-		datePlusOneYear = new Date(+new Date() + 31536000000), // 31536000000 = 365*24*60*60*1000 = 1 year
-		pageNamePathArray,
-		pdPageNumber = pageDetails.pageNumber,
-		pdSubSite = cleanText(pageDetails.subSite),
-		pdPageNamePrefixPair = cleanText(pageDetails.pageNamePrefixes).split('|'),
-		pdPageNamePrefix,
-		pdFeaturedContent,
-		isSearchResultLanding,
-		formTypeOverride,
-		//lastSentPage = util.cookieRead('lastPage')|| '',
-		getValueOnce = util.getValOnce,
-		getQuerystringParam = util.getQueryParam ;//, 
-		//pdPreImprs = cleanText(pageDetails.preImprs);
-		pdPageType = lowerCaseVal(pageDetails.pageType); // local var reference
-		pdPageStep = lowerCaseVal(pageDetails.pageStep, 1); // local var reference
-		// Set values for microsites. This may be commented out for other domains
-		/*ABU: TODO Other domain*/
-		//digital['dd.brand']= pageBrand
-		//digital['dd.site'] = pageBrand + ':' + pageSite + (pdSubSite ? (pageDetails.subSiteSeparator || '-') + pdSubSite : ''); // with subSite like APPS - brand:site-subSite:section.
-		//util.siteID = digital['dd.site'];
-		util.siteID = pageBrand + ':' + pageSite + (pdSubSite ? (pageDetails.subSiteSeparator || '-') + pdSubSite : ''); // with subSite like APPS - brand:site-subSite:section.
-		// switch short/long forms based on in/out of session URLs
-		if (pdFormType === 'checkurl') {
-			pdFormType = pdInSession ? 'short' : 'long';
-		}
-
-		// Store formName when starting on a long version, to keep tracking as long after logging in and using short form.
-		// When same form in same session, keep as 'long'. Reset at any long start step, or non-long version of the same form
-		/*
-		if (pdPageStep === 'start') {
-		if (pdFormName && pdFormType === 'long') {
-		s.c_w('frmTypOv', pdPageType + pdFormName);
-		} else {
-		if (s.c_r('frmTypOv') === pdPageType + pdFormName) { // only remove cookie if on same form again
-		s.c_w('frmTypOv', 0, dateZero);
-		}
-		}
-		} else {
-		if (s.c_r('frmTypOv') === pdPageType + pdFormName) {
-		pdFormType = 'long-' + pdFormType; // only if pdFormType is different to current...
-		}
-		}
-		 */
-
-		// adjusted to adapt to the journey - e.g. long-short, long-concise
-		//if (pdFormType) {
-		/*if (pdPageType && pdFormName) {
-			//if (pdPageStep === 'start') {
-			//if (pdPageStep === 'start' && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys
-			if ((pdPageStep === 'start' || pdPageStep === 'intro') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
-				util.cookieWrite('frmTypOv', pdPageType + pdFormName + '-' + pdFormType);  
-				//s2.c_w('frmTypOv', pdPageType + pdFormName + '-' + pdFormType); // prefix should also include pdSubSite to avoid clash on multi-sites?
-			} else {
-				formTypeOverride = /(.*)-(.*)/.exec(util.cookieRead('frmTypOv'));
-				//formTypeOverride = /(.*)-(.*)/.exec(s2.c_r('frmTypOv'));
-				//console.log('formTypeOverride[1] = ' + formTypeOverride[1]);
-				//console.log('formTypeOverride[2] = ' + formTypeOverride[2]);
-
-				// if the override matches the current form
-				if (formTypeOverride && formTypeOverride[1] === pdPageType + pdFormName) { // prefix should also include pdSubSite to avoid clash on multi-sites?
-					pdFormType = formTypeOverride[2] + (pdFormType && pdFormType !== formTypeOverride[2] ? '-' + pdFormType : '');
-				}
-			}
-		}*/
-		//---- wbg|form|app|*au ---- 
-		if (pdPageType && pdnewFormName) {
-			//if (pdPageStep === 'start') {
-			//if (pdPageStep === 'start' && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys
-			//if ((pdPageStep === 'start' || pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
-			if ((pdPageStep === 'intro' || pdPageStep === 'welcome') && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys. intro pageStep forces any pages prior to a start step to use a static formType (not crossover like long-short etc.)
-				util.cookieWrite('journeyTypOv', pdPageType + pdnewFormName + '-' + pdJourneyType);
-				//s2.c_w('frmTypOv', pdPageType + pdFormName + '-' + pdFormType); // prefix should also include pdSubSite to avoid clash on multi-sites?
-			} else {
-				journeyTypeOverride = /(.*)-(.*)/.exec(util.cookieRead('journeyTypOv'));
-				//console.info('journeyTypeOverride', journeyTypeOverride)
-				//journeyTypeOverride = /(.*)-(.*)/.exec(s2.c_r('frmTypOv'));
-				//console.log('journeyTypeOverride[1] = ' + journeyTypeOverride[1]);
-				//console.log('journeyTypeOverride[2] = ' + journeyTypeOverride[2]);
-
-				// if the override matches the current form
-				if (journeyTypeOverride && journeyTypeOverride[1] === pdPageType + pdnewFormName) { // prefix should also include pdSubSite to avoid clash on multi-sites?
-					pdJourneyType = journeyTypeOverride[2] + (pdJourneyType && pdJourneyType !== journeyTypeOverride[2] ? '-' + pdJourneyType : '');
-
-				}
-			}
-		}
-		//---- wbg|form|app|*au ---- 
-			
-		//console.log('pdFormType = ' + pdFormType);
-
-		// Dynamic pageName prefix for in- and out-of-session pages to uniquely identify the page in separate path/section
-		// Prefix value should be two pipe delimited values. The values can be matching, or either value may be blank.
-		pdPageNamePrefix = pdPageNamePrefixPair.length === 2 ? cleanText(pdInSession ? pdPageNamePrefixPair[0] : pdPageNamePrefixPair[1]) : '';
-
-		// Payments use pdTransactionType as part of page and form name, instead of formName
-		//formNameAlt = pdFormName || pdTransactionType;
-		//formNameAlt = pdFormName ? (pdFormName + (pdFormType ? ':' + pdFormType : '')) : pdTransactionType; // to switch short/long form type when required
-		//---- wbg|form|app|*au ---- 
-		formNameAlt = pdnewFormName || pdTransactionType; // to switch short/long form type when required
-		//---- wbg|form|app|*au ---- 
-
-
-		// set pageName syntax for forms
-		if (formNameAlt || (/^(?:tool|survey|selfservice|registration|payment|login|enquiry|application)$/).test(pdPageType)) { // pageType considered to be a form, use form syntax for pageName
-			formNameAlt = formNameAlt || notSet;
-			var newPageType;
-			newPageType = pdPageType;
-
-			newPageType = lowerCaseVal(
-				newPageType.replace(/application/i, 'app')
-					.replace(/enquiry/i, 'enq')
-					.replace(/quote/i, 'quo')
-					.replace(/selfservice/i, 'ser')
-					.replace(/registration/i, 'reg')
-					.replace(/payment/i, 'pay')
-					.replace(/survey/i, 'sur')
-			);
-			sPageNameTemp = util.siteID + ':' + (newPageType || notSet) + ':' + formNameAlt + (pdPageName ? ':' + pdPageName : ''); // with subSite coming from s.siteID
-			//sPageNameTemp = s2.siteID + ':' + (pdPageType || notSet) + ':' + formNameAlt + (pdPageName ? ':' + pdPageName : ''); // with subSite coming from s.siteID
-			//sPageNameTemp = s.siteID + ':' + (pdSubSite ? pdSubSite + ':' : '') + (pdPageType || notSet) + ':' + formNameAlt + (pdPageName ? ':' + pdPageName : '');
-		} else {
-			if (pdPageName) {
-				// orig name code -
-				//sPageNameTemp = s.siteID + ':' + pdPageName;
-				// now with switch for in/out of session prefix -
-				//sPageNameTemp = s.siteID + ':' + (pdPageNamePrefix ? pdPageNamePrefix + ':' : '') + pdPageName;
-				//sPageNameTemp = s.siteID + ':' + (pdSubSite ? pdSubSite + ':' : '') + (pdPageNamePrefix ? pdPageNamePrefix + ':' : '') + pdPageName;
-				//sPageNameTemp = s2.siteID + ':' + (pdPageNamePrefix ? pdPageNamePrefix + ':' : '') + pdPageName; // with subSite coming from s.siteID
-				sPageNameTemp = util.siteID + ':' + (pdPageNamePrefix ? pdPageNamePrefix + ':' : '') + pdPageName; // with subSite coming from s.siteID
-			} else {
-				// else use getPageName plugin to get details directly from URL
-				//sPageNameTemp = s.getPageName(s.pageURL); // may be decodeURIComponent(s.pageURL) for consistent URL format when errors/encoded chars. e.g %2F in OTP - may remove encoded chars in querystring though
-				//sPageNameTemp = decodeURIComponent(s.getPageName(s.pageURL)); // may be decodeURIComponent(s.pageURL) for consistent URL format when errors/encoded chars. e.g %2F in OTP - may remove encoded chars in querystring though
-				//sPageNameTemp = decodeURIComponent(s.getPageName(s.pageURL)).replace(/^(.+?:.+?:)/, '$1' + (pdSubSite ? pdSubSite + ':' : '')); // may be decodeURIComponent(s.pageURL) for consistent URL format when errors/encoded chars. e.g %2F in OTP - may remove encoded chars in querystring though
-				//sPageNameTemp = decodeURIComponent(s2.getPageName(s2.pageURL)); // may be decodeURIComponent(s.pageURL) for consistent URL format when errors/encoded chars. e.g %2F in OTP - may remove encoded chars in querystring though
-				sPageNameTemp = decodeURIComponent(util.getPageName(util.pageURL)); // may be decodeURIComponent(s.pageURL) for consistent URL format when errors/encoded chars. e.g %2F in OTP - may remove encoded chars in querystring though
-				//console.log(sPageNameTemp);
-			}
-		}
-		//alert(sPageNameTemp +'||||'+ pdPageName);
-		// If pageName override (overrides are any pageDetails properties named as 's_...') set, use it to replace all path and section details, else all those details must be passed as individual overrides (Individual overrides can still be set though)
-		sPageNameTemp = cleanText((pageDetails.s_pageName || sPageNameTemp) + (pdDialogTitle ? ':' + pdDialogTitle : ''));
-
-		// format pageName and replace long URL details
-		sPageNameTemp = lowerCaseVal(
-				sPageNameTemp.replace(/:personal-banking(\:|$)/i, ':pers$1')
-				.replace(/:business-banking(\:|$)/i, ':bus$1')
-				.replace(/:corporate-banking(\:|$)/i, ':corp$1')
-				.replace(/:about-westpac(\:|$)/i, ':about$1')
-				.replace(/:secure:banking(\:|$)/i, ':olb$1') // Abbreviate the path for olb
-				.replace(/(.*:)(.*?:emulationbanking)(\:|$)/i, '$1olb$3') // Abbreviate the path for emulation
-				.replace(/^((?:[\.\w\-]*?:){2})mobile$/i, '$1mobile:home') // set mobile root pages as a type of home page. mobile home page being overtaken by OTP and may be different?
-				.replace(/(.+:atm:.+):-?\d+(.\d+)?:\d+(.\d+)$/i, '$1') // remove coords from atm detail pages
-				//.replace(/(?:\s|%20)+/g, ' ') // replace these characters (or multiples of) with single space
-				.replace(/(?:-|_)+/g, '-') // replace these characters (or multiples of) with single dash
-		);
-		/*ABU: TODO Dynamic variable not supported 
-		// pageName eVar
-		//ABU dd.pageName
-		s2.eVar21 = pageNameDynamicVariable;
-		
-		// hierarchy
-		s2.hier1 = pageNameDynamicVariable;
-		*/
-		
-		// common event58 for branchdetail, atmdetail, teamdetail pages
-		if (/^(?:branch|atm|team)detail$/.test(pdPageType)) {
-			//s.events = s.apl(s.events, 'event58', ',', 2); // using shorter function call like appendEvent(58);
-			appendEvent(context,'branchATMdetail');
-			//appendEvent(58);
-		}
-
-		// this should work for identifying both application and enquiry forms for serialisation
-		//ABU TODO
-		eventSerialisationKey = ((pdProductID && pdProductID[0] && pdProductID[0].prod) || '') + pdFormName; // if the product or form name changes between start and complete steps, or journey crosses domain origin (localStorage), the serialisation won't reset at complete step in that serial range (e.g. visit).
-		eventSerialisationKey = eventSerialisationKey ? eventSerialisationKey + pdFormType : false; // without formType, the same product or form name in a different journeys could be deduped, e.g. skipping some start events. If prod and form are blank, dont use only formType - it could dedupe many other forms of the same type. Would require subSite in key if same pageType + formName shouldn't be joined across different subSite + formType (e.g. should long-short form across two different subSites match?)
-		
-		// determine tracking scenario
-		switch (pdPageType) {
-		case 'form':
-			if (pdPageStep && pdTransactionId) {
-				context['dd.applicationID'] = context['dd.transactionID'] = pdPageStep + '_' + pdTransactionId[0].Id;
-				//s2.transactionID = pdPageStep + '_' + pdTransactionId;
-				//s2.eVar39 = 'D=xact';
-			}
-			if (pdPageStep === 'save') {
-				//s.transactionID = pdTransactionId ? 'save_' + pdTransactionId : '';
-				//s.eVar39 = 'D=xact';
-				appendEvent(context,'formSave');
-				//appendEvent(73);
-			}
-			if (pdPageStep === 'retrieve') {
-				appendEvent(context,'formRetrieve');
-				//appendEvent(74);
-			}
-			break;
-		case 'tool':
-			//s.eVar23 = 'tool:'+pdFormName; // remove all these from switch cases, capture once for all forms
-			//s.prop23 = 'D=v23';
-			//s.eVar62 = lowerCaseVal(pdFormName,1);
-			context['dd.toolName']= pdFormName || notSet;
-			appendEvent(context,'toolUsage');
-			
-			//s2.eVar62 = pdFormName || notSet;
-			//s2.prop62 = dVar(62);
-			//appendEvent(68);
-			break;
-		case 'survey':
-			//s.eVar23 = 'survey:'+pdFormName;
-			//s.prop23 = 'D=v23';
-			/*
-			switch(pdPageStep){
-			//case 'start':
-			//	appendEvent(55); // now common for all forms
-			//	break;
-			case 'complete':
-			s.eVar28 = (pageDetails.surveyScore||notSet);
-			appendEvent(64);
-			break;
-			}
-			 */
-			if (pdPageStep === 'complete') {
-				context['dd.score'] = util.fixZero(pageDetails.surveyScore) || notSet;
-				appendEvent(context,'surveyResponse');
-				//s2.eVar28 = s2.w_fixZero(pageDetails.surveyScore) || notSet;
-				//appendEvent(64);
-			}
-			break;
-		case 'selfservice':
-			//s.eVar23 = 'selfserv:'+pdFormName;
-			//s.prop23 = 'D=v23';
-			//s.eVar38 = lowerCaseVal(pdFormName,1);
-			context['dd.selfserviceName'] = pdFormName || notSet;
-			//s2.eVar38 = pdFormName || notSet;
-			//s2.prop38 = dVar(38);
-			
-			context['dd.ExtAcct'] = lowerCaseVal(pageDetails.externalSiteName);
-			//s2.eVar64 = lowerCaseVal(pageDetails.externalSiteName);
-
-			switch (pdPageStep) {
-			case 'start':
-				appendEvent(context,'selfServiceStart');
-				//appendEvent(35);
-				break;
-			case 'complete':
-				appendEvent(context,'selfServiceComplete');
-				//appendEvent(36);
-				if (pdSelfserviceDetails) {
-					context['dd.selfserviceDetails']= pdSelfserviceDetails || notSet;
-					//s2.eVar46 = pdSelfserviceDetails || notSet;
-					//s2.prop46 = dVar(46);
-					// self service detail var to capture type of self service, introduced as part of Nov 16E1  Wlive release  *au
-				}
-				break;
-			case 'forgotpasswordstart':
-				appendEvent(context,'forgotPassword');
-				appendEvent(context,'selfServiceStart');
-				//appendEvent(48);
-				//appendEvent(35);
-				break;
-			case 'forgotpasswordcomplete':
-				appendEvent(context,'selfServiceComplete');
-				//appendEvent(36);
-				break;
-			}
-			break;
-		case 'sitesearch':
-			 s3.eVar14 = util.getValOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
-				if (s3.eVar14) {
-					s3.prop14 = s3.dVar(14);
-					// split search term into keywords
-					s3.list1 = util.clean(s3.eVar14.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
-					//s.eVar15 = pageBrand + ':' + (pageSite==='banking'?'secure':'public'); // OTP doesnt have site search
-					s3.w_addEvt(14);
-					//s.eVar30 = 'sitesearch:' + pdSearchResults; // use pdPageType here in place of text sitesearch string
-					s3.eVar30 = pdPageType + ':' + pdSearchResults;
-					//if(s.eVar30==='sitesearch:0'){
-					//console.log(pdSearchResults);
-					//if (s.eVar30 === pdPageType + ':0') {
-					if (pdSearchResults === '0') {
-						s3.w_addEvt(16);
-					}
-				}
-		
-			/*
-			//s.eVar14 = getValueOnce(lowerCaseVal(getQuerystringParam('query','',fullLocObj.href)).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
-			//s.eVar14 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_stv',0); // getValOnce after #. Hash only 5+ digits?
-			context['dd.searchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 's3tv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
-			//s2.eVar14 = getValueOnce(s2.w_srchTerm(pdSearchTerm), 'stv', 30, 'm'); // getValOnce after #. Hash only 5+ digits?
-			
-			if (context['dd.searchTerm']) {
-				//s2.prop14 = dVar(14); //Not required
-				// split search term into keywords
-				s3.list1 = cleanText(context['dd.searchTerm'].replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
-				//s2.list1 = cleanText(s2.eVar14.replace(/[^a-z]+/gi, ' ')).replace(/\s/g, ','); // ,4); // for list prop, remove all chars outside a-z
-				//s.eVar15 = pageBrand + ':' + (pageSite==='banking'?'secure':'public'); // OTP doesnt have site search
-				appendEvent(context,'intSearch');
-				//appendEvent(14);
-				//s.eVar30 = 'sitesearch:' + pdSearchResults; // use pdPageType here in place of text sitesearch string
-				context['dd.itemCount'] = pdPageType + ':' + pdSearchResults;
-				//s2.eVar30 = pdPageType + ':' + pdSearchResults;
-				//if(s.eVar30==='sitesearch:0'){
-				//console.log(pdSearchResults);
-				//if (s.eVar30 === pdPageType + ':0') {
-				if (pdSearchResults === '0') {
-					appendEvent(context,'intSearchZeroResults');
-					//appendEvent(16);
-				}
-			} //else{
-			//	s.eVar14 = notSet;
-			//}
-			//} **/
-			break;
-		case 'faqsearch':
-			// pageDetails passed from function call on faq search result div load
-			context['dd.faqSearchTerm'] = getValueOnce(util.srchTerm(pdSearchTerm), 's3_faq', 30, 'm');
-			//s2.eVar58 = getValueOnce(s2.w_srchTerm(pdSearchTerm), 'faq', 30, 'm');
-			if (context['dd.faqSearchTerm']) {
-				//s2.prop58 = dVar(58);
-				appendEvent(context,'faqSearch');
-				//appendEvent(65);
-				//s.eVar30 = 'faqsearch:' + pdSearchResults;
-				context['dd.itemCount'] = pdPageType + ':' + pdSearchResults;
-				//s2.eVar30 = pdPageType + ':' + pdSearchResults;
-			}
-			break;
-		case 'branchsearch':
-			// pageDetails passed from function call on branch search result div load
-			sPageNameTemp += ':searchresults';
-
-			//if(s.w_pgLoad){ // getValOnce would be cleared on every page click/doPlugins in this pageType case
-			//s.eVar44 = getValueOnce(lowerCaseVal(pageDetails.searchTerm,1).replace(/\d/g,'#').replace(/\s+/g,' ').replace(/^\s|\s$/g,''),'s_brnch',0); // hash numbers, postcodes
-			//s.eVar44 = getValueOnce(s.w_srchTerm(),'s_brnch',0); // hash numbers, keep postcodes in function
-			context['dd.branchSearchLocation'] = util.srchTerm(pdSearchTerm); // hash numbers, keep postcodes. not val once, every time
-			//s2.eVar44 = s2.w_srchTerm(pdSearchTerm); // hash numbers, keep postcodes. not val once, every time
-			if (context['dd.branchSearchLocation']) {
-				//s2.prop44 = dVar(44);
-				context['dd.branchSearchFilters'] = pageDetails.searchFilters || notSet;
-				appendEvent(context,'branchSearch');
-				//s2.prop45 = pageDetails.searchFilters || notSet;
-				//appendEvent(57);
-				//s.eVar30 = 'branchsearch:' + pdSearchResults;
-				context['dd.itemCount'] = pdPageType + ':' + pdSearchResults;
-				//s2.eVar30 = pdPageType + ':' + pdSearchResults;
-				//if(s.eVar30==='branchsearch:0'){
-				//if (s.eVar30 === pdPageType + ':0') {
-				if (pdSearchResults === '0') {
-					appendEvent(context,'intSearchZeroResults');
-					//appendEvent(16);
-				}
-			}
-			//}
-			break;
-			//case 'branchdetail':
-			//appendEvent(58);
-			// common events set above
-			//	break;
-		case 'atmdetail':
-			//sPageNameTemp=sPageNameTemp.replace(/:-?\d+(.\d+)?:\d+(.\d+)$/i,':'+lowerCaseVal(pageDetails.itemName,1));
-			sPageNameTemp += ':' + lowerCaseVal(pdItemName.replace(/\s/g, ''), 1);
-			// common events set above
-			//appendEvent(58);
-			break;
-			//case 'teamdetail':
-			// common events set above
-			//appendEvent(58);
-			//	break;
-		case 'registration':
-			//s.eVar23 = 'reg:'+s.eVar6+':'+pdFormName; // does the brand from the URL make sense here? Is it required, or should it be external site name?
-			//s.prop23 = 'D=v23';
-			//s.eVar45 = lowerCaseVal(pdFormName,1); // should brand and external site name be included here?
-			switch (pdPageStep) {
-			case 'start':
-				appendEvent(context,'registrationStart');
-				//appendEvent(51);
-				break;
-			case 'complete':
-				appendEvent(context,'registrationComplete');
-				//appendEvent(52);
-				//appendEvent(46); // this should be set automatically by session/cookie server-side process in OTP/online banking
-				break;
-			}
-			break;
-		case 'product':
-			//s.products = ';' + (pageDetails.productID||notSet).replace(/,/g,',;');
-			switch (pdPageStep) {
-			case 'view':
-				appendEvent(context,'customProdView');
-				//appendEvent(13);
-				break;
-				//case 'selection': // product selection event/page not applicable/required
-				//	appendEvent(32);
-				//	break;
-			case 'comparison':
-				appendEvent(context,'prodCompare');
-				//appendEvent(30);
-				break;
-			}
-			break;
-		case 'payment':
-			// s.eVar37 = lowerCaseVal(pdTransactionType,1);
-
-			// payment status captured as merchandising eVar to relate to payment amount. two methods -
-			//pdProductID=[{'prod':'payment:'+lowerCaseVal(pdTransactionType,1),'events':(pdPageStep==='complete'?'payment:'+lowerCaseVal(pdTransactionType,1)+(pdFormStatus?':'+pdFormStatus:'')+'='+pdTransactionAmount:'')}]; // capture status directly appended to pdTransactionType details
-			//pdProductID=[{'prod':'payment:'+lowerCaseVal(pdTransactionType,1),'events':(pdPageStep==='complete'?'payment:'+lowerCaseVal(pdTransactionType,1)+'='+pdTransactionAmount:'')}]; // generic form status applied to merch in prod string processing
-			// generic form status applied to merch in prod string processing
-
-			if (pdTransactionQty) {
-				transactionMerch.push('payment:qty:' + pdTransactionQty);
-			}
-			if (pdTransactionDetails) {
-				transactionMerch.push(pdTransactionDetails);
-			}
-
-			// Currently set only for steps below. Otherwise products tracks as 'payment:(not set)' in review step etc.
-			paymentProduct = [{
-					'prod' : 'payment:' + (pdTransactionType || notSet),
-					//'events' : ((pdPageStep === 'complete' || pdPageStep === 'effectpayment') ? 'payment:' + (pdTransactionType || notSet) + '=' + pdTransactionAmount : '') // complete or effectpayment should set the payment/product details.
-					'events' : /^(complete|effectpayment|bulkpaymentapproval)$/.test(pdPageStep) ? 'payment:' + (pdTransactionType || notSet) + '=' + pdTransactionAmount : '', // complete or effectpayment should set the payment/product details.
-					//'merch' : pdTransactionQty ? 'options=payment:qty:' + pdTransactionQty : ''
-					'merch' : transactionMerch.length ? 'options=' + transactionMerch.join('+') : ''
-				}
-			];
-
-			switch (pdPageStep) {
-			case 'start':
-				appendEvent(context,'paymentStart');
-				//appendEvent(38);
-				pdProductID = paymentProduct;
-				break;
-				//case 'pinauthorisation':
-				//	appendEvent(42); // not used
-				//	break;
-			case 'complete':
-				appendEvent(context,'paymentComplete');
-				//appendEvent(39);
-				pdProductID = paymentProduct;
-
-				// removed to reduce reference IDs. payment ref not required
-				//s.transactionID = pdTransactionId ? 'pay_' + pdTransactionId : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
-				//s.eVar39 = 'D=xact';
-
-				//s.purchaseID = prchId; // serialise all events with revenue/value. confirm uniqueness. maybe only capture in transactionID/xact
-				//appendEvent('purchase'); // TODO. serialise payments to de-dupe amounts?
-
-				break;
-			case 'businessstart':
-				// payment submitted/created, awating approval. business OTP 1.2
-				appendEvent(context,'busPaymentStart');
-				//appendEvent(42);
-				pdProductID = paymentProduct;
-				break;
-			case 'createpayment':
-				// payment submitted/created, awating approval. business OTP 1.2
-				appendEvent(context,'busPaymentCreated');
-				//appendEvent(43);
-				pdProductID = paymentProduct;
-				break;
-			case 'authorisepayment':
-				// intermediate approval step. business OTP 1.2
-				//s.eVar42 = lowerCaseVal(pageDetails.businessAuthType, 1); // not used
-				//s.prop42 = dVar(42);
-				appendEvent(context,'busPaymentAuthorised');
-				//appendEvent(44);
-				pdProductID = paymentProduct;
-				break;
-			case 'effectpayment':
-				// final approval step, payment processed/scheduled. business OTP 1.2
-				appendEvent(context,'busPaymentEffected');
-				//appendEvent(45);
-				pdProductID = paymentProduct;
-				break;
-			case 'bulkpaymentapproval':
-				// final bulk approval step. business OTP 1.2 step name also above, in setting paymentProduct
-				appendEvent(context,'busBulkApprovals');
-				//appendEvent(37); // bulk payment approval completed step
-				pdProductID = paymentProduct;
-				break;
-			}
-			break;
-		case 'login':
-			//s.eVar23 = 'login:'+s.eVar6+':'+pdFormName; // does the brand from the URL make sense here? Is it required, or should it be external site name? eWise?
-			//if(/^(?:firsttime|complete)$/i.test(pdPageStep)){
-			//	s.eVar40 = 'logged in';
-			//s.prop40 = 'D=v40';
-			//}
-
-			/*
-			switch (pdPageStep) {
-			case 'lockout':
-			appendEvent(49);
-			break;
-			//case 'firsttime':
-			//	appendEvent(47); // removed due to inaccurate implementation
-			//appendEvent(46); // this should be set automatically by session/cookie server-side process in OTP/online banking
-			//s.eVar32 = 'stop';
-			//	break;
-			case 'complete':
-			// login complete step probably won't be used directly in OTP
-			appendEvent(46);
-			//	//s.eVar33 = 'start';
-			break;
-			}
-			 */
-			
-			if (pdPageStep === 'complete') {
-				context['dd.loginStatus'] = 'logged in';
-				appendEvent(context,'login');
-				//appendEvent(46);
-			}
-
-			break;
-		case 'logout':
-			//s.eVar23 = 'logout:'+s.eVar6+':'+pdFormName; // does the brand from the URL make sense here? Is it required, or should it be external site name?
-			context['dd.loginStatus'] = 'logged out';
-			//s2.eVar40 = 'logged out';
-			//s.prop40 = 'D=v40';
-			break;
-
-			/*
-			case 'livechat': // triggered on live person popup winfdow, not on page or click
-			switch(pdPageStep){
-			case 'start':
-			s.eVar57 = (s.eVar57||'{LivePerson Session ID}'); // check value
-			s.prop57 = 'D=v57';
-			appendEvent(63);
-			break;
-			}
-			break;
-			 */
-		case 'enquiry':
-			// was 'lead'
-			//s.eVar23 = 'lead:'+pdFormName;
-			//s.prop23 = 'D=v23';
-			//s.products = (pageDetails.productID?';' + pageDetails.productID.replace(/,/g,',;'):'');
-			switch (pdPageStep) {
-			case 'start':
-				appendEvent(context,'enqStart');
-				//appendEvent(53);
-				// serialise enquiry start
-				//Abu todo serialise event ZZZZ
-				//util.addSerialiseEvt(context,'event28',util.serialise(eventSerialisationKey, pdPageStep));
-				//appendEvent('event28' + util.serialise(eventSerialisationKey, pdPageStep));
-				break;
-			case 'complete':
-				appendEvent(context,'enqComplete');
-				//appendEvent(54);
-				// serialise enquiry complete
-				//Abu todo serialise event ZZZZ
-				//appendEvent(context,'enqCompleteSerialised', util.serialise(eventSerialisationKey, pdPageStep));
-				//util.addSerialiseEvt(context,'event29',util.serialise(eventSerialisationKey, pdPageStep));
-				//appendEvent('event29' + s2.w_serialise(eventSerialisationKey, pdPageStep));
-				if (pdTransactionId) {
-					context['dd.transactionID'] = context['dd.applicationID'] = 'enq_' + util.createTransID(pdTransactionId);
-				}
-				//s.transactionID='enq_'+pdTransactionId; // prefix to avoid duplicates with other applications etc.
-				//context['dd.applicationID']  = context['dd.transactionID'] = pdTransactionId[0].Id ? 'enq_' + pdTransactionId[0].Id : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
-				//s2.transactionID = pdTransactionId ? 'enq_' + pdTransactionId : ''; // prefix to avoid duplicates with other applications etc. only capture ID if set
-				//s2.eVar39 = 'D=xact'; //ABU not sure 'D=xact' replacemint  ZZZ 
-
-				//s.purchaseID = prchId; // serialise all events like application complete. confirm uniqueness across all types and platforms
-				//appendEvent('purchase');
-
-				break;
-			}
-			break;
-		case 'faq':
-			//s.eVar58 = lowerCaseVal(pageDetails.itemName,1);
-			//s.prop58 = 'D=v58';
-			//appendEvent(65);
-			sPageNameTemp += ':' + lowerCaseVal(pdItemName, 1);
-			break;
-
-			/*
-			case 'enquiry':
-			//s.eVar23 = 'enquiry:'+pdFormName;
-			//s.prop23 = 'D=v23';
-			s.eVar43 = lowerCaseVal(pdFormName,1);
-			s.prop43 = 'D=v43';
-			//s.products = ';' + (pageDetails.productID||notSet).replace(/,/g,',;');
-			switch(pdPageStep){
-			case 'complete':
-			appendEvent(50);
-			s.transactionID=pdTransactionId;
-			s.eVar39='D=xact'; // for enquiry? capture whenever set?
-			break;
-			}
-			break;
-			 */
-
-		case 'application':
-			//s.eVar23 = 'appl:'+pdFormName;
-			//s.prop23 = 'D=v23';
-			//s.products = (pageDetails.productID?';' + pageDetails.productID.replace(/,/g,',;'):'');
-
-			//s.prop68 = (pageDetails.businessABN||notSet); // ABN not required
-
-			//		s.eVar37 = lowerCaseVal(pdTransactionType,1);
-
-			/*
-			if(/^(?:save|complete)$/i.test(pdPageStep)){ // different reference number specified between save and complete?
-			//s.eVar39=pdTransactionId;
-			//s.transactionID='D=v39';
-			s.transactionID=pdTransactionId;
-			s.eVar39='D=xact';
-			}
-			 */
-
-			//eventSerialisationKey = (pdProductID && pdProductID[0] && pdProductID[0].prod) || pdFormName;
-			//eventSerialisationKey = eventSerialisationKey ? eventSerialisationKey + pdFormType : 0;
-
-			//eventSerialisationKey = ((pdProductID && pdProductID[0] && pdProductID[0].prod) || '') + pdFormName; // if the product or form name changes between start and complete steps, or journey crosses domain origin (localStorage), the serialisation won't reset at complete step in that serial range (e.g. visit).
-			//eventSerialisationKey = eventSerialisationKey ? eventSerialisationKey + pdFormType : false; // without formType, the same product or form name in a different journeys could be deduped, e.g. skipping some start events. If prod and form are blank, dont use only formType - it could dedupe many other forms of the same type.
-
-			if (pdPageStep && pdTransactionId) {
-				context['dd.transactionID'] = context['dd.applicationID'] = pdPageStep + '_' + pdTransactionId[0].Id;
-				//s2.transactionID = pdPageStep + '_' + pdTransactionId;
-				//s2.eVar39 = 'D=xact';
-			}
-			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-			if (pdJourneyType) {
-				context['dd.journeyType'] = lowerCaseVal(pdJourneyType);
-			}
-			// form-type
-			if (pdFormIsStp) {
-				context['dd.formType'] = 'stp' + '_' + (lowerCaseVal(pdFormVariant) || 'na');
-			} else {
-				context['dd.formType'] = 'non-stp';
-			}
-			// account-type
-			if(pdAccountType){
-				context['dd.accountType'] = lowerCaseVal(pdAccountType);
-			}
-			//business-type
-			if(pdBusinessType){
-				context['dd.businessType'] = lowerCaseVal(pdBusinessType);
-			}
-
-			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-
-			switch (pdPageStep) {
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-				case 'welcome':
-					appendEvent(context, 'welcome');
-
-					break;
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-				case 'start':
-					appendEvent(context,'appStart');
-					//appendEvent(21);
-					//ABU todo serilize event ZZZZ
-					//appendEvent(context,'appStartSerialised',util.serialise(eventSerialisationKey, pdPageStep));
-					//util.addSerialiseEvt(context,'event26',util.serialise(eventSerialisationKey, pdPageStep));
-					//appendEvent('event26' + s2.w_serialise(eventSerialisationKey, pdPageStep));
-
-					//console.log('s.events = ' + s.events);
-					//s.eVar31 = 'start';
-
-					break;
-				case 'save':
-					appendEvent(context,'appSaved');
-					//appendEvent(24);
-					break;
-				case 'retrieve':
-					appendEvent(context,'appRetrieved');
-					//appendEvent(23);
-					break;
-				case 'complete':
-					appendEvent(context,'appComplete');
-					//appendEvent(22);
-					// mark serial stamp as complete once hit. re-use same stamp if starting same form again if not completed, generate new serial if form has been completed (in the same origin)
-					//ABU todo serilize event ZZZZ
-					//util.addSerialiseEvt(context,'event27',util.serialise(eventSerialisationKey, pdPageStep));
-					//s3.events = s3.apl(s3.events, 'event71' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
-					//s3.events=s3.apl(s3.events,"event1",",",1);
-					//appendEvent('event27' + util.serialise(eventSerialisationKey, pdPageStep));
-					//console.log(eventSerialisationKey);
-					//context['dd.transactionID'] = pdTransactionId;
-					// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-					if (pdTransactionId) {
-						context['dd.transactionID'] =  context['dd.applicationID'] = util.createTransID(pdTransactionId);
-					}
-					// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-					//s2.transactionID = pdTransactionId;
-					//s.eVar39 = 'D=xact'; // if multiple transacation ID's, what happens on forms without productID? are there any without products? Have form txn ID + multi prod IDs?
-					//s.purchaseID = 'D=v39';
-					//s.purchaseID = 'D=xact';
-
-					/*
-					if(/^\[CID:.+\]/i.test(prchId)){ // updated to ignore case for some domino forms
-					// if using CID format, take last 20 chars of CID cookie (if exists)+timestamp
-					prchId = /.{1,20}(?=\])/.exec(prchId.replace(/(-|\s|:|^\[CID)/gi,''))[0];
-					}
-					// always trim purchaseID to first 20 chars only
-					s.purchaseID = prchId.substring(0,20);
-					 */
-					if (pdTransactionId) {
-						prchId = lowerCaseVal(cleanText(pageDetails.appReference[0].Id || ''))
-					}
-					context['dd.purchaseID'] = prchId; 
-					//s2.purchaseID = prchId; // confirm uniqueness
-					//s.events = s.apl(s.events,'purchase',',',2);
-					appendEvent(context,'purchase');
-					//appendEvent('purchase'); // only when approved? (not declined, referred, customer declined). Only really used for serialising, so maybe always fire?...
-
-					//s.eVar31 = 'stop';
-					//s.eVar32 = 'start';
-					//s.eVar33 = 'stop';
-
-					// apply transactionType and transactionAmount against first product if legacy values exist
-					if (pdProductID && pdProductID[0] && !pdProductID[0].events) {
-						//pdProductID[0].events=lowerCaseVal(pdTransactionType,1)+(pdFormStatus?':'+pdFormStatus:'')+'='+pdTransactionAmount; // apply status directly to first product
-						//pdProductID[0].events=lowerCaseVal(pdTransactionType,1)+'='+pdTransactionAmount; // generic pdFormStatus applied during prod string processing
-						pdProductID[0].events = (pdTransactionType || notSet) + '=' + pdTransactionAmount; // generic pdFormStatus applied during prod string processing
-					}
-					// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-					if (pdFormIsStp && pdAppStatus) {
-						// call applicationStatus function here with pdAppStatus as argument
-						context['dd.applicationStatus'] = util.appStatusSetup(pdAppStatus);
-					}
-					// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-
-					// track status of whole form submission (even though form may include multiple products)
-					// pdFormStatus is applied directly to merchandising with every transaction amount band
-					/*
-					switch (pdFormStatus) {
-					case 'approved':
-					appendEvent(18);
-					break;
-					case 'declined':
-					appendEvent(19);
-					break;
-					case 'referred':
-					appendEvent(20);
-					break;
-					}
-					 */
-
-					//if (/^approved($|:upsell|:downsell$)/i.test(pdFormStatus)) {
-					if (/^approved(?!:downselldeclined)/i.test(pdFormStatus)) {
-						appendEvent(context,'appApproved');
-						//appendEvent(18);
-					}
-					//if (pdFormStatus === 'declined') {
-					if (/^declined/i.test(pdFormStatus)) {
-						appendEvent(context,'appDeclined');
-						//appendEvent(19);
-					}
-					//if (pdFormStatus === 'referred') {
-					if (/^referred/i.test(pdFormStatus)) {
-						appendEvent(context,'appReferred');
-						//appendEvent(20);
-					}
-					if (pdFormStatus === 'approved:downselldeclined') {
-						appendEvent(context,'appCustDeclined');
-						//appendEvent(25);
-					}
-
-					break;
-			}
-			break;
-		// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-		case 'quote':
-			// *au
-			switch (pdPageStep) {
-				case 'start':
-					appendEvent(context, 'quoteStart');
-					if (pdTransactionId) {
-						context['dd.transactionID'] = context['dd.applicationID'] = 'quote_' + util.createTransID(pdTransactionId);
-					}
-
-					break;
-				case 'save':
-					appendEvent(context, 'quoteSaved');
-					if (pdTransactionId) {
-						context['dd.transactionID'] = context['dd.applicationID'] = 'quote_' + util.createTransID(pdTransactionId);
-					}
-
-					break;
-				case 'retrieve':
-					appendEvent(context, 'quoteRetrieved');
-
-					break;
-				case 'complete':
-					appendEvent(context, 'quoteComplete');
-					if (pdTransactionId) {
-						context['dd.transactionID'] =  context['dd.applicationID'] = 'quote_' + util.createTransID(pdTransactionId);
-					}
-					break;
-			}
-			break;
-		// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-			case 'servererror':
-				// 404, 500 etc. on page load
-				// align pageName for errors to correspond to similar section details of other pages
-				sPageNameTemp = util.siteID + ':err:' + lowerCaseVal(pageDetails.errorCode, 1) + ':' + util.pageURL;
-				//console.log(sPageNameTemp);
-				pageNamePathArray = sPageNameTemp.split(':').slice(0, 4); // provide truncated path for section details, if error page (remove URL)
-				if (String(pageDetails.errorCode) === '404') {
-					context['dd.pageType'] = 'errorPage';
-					//s2.pageType = 'errorPage';
-				}
-				break;
-
-				// pageerror pageType doesn't make sense - errors would usually occur on another pageType
-				//case 'pageerror': // not required? always capture errors if set?
-				//s.prop17=s.siteID+':'+lowerCaseVal(s.prop17||pageDetails.errorCode,1); // different approach for form errors below
-				//	s.prop17=lowerCaseVal(s.prop17||pageDetails.errorCode,1); // stored in list prop
-				//	break;
-			}
-
-			// apply any global pageName replace
-			//sPageNameTemp = s.w_valReplace(sPageNameTemp, 'analytics_pageNameReplace');
-			sPageNameTemp = util.valReplace(util.valReplace(sPageNameTemp, util.lStor('get', 'analytics_pageNameReplace')), pageDetails.pageNameReplace); // global + local replace
-			//sPageNameTemp = s2.w_valReplace(s2.w_valReplace(sPageNameTemp, s2.w_lStor('get', 'analytics_pageNameReplace')), pageDetails.pageNameReplace); // global + local replace
-			// standard changeIf syntax, operating on pageName property only
-			//sPageNameTemp = changeIf({
-			//		'pageName' : sPageNameTemp,
-			//		'changeIf' : s.w_lStor('get', 'analytics_pageNameReplace')
-			//	}).pageName; // analytics_pageNameReplace > analytics_pageNameChange = originPageNameChange
-
-			// remove any detail for this page only
-			//sPageNameTemp = sPageNameTemp.replace(new RegExp(pageDetails.pageNameReplace, 'gi'), ''); // remove anything matching pageNameReplace regex. if not used, use changeIf instead?
-			//sPageNameTemp = changeIf({
-			//		'pageName' : sPageNameTemp,
-			//		'changeIf' : pageDetails.pageNameReplace
-			//	}).pageName; // pageNameReplace > pageNameChange = pageNameChange
-
-			// copy pageName details to section eVars -
-			// now copying longest detail to all section vars for more accurate reporting on page views in/below that section
-			// -----------------------------------------------------------------------------------------------------------------------------
-			pageNamePathArray = pageNamePathArray || sPageNameTemp.split(':');
-			console.log(pageNamePathArray);
-			console.log(sPageNameTemp);
-			//s.w_pathArr = pageNamePathArray; // for use outside this function
-			// New version with experience removed from pageName -
-			
-			//Abu to investigate ZZZ
-			context['dd.brand']= pageNamePathArray[0]; // Brand
-			context['dd.site']     = pageNamePathArray[1]? pageNamePathArray.slice(0, 2).join(':') : context['dd.brand'];
-			context['dd.section1'] = pageNamePathArray[2]? pageNamePathArray.slice(0, 3).join(':') : context['dd.site'] ;
-			context['dd.section2'] = pageNamePathArray[3]? pageNamePathArray.slice(0, 4).join(':') : context['dd.section1'] ;
-			context['dd.section3'] = pageNamePathArray[4]? pageNamePathArray.slice(0, 5).join(':') : context['dd.section2'] ;
-			context['dd.section4'] = pageNamePathArray[5]? pageNamePathArray.slice(0, 6).join(':') : context['dd.section3'] ;
-					
-			//dd.brand = pageNamePathArray[0]; // Brand
-			//s2.eVar6 = pageNamePathArray[0]; // Brand
-			//s2.prop6 = dVar(6);
-			//if (pageNamePathArray[1]) { // Site
-			
-			//Abu to investigate ZZZ
-			//dd.site =  pageNamePathArray.slice(0, 2).join(':');
-			//s2.eVar1 = pageNamePathArray.slice(0, 2).join(':');
-			//s2.prop1 = dVar(1);
-			//}
-			//if (pageNamePathArray[2]) { // Site section
-
-
-			
-			//s2.eVar2 = pageNamePathArray.slice(0, 3).join(':');
-			//s2.prop2 = dVar(2);
-			
-			//ABU Not required DynamicVariable
-			//if (s2.eVar2 === sPageNameTemp) {
-			//	s2.eVar2 = s2.prop2 = pageNameDynamicVariable;
-			//}
-			//}
-			//if (pageNamePathArray[3]) { // Sub section
-			
-			//s2.eVar3 = pageNamePathArray.slice(0, 4).join(':');
-			//s2.prop3 = dVar(3);
-			//ABU Not required DynamicVariable
-			//if (s2.eVar3 === sPageNameTemp) {
-			//	s2.eVar3 = s2.prop3 = pageNameDynamicVariable;
-			//}
-			//}
-			//if (pageNamePathArray[4]) { // Sub sub section
-			
-			//s2.eVar4 = pageNamePathArray.slice(0, 5).join(':');
-			//s2.prop4 = dVar(4);
-			//ABU Not required DynamicVariable
-			//if (s2.eVar4 === sPageNameTemp) {
-			//	s2.eVar4 = s2.prop4 = pageNameDynamicVariable;
-			//}
-			//}
-			//if (pageNamePathArray[5]) { // Sub sub sub section
-			
-			//s2.eVar5 = pageNamePathArray.slice(0, 6).join(':');
-			//s2.prop5 = dVar(5);
-			//ABU Not required DynamicVariable
-			//if (s2.eVar5 === sPageNameTemp) {
-			//	s2.eVar5 = s2.prop5 = pageNameDynamicVariable;
-			//}
-			//}
-
-			// server from full domain
-			//ABU server is move to do_plugins
-			//s.server = lowerCaseVal(fullLocObj.hostname);
-			//context['dd.server'] = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(util.codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
-			//s2.server = lowerCaseVal(fullLocObj.hostname + (/\s(banking|dev)\s/i.test(s2.w_codeVers) && voyagerLoadBalancerID ? '-' + voyagerLoadBalancerID : '')); // capture server/load balancer ID R01 = Ryde, WS01 = Western Sydney
-
-			// experience from app/pageDetails
-			//s.eVar7=pageExperience; // mob/mobapp/tab/tabapp is mobile suite, everything else is desktop
-			//s.eVar7 = s.linkName ? 'link' : pageExperience; // switch to 'link' for link tracking
-			// switch to '(link)' for link tracking where experience may not be set/available in pageDetails?
-			//s.eVar7 = s.linkName ? (pageExperience || '(link)') : pageExperience;
-			context['dd.experience'] = context['dd.channel'] = pageExperience||util.getExp();
-			
-			//s2.eVar7 = pageExperience;
-			//s2.channel = dVar(7);
-
-			// standard form name details
-			//formNameAlt=(pdFormName||pdTransactionType); // Payments use pdTransactionType as part of form name, not the formName from pageDetails
-			if (pdPageType && formNameAlt) {
-				//s.eVar23 = s.eVar6+':'+pdPageType+':'+formNameAlt; // excludes sub-domain, e.g. - wbc:application
-				var newPageType;
-				newPageType = pdPageType;
-
-				newPageType = lowerCaseVal(
-					newPageType.replace(/application/i, 'app')
-						.replace(/enquiry/i, 'enq')
-						.replace(/quote/i, 'quo')
-						.replace(/selfservice/i, 'ser')
-						.replace(/registration/i, 'reg')
-						.replace(/payment/i, 'pay')
-						.replace(/survey/i, 'sur')
-				);
-				context['dd.formName'] = util.siteID + ':' + newPageType + ':' + formNameAlt; // includes sub-domain, e.g. - wbc:online:application // if this matches v3, D=v3 could be used here
-				//s2.eVar23 = util.siteID + ':' + pdPageType + ':' + formNameAlt; // includes sub-domain, e.g. - wbc:online:application // if this matches v3, D=v3 could be used here
-				//s2.prop23 = dVar(23);
-
-				if (pdPageStep === 'start') {
-					appendEvent(context,'formStart');
-					//appendEvent(55);
-				}
-				if (pdPageStep === 'complete') {
-					appendEvent(context,'formComplete');
-					//appendEvent(56);
-				}
-			}
-
-			// details to track on full page loads only. i.e. not on every click...
-			/*
-			if(s.w_pgLoad){
-			// if available after page load
-			s.list2=s.c_r('banners'); // check suitable cookie name. this should contain a comma separated list of banners seen on previous page
-			if(s.list2){
-			appendEvent(11);
-			s.c_w('banners',0,new Date(0));
-			}
-
-			// capture number of form validation errors from cookie
-			if(s.c_r('errCount')){
-			s.prop17=s.c_r('errCode');
-			//s.eVar30 = (s.prop17.indexOf(s.w_inlErr+',')>-1? s.prop17 : 'defined errors') + ':' + s.c_r('errCount');
-			s.eVar30 = 'errors:' + s.c_r('errCount');
-			s.c_w('errCode',0,new Date(0));
-			s.c_w('errCount',0,new Date(0));
-			}
-
-			// Navigation menu ID
-			s.prop59=s.c_r('s_nav');
-			s.c_w('s_nav','',new Date(0)); // remove s_nav cookie after tracking
-
-			// if search results 'click past' rank cookie has been set from result link click, track the rank and click event and delete the cookie.
-			s.prop16=s.c_r('cpr'); // The cookie is set on search results link clicks with the rank of the link
-			if(s.prop16){
-			appendEvent(15);
-			s.c_w('cpr','',new Date(0)); // delete cookie after tracking
-			}
-			}
-			 */
-
-			// Rules to track a cross-section of key page types without pageType specified
-			if (pageSite === 'www') {
-				pageTypeAlt = 'www:' + notSet; // default for unspecified pages
-				//if(sPageNameTemp==='wbc:www:home'){
-				if (/^wbc:www:(?:mobile:)?home$/i.test(sPageNameTemp)) { // desktop or mobile home page as www:home page type
-					pageTypeAlt = 'www:home';
-				}
-				//console.log(pageNamePathArray);
-				if (/^(?:pers|bus|corp)$/.test(pageNamePathArray[2])) {
-					//if (!s.eVar3) {
-					if (pageNamePathArray.length === 3) {
-						pageTypeAlt = 'www:section home'; // i.e. 1st directory only.
-					}
-					//if (!s.eVar4) {
-					if (pageNamePathArray.length === 4) {
-						pageTypeAlt = 'www:product home'; // i.e. to 2nd directory only.
-					}
-				}
-			}
-			/*
-			if(s.w_site==='banking'){
-			pageTypeAlt='banking:'+notSet; // page types on banking - can be populated in pageType key in RESX if required
-			}
-			if(/^(?:info|ruby|dav)$/i.test(s.w_site)){
-			pageTypeAlt='microsite'; // page types for mactel etc.?
-			}
-			 */
-			context['dd.pageType'] = pdPageType || pageTypeAlt;
-			//s2.prop7 = pdPageType || pageTypeAlt;
-
-			// track page number for search results etc.
-			if(pdPageNumber){
-				context['dd.pageNumber'] = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
-			}
-			//s2.prop8 = pdPageNumber ? ((pdPageType || notSet) + ':' + pdPageNumber) : '';
-
-			// Visit number
-			//s.eVar8 = s.w_cap(s.getVisitNum(365), 1000);
-			//ABU TODO   zzzz
-			//s2.eVar8 = s2.w_cap(s2.getVisitNum(365), 1000) + s2.w_extCkSfx; // appends if external cookie data
-			//if(s.eVar8>1000){
-			//	s.eVar8='1000+';
-			//}
-
-			// days since last visit
-			//s.eVar29=s.getDaysSinceLastVisit('s_lv',1);
-			//s.eVar29=(s.eVar29==='0'?'zero':s.eVar29);
-			//s.eVar29=s.w_fixZero(s.eVar29);
-			//ABU TODO ZZZZ
-			//s2.eVar29 = s2.w_cap(s2.w_fixZero(s2.getDaysSinceLastVisit('s_lv', 1)), 1000) + s2.w_extCkSfx; // appends if external cookie data
-			//if(s.eVar29>1000){
-			//	s.eVar29='1000+';
-			//}
-
-			// visitor id
-			//ABU s2.eVar25 = s2.prop25 = (customVisitorID ? 'D=vid' : 'D=s_vi'); // if s.visitorID passed from mobile app to hybrid pages, variable will be vid, else use FP-cookie name
-			
-			//ABU TODO ZZZZ
-			//s2.eVar25 = s2.prop25 = (customVisitorID ? 'D=vid' : 'D=s_mid');
-			//s.prop25 = s.eVar25;
-			
-
-
-			// page status
-			//s.prop40 = pageStatus;
-			//s.prop40 = pdInSession ? 'secure' : 'unsecure'; // switching based on URL
-			context['dd.pageStatus'] = pdInSession ? 'logged in' : 'public'; // switching based on URL
-			//s2.prop40 = pdInSession ? 'logged in' : 'public'; // switching based on URL
-
-			// site language from page if set
-			//s.eVar63 = lowerCaseVal(pageDetails.language||'en'); // only captured in prop63
-			context['dd.lang'] = lowerCaseVal(pageDetails.language || 'en');
-			//s2.prop63 = lowerCaseVal(pageDetails.language || 'en');
-			//s.prop63 = 'D=v63';
-
-			// Day Of Week, Time Of Day
-			//var s_tpA = s.getTimeParting('s','+10');
-			//s.eVar10 = s_tpA[1]+'|'+s_tpA[2]; // Adobe orig converted format
-			context['dd.dayTime'] = util.timePart(); // local time in shorter format
-			//s2.eVar10 = s2.w_timePart(); // local time in shorter format
-			//s2.prop10 = dVar(10);
-
-			// External Campaigns
-			//if(!s.campaign){
-			//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-			//context['dd.campaign'] = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
-			//s2.campaign = getValueOnce(lowerCaseVal(getQuerystringParam('cid', '', fullLocObj.href)), 's_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
-			//}
-
-			//ABU TODO
-			/*if (s2.campaign) {
-				s2.eVar16 = 'D=v0';
-				s2.eVar17 = 'D=v0';
-				s2.eVar18 = crossVisitPrtcptn(s2.campaign, 's_ev18', '30', '5', '>', 'event22'); // this is cleared every time event22 fires. i.e. Application Complete step
-			}
-
-			//console.log('ORIG s.list2  = ' + s.list2); // impressions from banner cookie related to previous page, collected after it loaded
-			//console.log('pdPreImprs    = ' + pdPreImprs); // any other impressions passed for the current page after trackPage was called, but before it completed (and scanning links)
-			pdPreImprs = pdPreImprs ? (pdPreImprs||'').split(',') : [];
-			for (prpty = 0; prpty < pdPreImprs.length; prpty++) {
-				context['dd.list2'] = util.apl(context['dd.list2'], pdPreImprs[prpty], ',', 2);
-				//s2.list2 = s2.apl(s2.list2, pdPreImprs[prpty], ',', 2);
-			}
-			//console.log('NEW s.list2   = ' + s.list2); // combined list of impressions for previous page
-			
-			if (context['dd.list2']) {
-				appendEvent(context,'intImpressions');
-				//s2.w_addEvt(11);
-			}
-
-			// Internal banner clicks
-			pidQuerystring = lowerCaseVal(getQuerystringParam('pid', '', fullLocObj.href));
-			//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-			context['dd.intCampaign']  = getValueOnce(pidQuerystring, 'u_pid', 30, 'm');
-			//s2.eVar22 = getValueOnce(pidQuerystring, 's_pid', 30, 'm');
-			//}
-
-			// count every pid click for comparison to getValueOnce count
-			if (pidQuerystring) {
-				appendEvent(context,'pidTotalClicks');
-				//appendEvent(10);
-			}
-
-			//if(s.eVar22&&!s.eVar65){
-			if (context['dd.intCampaign']) {
-				appendEvent(context,'intClickThroughs');
-				//appendEvent(12);
-				//ABU todo zzz`
-				//s2.eVar20 = crossVisitPrtcptn(s2.eVar22, 's_ev20', '30', '5', '>', 'event22');
-			}
-			//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-			context['dd.extSite']  = getValueOnce(lowerCaseVal(getQuerystringParam('ref', '', fullLocObj.href)), 'refPrm', 30, 'm');
-			//s2.eVar65 = getValueOnce(lowerCaseVal(getQuerystringParam('ref', '', fullLocObj.href)), 'refPrm', 30, 'm');
-			//}
-			// incoming links from AFS-group sites
-			//if(s.eVar22&&s.eVar65){
-			// ref is now just an additional parameter for tracking links from other sites
-			if (context['dd.extSite'] ) {
-				appendEvent(context,'linkClicksAFS');
-				//appendEvent(72);
-			}
-			//else{
-			//	s.eVar65='';
-			//}
-			*/
-			// Page modules shown on dashboard
-			// refer to widget name mapping in resx to lookup friendly names
-			//pdModules=lowerCaseVal((pageDetails.modules||'').replace(/\B[aeiou]\B|\s|widget/gi,'').replace(/accnts/gi,'acts').replace(/pymnts/gi,'pmts'));
-			//pdModules=(pageDetails.modules||'').replace(/\B[aeiou]\B|\s|widget/gi,'').replace(/accnts/gi,'acts').replace(/pymnts/gi,'pmts');
-			//pdModules=(pageDetails.modules||'').split(',');
-			//pdModules = pdModules.split(',');
-			//ABU REMOVE MODULE 
-			/*friendlyModules = util.moduleLookup((pageDetails.modules || '').split(','), (pageDetails.moduleKey || '').split(','));
-
-			//s.eVar55 = getValueOnce((friendlyModules ? (/:overview:dashboard$/i.test(sPageNameTemp) ? 'grid' : 'list') + ',' + friendlyModules : ''), 'mdlVar', 0); // modules will be in grid format on overview/dashboard
-			dd.pageModuleSet = getValueOnce((pageDetails.moduleLayout || '') + (friendlyModules ? ',' + friendlyModules : ''), 'mdlVar', 30, 'm'); // modules will be in grid format on overview/dashboard
-			//s2.eVar55 = getValueOnce((pageDetails.moduleLayout || '') + (friendlyModules ? ',' + friendlyModules : ''), 'mdlVar', 30, 'm'); // modules will be in grid format on overview/dashboard
-
-			//s.prop55 = 'D=v55';
-			//s2.prop55 = dVar(55);
-
-			// call every time on dashboard page to compare current to previous modules and diff for added/removed
-			// except when only switching profiles. when switching profile, modules change, but not through direct modification.
-			if (userSwitchedProfile) {
-				// when switching, update stored module set to current profile modules
-				s2.c_w('mdlSet', friendlyModules);
-			} else {
-				// track as a module change
-				s2.prop64 = s2.w_checkModuleChanges('mdlSet', friendlyModules);
-				if (s2.prop64) {
-					appendEvent(70);
-				}
-			} */
-
-			/*ABU TODO Click map to Actifity MAP
-			// clear invalid clickmap values generated for custom links
-			clickMapOid = (/(.*oid%3D)(.*?)(%26|$)/).exec(s2.c_r('s_sq'));
-			if (clickMapOid && clickMapOid[2]) {
-				if (!(/_[0-9]+$/).test(clickMapOid[2])) {
-					s.c_w('s_sq', 0, dateZero); // remove invalid s_sq cookie
-				}
-			}*/
-
-			// Featured content - fid/wbcfrom - for secondary promo tracking (Patrick)
-			//if (doPluginsAsPageLoad) { // use getQueryParam to record details on page load only, else getValOnce is fired on the doPlugins calls from link clicks and prevents capture at subsequent load. (this assists with test page links)
-			pdFeaturedContent = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 's3_feat', 30, 'm');
-			//s2.eVar60 = getValueOnce(lowerCaseVal(getQuerystringParam('fid', '', fullLocObj.href) || getQuerystringParam('wbcfrom', '', fullLocObj.href)), 'feat', 30, 'm');
-			//}
-			if (pdFeaturedContent) {
-				context['dd.featuredContent'] = pdFeaturedContent;
-				appendEvent(context,'featuredContent');
-				//appendEvent(66);
-				//s2.prop60 = dVar(60);
-			}
-			
-			//ABU toDO crossVisitPrtcptn 
-			// Combined Internal External Stack
-			/*if (s2.eVar22) {
-				s2.eVar19 = crossVisitPrtcptn(s2.eVar22, 's_ev19', '30', '10', '>', 'event22');
-			}
-			if (s2.campaign) {
-				s2.eVar19 = crossVisitPrtcptn(s2.campaign, 's_ev19', '30', '10', '>', 'event22');
-			}*/
-
-			// Paid/Natural Search Keyword
-			//ABU toDO
-			/*s2.prop18 = pageNameDynamicVariable; // set to just pageName as default
-			s2._channelParameter = 'Campaign|cid';
-			s2.w_channelManager('cid');
-
-			//channelManagerKeywords = cleanText(s._keywords || ''); // filter search keywords a bit - strip multiple spaces etc.
-			channelManagerKeywords = cleanText(s2._keywords); // filter search keywords a bit - strip multiple spaces etc.
-
-			if (s2._channel === 'Natural Search') {
-				channelManagerSearchType = 'NS';
-				// prop18 seo keywords and entry page
-				s2.prop18 = 'D="' + channelManagerKeywords + '|"+pageName';
-			}
-			//if(s._channel==='Campaign'&&/^sem:/i.test(s._campaign)){ // if cid param, and value starts with 'sem:' (just check for any CID). confirm identifier for PPC tracking codes
-			if (s2._channel === 'Campaign' && channelManagerKeywords !== 'n/a') { // only if cid param exists and keywords are found, it's paid search. We may not have keywords if they are not passed by the search engine (usually for NS)
-				channelManagerSearchType = 'PS';
-			}
-			if (channelManagerSearchType) {
-				s2.eVar11 = channelManagerKeywords === 'n/a' ? 'Keyword Unavailable' : channelManagerKeywords;
-				s2.prop11 = dVar(11);
-
-				s2.eVar12 = crossVisitPrtcptn(channelManagerSearchType + '|' + channelManagerKeywords, 's_ev12', '30', '5', '>', 'event22');
-			}*/
-
-			// Lifecycle. consider re-setting to avoid build up to later levels?
-			//ABU toDO
-			/*visitorLifecycle = s2.c_r('s_lfcl');
-			if (visitorLifecycle === '') { // No previous lifecycle cookie
-				if (!s2.c_w('testCkie', 'set', new Date(+new Date() + 10000))) { // test if lifecycle cookie can be set to prevent events from re-firing
-					visitorLifecycle = 'No cookies';
-				} else {
-					s2.c_w('testCkie', 0, dateZero);
-					visitorLifecycle = visitorLifecycleAware;
-					appendEvent(6);
-				}
-			}
-			if (visitorLifecycle === visitorLifecycleAware && (/\b(event(13|21|30|31|54|61|63|68))\b/i).test(s2.events)) { // Confirm Engagement status criteria
-				visitorLifecycle = visitorLifecycleEngaged;
-				appendEvent(7);
-			}
-			if (visitorLifecycle === visitorLifecycleEngaged && (/\b(event(22))\b/i).test(s2.events)) { // Conversion status criteria
-				visitorLifecycle = visitorLifecycleConverted;
-				appendEvent(8);
-			}
-			if (visitorLifecycle === visitorLifecycleConverted && (/\b(event(46))\b/i).test(s2.events) && s2.getVisitNum(365) > 1) { // Retention status criteria
-				visitorLifecycle = visitorLifecycleRetained;
-				appendEvent(9);
-			}
-			s2.c_w('s_lfcl', visitorLifecycle, datePlusOneYear);
-			s2.eVar36 = visitorLifecycle + s2.w_extCkSfx; // appends if external cookie data
-			s2.prop36 = dVar(36);
-			*/
-			// search results clickthru event for auto suggest results only *au
-			wbcfromQuerystring = lowerCaseVal(getQuerystringParam('wbcfrom', '', fullLocObj.href));
-			if (/sitesearch:autosuggest:results/i.test(wbcfromQuerystring)) {
-				appendEvent(context,'intSearchClickThru');
-				//s2.w_addEvt(15);
-				// clickthru event from "search results page" is triggered when prop16 is set
-			}
-			
-			// search results details *au
-			// new way to track clickthru, rank, result category etc
-			// convention for search result details eVar
-			//search-source|result-type|searched-keyword|result-category|result-rank
-			// example output: source:search-page|type:natural|kw:low-rate-card|cat:services|rank:1
-			// example output non natural type: source:search-page|type:recommended|kw:low-rate-card
-			// example output non natural type: source:search-page|type:quicklinks|kw:low-rate-card
-			// AEM release 1.1 updated type query param to result-type
-			isSearchResultLanding = lowerCaseVal(getQuerystringParam('searchsource', '', fullLocObj.href));
-			if (isSearchResultLanding) {
-				var searchOrigin,
-					searchResultType,
-					searchKeyword,
-					searchResultCategory,
-					searchResultRank;
-				searchOrigin = lowerCaseVal(getQuerystringParam('searchsource', '', fullLocObj.href));
-				searchResultType = lowerCaseVal(getQuerystringParam('result-type', '', fullLocObj.href));
-				searchKeyword = lowerCaseVal(getQuerystringParam('kw', '', fullLocObj.href));
-				searchResultCategory = lowerCaseVal(getQuerystringParam('cat', '', fullLocObj.href));
-
-
-				switch (searchResultType) {
-					case 'natural':
-						searchResultRank = lowerCaseVal(getQuerystringParam('rank', '', fullLocObj.href));
-						s.prop16 = searchResultRank;
-						if (s.prop16) {
-							s.w_addEvt(15);
-						}
-						s.eVar13 = 'source:' + searchOrigin + '|' + 'type:' + searchResultType + '|' + 'kw:' + searchKeyword + '|' + 'cat:' + searchResultCategory + '|' + 'rank:' + searchResultRank;
-						break;
-					case 'recommended':
-					case 'quicklinks':
-						s.eVar13 = 'source:' + searchOrigin + '|' + 'type:' + searchResultType + '|' + 'kw:' + searchKeyword;
-						// added event15 to include recommend and quicklinks for clickthru tracing *au 24/08
-						s.w_addEvt(15);
-						break;
-				}
-			}
-			//search type var to understand type of search feature used .. suggested/predictive/simillar to ..
-			wbcSearchType = lowerCaseVal(getQuerystringParam('searchtype', '', fullLocObj.href));
-			if (wbcSearchType) {
-				s.eVar15 = 'searchtype:' + wbcSearchType;
-			}
-			// Previous Page name
-			//s.prop15 = s.getPreviousValue(sPageNameTemp, 'gpv_p15', '');
-			//if (s.prop15 === sPageNameTemp) {
-			//	s.prop15 = pageNameDynamicVariable;
-			//}
-			// refactored and referencing lastPg cookie
-
-			//s2.prop15 = lastSentPage === sPageNameTemp ? pageNameDynamicVariable : lastSentPage;
-			
-			
-			// Previous pixel length
-			//s2.prop69 = s2.w_cap(s2.c_r('lastReqLen'), 5000);
-			//if(s.prop69>5000){
-			//	s.prop69='5000+';
-			//}
-
-			// capture URL
-			//s.eVar26 = 'D=Referer'; // this is the full unprocessed page URL from HTTP header (excludes hash)
-			//s.eVar26 = 'D=Referer' + (fullLocObj.hash ? '+"' + fullLocObj.hash + '"' : ''); // this is the full unprocessed page URL from HTTP header (includes hash)
-			//s2.eVar26 = 'D=Referer+"' + fullLocObj.hash.replace(s2.w_guidRgx, '(GUID)') + '"'; // this is the full unprocessed page URL from HTTP header (includes hash)
-
-			//s2.prop26 = 'D=g'; // this is the filtered page URL from JS document (will include hash if any)
-
-
-			// track scode version
-			//context['dd.analyticsVersion'] = util.codeVers;
-			//s2.prop39 = s2.w_codeVers;
-
-			// track site + source data version/details + pageKey for page audit.
-			// dont capture in IE - makes pixel too long
-			//ABU TODO no if (!s.isie) { // as of s_code version H.26.2, s.isie == false in IE11 due to useragent change in IE 11 to distinguish its DOM compatibility vs. older versions
-				context['dd.pageAudit']= pageSite + ':' + lowerCaseVal(pageDetails.src, 1) + ':' + lowerCaseVal(pageDetails.pageKey, 1);
-				//s2.prop13 = pageSite + ':' + lowerCaseVal(pageDetails.src, 1) + ':' + lowerCaseVal(pageDetails.pageKey, 1);
-			//}
-
-			// Site release version - set on OTP pages, apps, public? etc.
-			context['dd.siteVersion'] = pageSite + ':' + lowerCaseVal(pageDetails.siteVersion, 1);
-			//s2.eVar52 = pageSite + ':' + lowerCaseVal(pageDetails.siteVersion, 1);
-			//s2.prop52 = dVar(52);
-
-			// fid (3rd-party fallback visitor ID) not required when on first party collection domain (i.e. westpac.com.au). What if other domain? (we capture s_vi not fid)
-			//if(/\.westpac\.com\.au$/i.test(location.hostname)){
-			//if (/\.westpac\.com\.au$/i.test(fullLocObj.hostname)) {
-			//if (s2.w_coreDomain) {
-			//	s2.fid = ''; // Not used for implementations that use first-party cookies.
-			//}
-
-			/*s2.plugins = ''; // empty to prevent tracking plugins. not available for reporting in SC15
-
-			// clean referrer to reduce length and remove session details (creates too many values), etc.
-			//s.testRef='https://uat.banking.westpac.com.au/cust/wps/portal/wodp/c1/04_SB8K8xLLM9MSSzPy8xBz9CP0os3gvRx9X04_SB8K8xLLM9MSSzPy8xBz9CP0os3gvRx9X04_SB8K8xLLM9MSSzPy8xBz9CP0os3gvRx9X';
-			//s.referrer=s.w_cleanURL(s.testRef,2);
-			//s.referrer=s.w_cleanURL('',2);
-			//s.referrer=s.w_cleanURL(null,2);
-			if (!s2.w_refSent) { // added to match adobe approach in AppMeasurement v1.4.3
-				s2.w_refSent = true;
-
-				s2.referrer = s2.w_cleanURL(document.referrer, 2);
-
-				// set s.referrer here if able to identify sources otherwise incorrectly tracked as 'None' or 'Unspecified'. e.g. app links etc...
-				// nativeAppVersion
-				// file://native.app/?cid=app_abc_123
-
-				// edm
-				if (/\:edm\:/i.test(s2.campaign)) {
-					s2.referrer = 'mail://edm.cid/?cid=' + cleanText(s2.campaign) + '&referrer=' + (s2.referrer || notSet); // Force any :edm: CID to Email Referrer Type
-				}
-			}*/
-
-			// convert product array into Omniture-format string
-			//sProductsTemp = s.w_prodStr(pdProductID, pageDetails);
-			// run replace function on s.products
-			//console.log('ORIG s.products = ' + s.products);
-			//s.products = s.w_valReplace(s.w_prodStr(pdProductID, pageDetails), 'analytics_productsReplace');  // global replace
-			//s2.products = s2.w_valReplace(s2.w_valReplace(s2.w_prodStr(pdProductID, pageDetails), s2.w_lStor('get', 'analytics_productsReplace')), pageDetails.productsReplace); // global + local replace
-			//s.products = changeIf({
-			//		's.products' : s.w_prodStr(pdProductID, pageDetails),
-			//		'changeIf' : s.w_lStor('get', 'analytics_productsReplace')
-			//	})['s.products'];
-			//console.log('NEW  s.products = ' + s.products);
-
-			// option to prevent sending two matching pageNames in a row
-			//if (!pageDetails.s_abort) {
-			//	clicks on page overwriting the stored value with this logic
-			//
-			//	repeatCall = !getValueOnce(sPageNameTemp, 'lastPg', 0); // this should prevent consecutive calls of same pageName. e.g. mobile 'select' screen nav, and confirmation screens as a way to serialise events
-			//	if (/true/i.test(pageDetails.trackDedupe) && repeatCall) {
-			//		s.abort = true;
-			//	}
-			//}
-
-
-			// only compare to the cookie value that was read, don't write at the same time (with getValOnce)
-			// this logic needs to match logic in trackPage function to prevent impressions being collected etc.
-
-			//if (/true/i.test(pageDetails.trackDedupe) && lastSentPage === sPageNameTemp) {
-			//if ((/true/i.test(pageDetails.trackDedupe) && lastSentPage === sPageNameTemp) || (/true/i.test(pageDetails.trackOnce) && s.w_pageTracked(sPageNameTemp))) {
-			//if ((/true/i.test(pageDetails.trackDedupe) && lastSentPage === sPageNameTemp) || ((/true/i.test(pageDetails.trackOnce) && s.w_pageTracked(sPageNameTemp)) || s.w_globalDrop(pageDetails))) {
-			// check if this page should be fired or has met a condition to drop
-			//if (pageDetails._drop) {
-			//	s.abort = true;
-
-			//s.w_pgTrkStatus = 'blocked';
-			//s.c_w('impTmp', 0, new Date(0)); // clear any tmp banners of aborted pages
-			//}
-
-			// populate s.pageName from local var
-			//s2.pageName = sPageNameTemp;
-			context['dd.pageName'] = sPageNameTemp;
-		return context;
-	};
 	/*
 	* Plugin: Compatibility v1.0.
 	*/
@@ -3491,7 +3504,53 @@
 		var eTarg = s3.w_getEvtTrgt(evt, 'href');
 		s3 = s3_gi(s3_account);
 		//s.events = 'event71';
-		if(/^social/i.test(type)){
+		switch(type){
+			case 'social':
+				s3.linkTrackEvents = s3.events = 'event71';
+				s3.linkTrackVars = s3.w_ltv + ',eVar56,prop56,events'; // includes eVar21 and c39
+				s3.eVar56 = util.lCase(eTarg.href, 1);
+				s3.prop56 = 'D=v56';
+				s3.tl(eTarg || true, 'e', 'social:' + util.lCase(eTarg.href, 1)); // 'eTarg' assumes this function only called from link clicks
+				console.log('tl() link:'+type);
+				break;
+			case 'exit':
+				s3.linkTrackEvents = s3.events = '';
+				s3.linkTrackVars = s3.w_ltv;
+				s3.tl(eTarg || true, 'e', util.lCase(eTarg.href, 1)); // 'eTarg' assumes this function only called from link clicks
+				console.log('tl() link:'+type);
+				break;
+			case 'download':
+				s3.events = 'event67';
+				var pd = (((/pds\.pdf(?:\?|$)/i).test(eTarg.href) || ((/\b(terms\ and\ conditions|product\ disclosure\ statement)\b/i).test(eTarg.innerHTML) && (/\.pdf(?:\?|$)/i).test(eTarg.href))) ? 'pds:' : ''); // ...pds.pdf in href or T and C in link text to identify product disclosure downloads
+				if (pd) {
+					s3.events+=',event31';
+				}
+				s3.linkTrackEvents = s3.events;
+				s3.linkTrackVars = s3.w_ltv + ',eVar61,prop61,events';
+				s3.eVar61 = pd + (util.lCase(eTarg.href, 1).replace(/(.*\/)?(\.*?)/, '$2')); // record file name only
+				s3.prop61 = 'D=v61';
+				s3.tl(eTarg || true, 'd', pd + util.lCase(eTarg.href, 1)); // 'eTarg' assumes this function only called from link clicks
+				console.log('tl() link:'+type);
+				break;
+			case 'call':
+				var detail = decodeURI(util.lCase(eTarg.href, 1)).replace(/^tel:|\s+/gi, ''); // Appears in the Page interactions name report (v54). custom call links may not have friendly href
+				s3.linkTrackEvents = s3.events = 'event61,event69';
+				//s.linkTrackVars='prop15,prop69,eVar54,prop54,eVar59,events';
+				s3.linkTrackVars = s3.w_ltv + ',eVar54,prop54,eVar59,events';
+				s3.eVar54 = 'call:' + detail;
+				s3.prop54 = 'D=v54';
+				s3.eVar59 = detail;
+
+				//s.forcedLinkTrackingTimeout = 500;
+				//s.useForcedLinkTracking = false;
+
+				s3.tl(eTarg || true, 'o', 'interaction:call:' + detail); // 'eTarg' assumes this function only called from link clicks
+				//s.tl(eTarg||true,'o','interaction:call:'+detail, null, 'navigate'); // 'eTarg' assumes this function only called from link clicks // this or 'navigate' breaks FF in test page?
+				console.log('tl() link:'+type);
+				break;
+			s3.w_endTrckng();
+		}
+		/*if(/^social/i.test(type)){
 			s3.linkTrackEvents = s3.events = 'event71';
 			s3.linkTrackVars = s3.w_ltv + ',eVar56,prop56,events'; // includes eVar21 and c39
 			s3.eVar56 = util.lCase(eTarg.href, 1);
@@ -3534,7 +3593,7 @@
 			//s.tl(eTarg||true,'o','interaction:call:'+detail, null, 'navigate'); // 'eTarg' assumes this function only called from link clicks // this or 'navigate' breaks FF in test page?
 			console.log('tl() link:'+type)
 		}
-		s3.w_endTrckng();
+		s3.w_endTrckng();*/
 	};
 	s3.w_trackLiveChat = function (evt, args) {
 		// this function is called directly by LivePerson code when the Interactive Chat event is fired in LivePerson
@@ -3697,6 +3756,7 @@
 			//pdFormStatus = pageDetails.formStatus,
 			pdFormStatus = util.lCase(util.clean(details.formStatus)),
 			pdPageType = util.lCase(util.clean(details.pageType)),
+			pdPageStep = util.lCase(util.clean(details.pageStep)),
 			lp1,
 			lp2,
 			prodArrLen = prodArr.length,
@@ -3952,7 +4012,7 @@
 	// test global drop list to decide if the page should be aborted
 	s3.w_globalDrop = function (refObj) {
 		var testResult = 0,
-		siteDropList = util.lStor('get', 'analytics_nameKeyDrop'); //,
+		siteDropList = util.lStor('get', 'appmeasurement_nameKeyDrop'); //,
 		//pageDropCondition = String(refObj.abortIf).split('=', 2),
 		//pageDropCompare;
 
@@ -4160,6 +4220,7 @@
 		//console.log('tracked '+pgName+'? '+tracked + '. s.w_trackedPages = '+s.w_trackedPages);
 		return tracked;
 	};
+	s3.w_queue = [];
 	// track a page load
 	s3.w_trackPage = function (details) {
 		var referenceObj = details || pageDetails,
@@ -4171,13 +4232,13 @@
 		delete referenceObj._drop;
 
 		if (referenceObj.originNameKeyDrop) {
-			util.lStor('set', 'analytics_nameKeyDrop', referenceObj.originNameKeyDrop);
+			util.lStor('set', 'appmeasurement_nameKeyDrop', referenceObj.originNameKeyDrop);
 		}
 		if (referenceObj.originPageNameReplace) {
-			util.lStor('set', 'analytics_pageNameReplace', referenceObj.originPageNameReplace);
+			util.lStor('set', 'appmeasurement_pageNameReplace', referenceObj.originPageNameReplace);
 		}
 		if (referenceObj.originProductsReplace) {
-			util.lStor('set', 'analytics_productsReplace', referenceObj.originProductsReplace);
+			util.lStor('set', 'appmeasurement_productsReplace', referenceObj.originProductsReplace);
 		}
 		
 		s3.w_pgTrkStatus = referenceObj.s_abort ? 'blocked' : 'started'; // any new impressions passed should now be associated with this page if not being dropped
@@ -4241,26 +4302,19 @@
 		if (!detailsCopy._drop) {
 			s3.w_pgTrkStatus = 'sent'; // ok to start collecting banners for this page
 			s3.w_perfTracked = true; // prevent from re-running
-			digital = s3.AnalyticsContextData(detailsCopy)
-			s3.contextData = digital;
-			if (digital['ev_appStart']){
-				s3.events = s3.apl(s3.events, 'event26' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
-			}
-			if (digital['ev_appComplete']){
-				s3.events = s3.apl(s3.events, 'event27' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
-			}
-			if (digital['ev_enqStart']){
-				s3.events = s3.apl(s3.events, 'event28' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
-			}
-			if (digital['ev_enqComplete']){
-				s3.events = s3.apl(s3.events, 'event29' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
-			}
+
 			// collect and remove data only if it is likely to actually be sent
 			s3.w_collectStoredData();
+
+			//s.w_queue.push(JSON.parse(JSON.stringify(pageDetails))); // copy object into queue
+			s3.w_queue.push(detailsCopy); // store details in pageDetailsArray
+			//console.log('1 - '+JSON.stringify(s.w_queue));
+			
 			s3.t();
 			console.log('f():w_trackPage s3.t()');
 			s3.trackImprs();
 			s3.w_endTrckng();
+			s3.c_w('lastPage', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
 			s3.w_log('context data s3', unescape(JSON.stringify(digital, null, 4).replace(/\\u([\w\d]{4})/g, '%u$1')));
 		}else{
 			s3.w_log('s3_drop',true)
@@ -4296,7 +4350,6 @@
 				// store length of the pixel just fired in a cookie, to extract on next page load
 				s3.c_w('lastPixelLen', lastPixelLength);
 				//util.cookieWrite('lastPage', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000)));
-				s3.c_w('lastPage', s3.pageName, new Date(+new Date() + (24 * 60 * 60 * 1000))); 
 				if (!digital._drop) {
 						
 						console.log('previousPage'+ s3.pageName);	
@@ -4373,7 +4426,7 @@
 	}
 
 	// capture user-agent
-	s3.prop27 = 'D=User-Agent'; // capture with proc rule to increase capture (non-JS), reduce JS size and reduce pixel length
+	s3.eVar27 = 'D=User-Agent'; // capture with proc rule to increase capture (non-JS), reduce JS size and reduce pixel length
 	
 	
 	s3.eVar26 = 'D=Referer+"' + util.getLoc().hash.replace(util.guidRgx, '(GUID)') + '"'; // this is the full unprocessed page URL from HTTP header (includes hash)
