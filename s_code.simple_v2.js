@@ -1124,7 +1124,8 @@
 	//s.w_changeIf(pageDetails, true); // zzzzz enable to change any values with replace etc. for weird issues that may come up.
 
 	/******** initial config ********/
-	var pageBrand='',
+	var 
+	pageBrand='',
 	pageSite='',
 	digital={},
 	pdInSession = false; // if page is in secure/unsecure area
@@ -1204,7 +1205,7 @@
 	/****WBC****/
 	var s3=s3_gi(s3_account)
 	// prod/brand/site settings etc. from analytics js files
-	s3.w_config = ((window[window['WBGAnalyticsObject']] || {}).config) || {}; // leave this name as string to prevent renaming in obfuscation. do not change. confirm name if obfuscated twice.
+	s3.w_config = ((window[window['AFSAnalyticsObject']] || {}).config) || {}; // leave this name as string to prevent renaming in obfuscation. do not change. confirm name if obfuscated twice.
 	s3.w_prod = (/^(?:www|banking|forms|online|businessonline|search|hlc1|locator)\.westpac\.com\.au$/i).test(location.hostname) || ((/^gs.{8}net\.westpac\.com\.au$/i).test(location.hostname) && (/RM\/emulationbanking\b/i).test(location.pathname)) || s3.w_config.prod; // with emulation mode details, regex excludes SIT SameView hostname
 	
 	if (s3.w_prod) {
@@ -1312,7 +1313,6 @@
 	pageNamePathArray,
 	pdPageNumber = pageDetails.pageNumber,
 	pdSubSite = cleanText(pageDetails.subSite),
-	pdExternalSiteName = lowerCaseVal(pageDetails.externalSiteName),
 	pdPageNamePrefixPair = cleanText(pageDetails.pageNamePrefixes).split('|'),
 	pdPageNamePrefix,
 	pdFeaturedContent,
@@ -2631,7 +2631,7 @@
 		//}
 
 		// Site release version - set on OTP pages, apps, public? etc.
-		digital['dd.siteVersion'] = pageSite + (pageDetails.siteVersion ? (':' + lowerCaseVal(pageDetails.siteVersion, 1)):'') + (pageDetails.dataLayerVer ? ':dataVar:'+ lowerCaseVal(pageDetails.dataLayerVer, 1):'');
+		digital['dd.siteVersion'] = pageSite + ':' + lowerCaseVal(pageDetails.siteVersion, 1);
 		//s2.eVar52 = pageSite + ':' + lowerCaseVal(pageDetails.siteVersion, 1);
 		//s2.prop52 = dVar(52);
 
