@@ -2093,7 +2093,7 @@
 				break;
 		}
 		break;
-	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - - *change commenting convention
 	case 'quote':
 		// *au
 		switch (pdPageStep) {
