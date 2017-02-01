@@ -1,1151 +1,10 @@
-	/* v2
-	 ============== DO NOT ALTER ANYTHING BELOW THIS LINE ! ============
-
-	 Adobe Visitor API for JavaScript version: 2.0.0
-	 Copyright 1996-2015 Adobe, Inc. All Rights Reserved
-	 More info available at http://www.omniture.com
-	*/
-	function Visitor(s,w){function y(a){function c(a,d,b){b=b?b+="|":b;return b+(a+"="+encodeURIComponent(d))}for(var b="",e=0,f=a.length;e<f;e++){var g=a[e],h=g[0],g=g[1];g!=i&&g!==u&&(b=c(h,g,b))}return function(a){var d=m.Ba(),a=a?a+="|":a;return a+("TS="+d)}(b)}if(!s)throw"Visitor requires Adobe Marketing Cloud Org ID";var a=this;a.version="2.0.0";var n=window,l=n.Visitor;l.version=a.version;n.s_c_in||(n.s_c_il=[],n.s_c_in=0);a._c="Visitor";a._il=n.s_c_il;a._in=n.s_c_in;a._il[a._in]=a;n.s_c_in++;
-	a.la={Ja:[]};var v=n.document,i=l.Kb;i||(i=null);var E=l.Lb;E||(E=void 0);var j=l.Ta;j||(j=!0);var k=l.Qa;k||(k=!1);a.ia=function(a){var c=0,b,e;if(a)for(b=0;b<a.length;b++)e=a.charCodeAt(b),c=(c<<5)-c+e,c&=c;return c};a.t=function(a,c){var b="0123456789",e="",f="",g,h,i=8,k=10,l=10;c===o&&(x.isClientSideMarketingCloudVisitorID=j);if(1==a){b+="ABCDEF";for(g=0;16>g;g++)h=Math.floor(Math.random()*i),e+=b.substring(h,h+1),h=Math.floor(Math.random()*i),f+=b.substring(h,h+1),i=16;return e+"-"+f}for(g=
-	0;19>g;g++)h=Math.floor(Math.random()*k),e+=b.substring(h,h+1),0==g&&9==h?k=3:(1==g||2==g)&&10!=k&&2>h?k=10:2<g&&(k=10),h=Math.floor(Math.random()*l),f+=b.substring(h,h+1),0==g&&9==h?l=3:(1==g||2==g)&&10!=l&&2>h?l=10:2<g&&(l=10);return e+f};a.Wa=function(){var a;!a&&n.location&&(a=n.location.hostname);if(a)if(/^[0-9.]+$/.test(a))a="";else{var c=a.split("."),b=c.length-1,e=b-1;1<b&&2>=c[b].length&&(2==c[b-1].length||0>",ac,ad,ae,af,ag,ai,al,am,an,ao,aq,ar,as,at,au,aw,ax,az,ba,bb,be,bf,bg,bh,bi,bj,bm,bo,br,bs,bt,bv,bw,by,bz,ca,cc,cd,cf,cg,ch,ci,cl,cm,cn,co,cr,cu,cv,cw,cx,cz,de,dj,dk,dm,do,dz,ec,ee,eg,es,et,eu,fi,fm,fo,fr,ga,gb,gd,ge,gf,gg,gh,gi,gl,gm,gn,gp,gq,gr,gs,gt,gw,gy,hk,hm,hn,hr,ht,hu,id,ie,im,in,io,iq,ir,is,it,je,jo,jp,kg,ki,km,kn,kp,kr,ky,kz,la,lb,lc,li,lk,lr,ls,lt,lu,lv,ly,ma,mc,md,me,mg,mh,mk,ml,mn,mo,mp,mq,mr,ms,mt,mu,mv,mw,mx,my,na,nc,ne,nf,ng,nl,no,nr,nu,nz,om,pa,pe,pf,ph,pk,pl,pm,pn,pr,ps,pt,pw,py,qa,re,ro,rs,ru,rw,sa,sb,sc,sd,se,sg,sh,si,sj,sk,sl,sm,sn,so,sr,st,su,sv,sx,sy,sz,tc,td,tf,tg,th,tj,tk,tl,tm,tn,to,tp,tr,tt,tv,tw,tz,ua,ug,uk,us,uy,uz,va,vc,ve,vg,vi,vn,vu,wf,ws,yt,".indexOf(","+
-	c[b]+","))&&e--;if(0<e)for(a="";b>=e;)a=c[b]+(a?".":"")+a,b--}return a};a.cookieRead=function(a){var a=encodeURIComponent(a),c=(";"+v.cookie).split(" ").join(";"),b=c.indexOf(";"+a+"="),e=0>b?b:c.indexOf(";",b+1);return 0>b?"":decodeURIComponent(c.substring(b+2+a.length,0>e?c.length:e))};a.cookieWrite=function(d,c,b){var e=a.cookieLifetime,f,c=""+c,e=e?(""+e).toUpperCase():"";b&&"SESSION"!=e&&"NONE"!=e?(f=""!=c?parseInt(e?e:0,10):-60)?(b=new Date,b.setTime(b.getTime()+1E3*f)):1==b&&(b=new Date,f=
-	b.getYear(),b.setYear(f+2+(1900>f?1900:0))):b=0;return d&&"NONE"!=e?(v.cookie=encodeURIComponent(d)+"="+encodeURIComponent(c)+"; path=/;"+(b?" expires="+b.toGMTString()+";":"")+(a.cookieDomain?" domain="+a.cookieDomain+";":""),a.cookieRead(d)==c):0};a.h=i;a.z=function(a,c){try{"function"==typeof a?a.apply(n,c):a[1].apply(a[0],c)}catch(b){}};a.L=function(d,c){c&&(a.h==i&&(a.h={}),a.h[d]==E&&(a.h[d]=[]),a.h[d].push(c))};a.s=function(d,c){if(a.h!=i){var b=a.h[d];if(b)for(;0<b.length;)a.z(b.shift(),c)}};
-	a.w=function(a,c,b,e){b=encodeURIComponent(c)+"="+encodeURIComponent(b);c=m.Bb(a);a=m.sb(a);if(-1===a.indexOf("?"))return a+"?"+b+c;var f=a.split("?"),a=f[0]+"?",e=m.fb(f[1],b,e);return a+e+c};a.Va=function(a,c){var b=RegExp("[\\?&#]"+c+"=([^&#]*)").exec(a);if(b&&b.length)return decodeURIComponent(b[1])};a.bb=function(){var d=i,c=n.location.href;try{var b=a.Va(c,p.aa);if(b)for(var d={},e=b.split("|"),c=0,f=e.length;c<f;c++){var g=e[c].split("=");d[g[0]]=decodeURIComponent(g[1])}return d}catch(h){}};
-	a.ea=function(){var d=a.bb();if(d&&d.TS&&!(Math.floor((m.Ba()-d.TS)/60)>p.Oa||d[I]!==s)){var c=d[o],b=a.setMarketingCloudVisitorID;c&&c.match(p.v)&&b(c);a.j(t,-1);d=d[r];c=a.setAnalyticsVisitorID;d&&d.match(p.v)&&c(d)}};a.ab=function(d){function c(d){m.Ea(d)&&a.setCustomerIDs(d)}function b(d){d=d||{};a._supplementalDataIDCurrent=d.supplementalDataIDCurrent||"";a._supplementalDataIDCurrentConsumed=d.supplementalDataIDCurrentConsumed||{};a._supplementalDataIDLast=d.supplementalDataIDLast||"";a._supplementalDataIDLastConsumed=
-	d.supplementalDataIDLastConsumed||{}}if(d)try{if(d=m.Ea(d)?d:m.Cb(d),d[a.marketingCloudOrgID]){var e=d[a.marketingCloudOrgID];c(e.customerIDs);b(e.sdid)}}catch(f){throw Error("`serverState` has an invalid format.");}};a.l=i;a.Ya=function(d,c,b,e){c=a.w(c,"d_fieldgroup",d,1);e.url=a.w(e.url,"d_fieldgroup",d,1);e.m=a.w(e.m,"d_fieldgroup",d,1);x.d[d]=j;e===Object(e)&&e.m&&"XMLHttpRequest"===a.na.F.G?a.na.ob(e,b,d):a.useCORSOnly||a.Za(d,c,b)};a.Za=function(d,c,b){var e=0,f=0,g;if(c&&v){for(g=0;!e&&2>
-	g;){try{e=(e=v.getElementsByTagName(0<g?"HEAD":"head"))&&0<e.length?e[0]:0}catch(h){e=0}g++}if(!e)try{v.body&&(e=v.body)}catch(k){e=0}if(e)for(g=0;!f&&2>g;){try{f=v.createElement(0<g?"SCRIPT":"script")}catch(l){f=0}g++}}!c||!e||!f?b&&b():(f.type="text/javascript",f.src=c,e.firstChild?e.insertBefore(f,e.firstChild):e.appendChild(f),e=a.loadTimeout,q.d[d]={requestStart:q.p(),url:c,va:e,ta:q.Aa(),ua:0},b&&(a.l==i&&(a.l={}),a.l[d]=setTimeout(function(){b(j)},e)),a.la.Ja.push(c))};a.Ua=function(d){a.l!=
-	i&&a.l[d]&&(clearTimeout(a.l[d]),a.l[d]=0)};a.ja=k;a.ka=k;a.isAllowed=function(){if(!a.ja&&(a.ja=j,a.cookieRead(a.cookieName)||a.cookieWrite(a.cookieName,"T",1)))a.ka=j;return a.ka};a.b=i;a.c=i;var F=l.bc;F||(F="MC");var o=l.ic;o||(o="MCMID");var I=l.fc;I||(I="MCORGID");var G=l.cc;G||(G="MCCIDH");var L=l.gc;L||(L="MCSYNCS");var J=l.hc;J||(J="MCSYNCSOP");var K=l.dc;K||(K="MCIDTS");var B=l.ec;B||(B="MCOPTOUT");var D=l.$b;D||(D="A");var r=l.Xb;r||(r="MCAID");var C=l.ac;C||(C="AAM");var A=l.Zb;A||(A=
-	"MCAAMLH");var t=l.Yb;t||(t="MCAAMB");var u=l.jc;u||(u="NONE");a.M=0;a.ha=function(){if(!a.M){var d=a.version;a.audienceManagerServer&&(d+="|"+a.audienceManagerServer);a.audienceManagerServerSecure&&(d+="|"+a.audienceManagerServerSecure);a.M=a.ia(d)}return a.M};a.ma=k;a.f=function(){if(!a.ma){a.ma=j;var d=a.ha(),c=k,b=a.cookieRead(a.cookieName),e,f,g,h,l=new Date;a.b==i&&(a.b={});if(b&&"T"!=b){b=b.split("|");b[0].match(/^[\-0-9]+$/)&&(parseInt(b[0],10)!=d&&(c=j),b.shift());1==b.length%2&&b.pop();
-	for(d=0;d<b.length;d+=2)if(e=b[d].split("-"),f=e[0],g=b[d+1],1<e.length?(h=parseInt(e[1],10),e=0<e[1].indexOf("s")):(h=0,e=k),c&&(f==G&&(g=""),0<h&&(h=l.getTime()/1E3-60)),f&&g&&(a.e(f,g,1),0<h&&(a.b["expire"+f]=h+(e?"s":""),l.getTime()>=1E3*h||e&&!a.cookieRead(a.sessionCookieName))))a.c||(a.c={}),a.c[f]=j}if(!a.a(r)&&m.o()&&(b=a.cookieRead("s_vi")))b=b.split("|"),1<b.length&&0<=b[0].indexOf("v1")&&(g=b[1],d=g.indexOf("["),0<=d&&(g=g.substring(0,d)),g&&g.match(p.v)&&a.e(r,g))}};a._appendVersionTo=
-	function(d){var c="vVersion|"+a.version,b=Boolean(d)?a._getCookieVersion(d):null;b?m.gb(b,a.version)&&(d=d.replace(p.da,c)):d+=(d?"|":"")+c;return d};a.eb=function(){var d=a.ha(),c,b;for(c in a.b)!Object.prototype[c]&&a.b[c]&&"expire"!=c.substring(0,6)&&(b=a.b[c],d+=(d?"|":"")+c+(a.b["expire"+c]?"-"+a.b["expire"+c]:"")+"|"+b);d=a._appendVersionTo(d);a.cookieWrite(a.cookieName,d,1)};a.a=function(d,c){return a.b!=i&&(c||!a.c||!a.c[d])?a.b[d]:i};a.e=function(d,c,b){a.b==i&&(a.b={});a.b[d]=c;b||a.eb()};
-	a.Xa=function(d,c){var b=a.a(d,c);return b?b.split("*"):i};a.cb=function(d,c,b){a.e(d,c?c.join("*"):"",b)};a.Rb=function(d,c){var b=a.Xa(d,c);if(b){var e={},f;for(f=0;f<b.length;f+=2)e[b[f]]=b[f+1];return e}return i};a.Tb=function(d,c,b){var e=i,f;if(c)for(f in e=[],c)Object.prototype[f]||(e.push(f),e.push(c[f]));a.cb(d,e,b)};a.j=function(d,c,b){var e=new Date;e.setTime(e.getTime()+1E3*c);a.b==i&&(a.b={});a.b["expire"+d]=Math.floor(e.getTime()/1E3)+(b?"s":"");0>c?(a.c||(a.c={}),a.c[d]=j):a.c&&(a.c[d]=
-	k);b&&(a.cookieRead(a.sessionCookieName)||a.cookieWrite(a.sessionCookieName,"1"))};a.ga=function(a){if(a&&("object"==typeof a&&(a=a.d_mid?a.d_mid:a.visitorID?a.visitorID:a.id?a.id:a.uuid?a.uuid:""+a),a&&(a=a.toUpperCase(),"NOTARGET"==a&&(a=u)),!a||a!=u&&!a.match(p.v)))a="";return a};a.k=function(d,c){a.Ua(d);a.i!=i&&(a.i[d]=k);q.d[d]&&(q.d[d].Ib=q.p(),q.J(d));x.d[d]&&x.La(d,k);if(d==F){x.isClientSideMarketingCloudVisitorID!==j&&(x.isClientSideMarketingCloudVisitorID=k);var b=a.a(o);if(!b||a.overwriteCrossDomainMCIDAndAID){b=
-	"object"==typeof c&&c.mid?c.mid:a.ga(c);if(!b){if(a.D){a.getAnalyticsVisitorID(i,k,j);return}b=a.t(0,o)}a.e(o,b)}if(!b||b==u)b="";"object"==typeof c&&((c.d_region||c.dcs_region||c.d_blob||c.blob)&&a.k(C,c),a.D&&c.mid&&a.k(D,{id:c.id}));a.s(o,[b])}if(d==C&&"object"==typeof c){b=604800;c.id_sync_ttl!=E&&c.id_sync_ttl&&(b=parseInt(c.id_sync_ttl,10));var e=a.a(A);e||((e=c.d_region)||(e=c.dcs_region),e&&(a.j(A,b),a.e(A,e)));e||(e="");a.s(A,[e]);e=a.a(t);if(c.d_blob||c.blob)(e=c.d_blob)||(e=c.blob),a.j(t,
-	b),a.e(t,e);e||(e="");a.s(t,[e]);!c.error_msg&&a.C&&a.e(G,a.C)}if(d==D){b=a.a(r);if(!b||a.overwriteCrossDomainMCIDAndAID)(b=a.ga(c))?b!==u&&a.j(t,-1):b=u,a.e(r,b);if(!b||b==u)b="";a.s(r,[b])}a.idSyncDisableSyncs?z.Ca=j:(z.Ca=k,b={},b.ibs=c.ibs,b.subdomain=c.subdomain,z.Db(b));if(c===Object(c)){var f;a.isAllowed()&&(f=a.a(B));f||(f=u,c.d_optout&&c.d_optout instanceof Array&&(f=c.d_optout.join(",")),b=parseInt(c.d_ottl,10),isNaN(b)&&(b=7200),a.j(B,b,j),a.e(B,f));a.s(B,[f])}};a.i=i;a.u=function(d,c,
-	b,e,f){var g="",h,k=m.ub(d);if(a.isAllowed())if(a.f(),g=a.a(d,M[d]===j),(!g||a.c&&a.c[d])&&(!a.disableThirdPartyCalls||k)){if(d==o||d==B?h=F:d==A||d==t?h=C:d==r&&(h=D),h){if(c&&(a.i==i||!a.i[h]))a.i==i&&(a.i={}),a.i[h]=j,a.Ya(h,c,function(b){a.a(d)||(q.d[h]&&(q.d[h].timeout=q.p(),q.d[h].tb=!!b,q.J(h)),b&&x.La(h,j),b="",d==o?b=a.t(0,o):h==C&&(b={error_msg:"timeout"}),a.k(h,b))},f);a.L(d,b);if(g)return g;c||a.k(h,{id:u});return""}}else g||(d===o?(a.L(d,b),g=a.t(0,o),a.setMarketingCloudVisitorID(g)):
-	d===r?(a.L(d,b),g="",a.setAnalyticsVisitorID(g)):(g="",e=j));if((d==o||d==r)&&g==u)g="",e=j;b&&e&&a.z(b,[g]);return g};a._setMarketingCloudFields=function(d){a.f();a.k(F,d)};a.setMarketingCloudVisitorID=function(d){a._setMarketingCloudFields(d)};a.D=k;a.getMarketingCloudVisitorID=function(d,c){if(a.isAllowed()){a.marketingCloudServer&&0>a.marketingCloudServer.indexOf(".demdex.net")&&(a.D=j);var b=a.B("_setMarketingCloudFields");return a.u(o,b.url,d,c,b)}return""};a.$a=function(){a.getAudienceManagerBlob()};
-	l.AuthState={UNKNOWN:0,AUTHENTICATED:1,LOGGED_OUT:2};a.A={};a.fa=k;a.C="";a.setCustomerIDs=function(d){if(a.isAllowed()&&d){a.f();var c,b;for(c in d)if(!Object.prototype[c]&&(b=d[c]))if("object"==typeof b){var e={};b.id&&(e.id=b.id);b.authState!=E&&(e.authState=b.authState);a.A[c]=e}else a.A[c]={id:b};var d=a.getCustomerIDs(),e=a.a(G),f="";e||(e=0);for(c in d)Object.prototype[c]||(b=d[c],f+=(f?"|":"")+c+"|"+(b.id?b.id:"")+(b.authState?b.authState:""));a.C=a.ia(f);a.C!=e&&(a.fa=j,a.$a())}};a.getCustomerIDs=
-	function(){a.f();var d={},c,b;for(c in a.A)Object.prototype[c]||(b=a.A[c],d[c]||(d[c]={}),b.id&&(d[c].id=b.id),d[c].authState=b.authState!=E?b.authState:l.AuthState.UNKNOWN);return d};a._setAnalyticsFields=function(d){a.f();a.k(D,d)};a.setAnalyticsVisitorID=function(d){a._setAnalyticsFields(d)};a.getAnalyticsVisitorID=function(d,c,b){if(!m.o()&&!b)return a.z(d,[""]),"";if(a.isAllowed()){var e="";b||(e=a.getMarketingCloudVisitorID(function(){a.getAnalyticsVisitorID(d,j)}));if(e||b){var f=b?a.marketingCloudServer:
-	a.trackingServer,g="";a.loadSSL&&(b?a.marketingCloudServerSecure&&(f=a.marketingCloudServerSecure):a.trackingServerSecure&&(f=a.trackingServerSecure));var h={};if(f){var f="http"+(a.loadSSL?"s":"")+"://"+f+"/id",e="d_visid_ver="+a.version+"&mcorgid="+encodeURIComponent(a.marketingCloudOrgID)+(e?"&mid="+encodeURIComponent(e):"")+(a.idSyncDisable3rdPartySyncing?"&d_coppa=true":""),i=["s_c_il",a._in,"_set"+(b?"MarketingCloud":"Analytics")+"Fields"],g=f+"?"+e+"&callback=s_c_il%5B"+a._in+"%5D._set"+(b?
-	"MarketingCloud":"Analytics")+"Fields";h.m=f+"?"+e;h.qa=i}h.url=g;return a.u(b?o:r,g,d,c,h)}}return""};a._setAudienceManagerFields=function(d){a.f();a.k(C,d)};a.B=function(d){var c=a.audienceManagerServer,b="",e=a.a(o),f=a.a(t,j),g=a.a(r),g=g&&g!=u?"&d_cid_ic=AVID%01"+encodeURIComponent(g):"";a.loadSSL&&a.audienceManagerServerSecure&&(c=a.audienceManagerServerSecure);if(c){var b=a.getCustomerIDs(),h,i;if(b)for(h in b)Object.prototype[h]||(i=b[h],g+="&d_cid_ic="+encodeURIComponent(h)+"%01"+encodeURIComponent(i.id?
-	i.id:"")+(i.authState?"%01"+i.authState:""));d||(d="_setAudienceManagerFields");c="http"+(a.loadSSL?"s":"")+"://"+c+"/id";e="d_visid_ver="+a.version+"&d_rtbd=json&d_ver=2"+(!e&&a.D?"&d_verify=1":"")+"&d_orgid="+encodeURIComponent(a.marketingCloudOrgID)+"&d_nsid="+(a.idSyncContainerID||0)+(e?"&d_mid="+encodeURIComponent(e):"")+(a.idSyncDisable3rdPartySyncing?"&d_coppa=true":"")+(f?"&d_blob="+encodeURIComponent(f):"")+g;f=["s_c_il",a._in,d];b=c+"?"+e+"&d_cb=s_c_il%5B"+a._in+"%5D."+d;return{url:b,m:c+
-	"?"+e,qa:f}}return{url:b}};a.getAudienceManagerLocationHint=function(d,c){if(a.isAllowed()&&a.getMarketingCloudVisitorID(function(){a.getAudienceManagerLocationHint(d,j)})){var b=a.a(r);!b&&m.o()&&(b=a.getAnalyticsVisitorID(function(){a.getAudienceManagerLocationHint(d,j)}));if(b||!m.o())return b=a.B(),a.u(A,b.url,d,c,b)}return""};a.getLocationHint=a.getAudienceManagerLocationHint;a.getAudienceManagerBlob=function(d,c){if(a.isAllowed()&&a.getMarketingCloudVisitorID(function(){a.getAudienceManagerBlob(d,
-	j)})){var b=a.a(r);!b&&m.o()&&(b=a.getAnalyticsVisitorID(function(){a.getAudienceManagerBlob(d,j)}));if(b||!m.o()){var b=a.B(),e=b.url;a.fa&&a.j(t,-1);return a.u(t,e,d,c,b)}}return""};a._supplementalDataIDCurrent="";a._supplementalDataIDCurrentConsumed={};a._supplementalDataIDLast="";a._supplementalDataIDLastConsumed={};a.getSupplementalDataID=function(d,c){!a._supplementalDataIDCurrent&&!c&&(a._supplementalDataIDCurrent=a.t(1));var b=a._supplementalDataIDCurrent;a._supplementalDataIDLast&&!a._supplementalDataIDLastConsumed[d]?
-	(b=a._supplementalDataIDLast,a._supplementalDataIDLastConsumed[d]=j):b&&(a._supplementalDataIDCurrentConsumed[d]&&(a._supplementalDataIDLast=a._supplementalDataIDCurrent,a._supplementalDataIDLastConsumed=a._supplementalDataIDCurrentConsumed,a._supplementalDataIDCurrent=b=!c?a.t(1):"",a._supplementalDataIDCurrentConsumed={}),b&&(a._supplementalDataIDCurrentConsumed[d]=j));return b};l.OptOut={GLOBAL:"global"};a.getOptOut=function(d,c){if(a.isAllowed()){var b=a.B("_setMarketingCloudFields");return a.u(B,
-	b.url,d,c,b)}return""};a.isOptedOut=function(d,c,b){return a.isAllowed()?(c||(c=l.OptOut.GLOBAL),(b=a.getOptOut(function(b){a.z(d,[b==l.OptOut.GLOBAL||0<=b.indexOf(c)])},b))?b==l.OptOut.GLOBAL||0<=b.indexOf(c):i):k};a.appendVisitorIDsTo=function(d){var c=p.aa,b=y([[o,a.a(o)],[r,a.a(r)],[I,a.marketingCloudOrgID]]);try{return a.w(d,c,b)}catch(e){return d}};var p={r:!!n.postMessage,Pa:1,ca:864E5,aa:"adobe_mc",v:/^[0-9a-fA-F\-]+$/,Oa:5,Ra:/^\d+$/,da:/vVersion\|((\d+\.)?(\d+\.)?(\*|\d+))(?=$|\|)/};a.Mb=
-	p;a.pa={postMessage:function(a,c,b){var e=1;c&&(p.r?b.postMessage(a,c.replace(/([^:]+:\/\/[^\/]+).*/,"$1")):c&&(b.location=c.replace(/#.*$/,"")+"#"+ +new Date+e++ +"&"+a))},W:function(a,c){var b;try{if(p.r)if(a&&(b=function(b){if("string"===typeof c&&b.origin!==c||"[object Function]"===Object.prototype.toString.call(c)&&!1===c(b.origin))return!1;a(b)}),window.addEventListener)window[a?"addEventListener":"removeEventListener"]("message",b,!1);else window[a?"attachEvent":"detachEvent"]("onmessage",
-	b)}catch(e){}}};var m={N:function(){if(v.addEventListener)return function(a,c,b){a.addEventListener(c,function(a){"function"===typeof b&&b(a)},k)};if(v.attachEvent)return function(a,c,b){a.attachEvent("on"+c,function(a){"function"===typeof b&&b(a)})}}(),map:function(a,c){if(Array.prototype.map)return a.map(c);if(void 0===a||a===i)throw new TypeError;var b=Object(a),e=b.length>>>0;if("function"!==typeof c)throw new TypeError;for(var f=Array(e),g=0;g<e;g++)g in b&&(f[g]=c.call(c,b[g],g,b));return f},
-	xa:function(a,c){return this.map(a,function(a){return encodeURIComponent(a)}).join(c)},Bb:function(a){var c=a.indexOf("#");return 0<c?a.substr(c):""},sb:function(a){var c=a.indexOf("#");return 0<c?a.substr(0,c):a},fb:function(a,c,b){a=a.split("&");b=b!=i?b:a.length;a.splice(b,0,c);return a.join("&")},ub:function(d,c,b){if(d!==r)return k;c||(c=a.trackingServer);b||(b=a.trackingServerSecure);d=a.loadSSL?b:c;return"string"===typeof d&&d.length?0>d.indexOf("2o7.net")&&0>d.indexOf("omtrdc.net"):k},Ea:function(a){return Boolean(a&&
-	a===Object(a))},vb:function(d,c){return 0>a._compareVersions(d,c)},gb:function(d,c){return 0!==a._compareVersions(d,c)},Hb:function(a){document.cookie=encodeURIComponent(a)+"=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;"},o:function(){return!!a.trackingServer||!!a.trackingServerSecure},Cb:function(a,c){function b(a,d){var e,i,j=a[d];if(j&&"object"===typeof j)for(e in j)Object.prototype.hasOwnProperty.call(j,e)&&(i=b(j,e),void 0!==i?j[e]=i:delete j[e]);return c.call(a,d,j)}if("object"===typeof JSON&&
-	"function"===typeof JSON.parse)return JSON.parse(a,c);var e;e=/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;a=""+a;e.lastIndex=0;e.test(a)&&(a=a.replace(e,function(a){return"\\u"+("0000"+a.charCodeAt(0).toString(16)).slice(-4)}));if(/^[\],:{}\s]*$/.test(a.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,"@").replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,"]").replace(/(?:^|:|,)(?:\s*\[)+/g,"")))return e=eval("("+
-	a+")"),"function"===typeof c?b({"":e},""):e;throw new SyntaxError("JSON.parse");},Ba:function(){return Math.round((new Date).getTime()/1E3)}};a.Sb=m;a.na={F:function(){var a="none",c=j;"undefined"!==typeof XMLHttpRequest&&XMLHttpRequest===Object(XMLHttpRequest)&&("withCredentials"in new XMLHttpRequest?a="XMLHttpRequest":"undefined"!==typeof XDomainRequest&&XDomainRequest===Object(XDomainRequest)&&(c=k),0<Object.prototype.toString.call(window.Jb).indexOf("Constructor")&&(c=k));return{G:a,Vb:c}}(),
-	pb:function(){return"none"===this.F.G?i:new window[this.F.G]},ob:function(d,c,b){var e=this;c&&(d.T=c);try{var f=this.pb();f.open("get",d.m+"&ts="+(new Date).getTime(),j);"XMLHttpRequest"===this.F.G&&(f.withCredentials=j,f.timeout=a.loadTimeout,f.setRequestHeader("Content-Type","application/x-www-form-urlencoded"),f.onreadystatechange=function(){if(4===this.readyState&&200===this.status)a:{var a;try{if(a=JSON.parse(this.responseText),a!==Object(a)){e.n(d,i,"Response is not JSON");break a}}catch(b){e.n(d,
-	b,"Error parsing response as JSON");break a}try{for(var c=d.qa,f=window,g=0;g<c.length;g++)f=f[c[g]];f(a)}catch(j){e.n(d,j,"Error forming callback function")}}});f.onerror=function(a){e.n(d,a,"onerror")};f.ontimeout=function(a){e.n(d,a,"ontimeout")};f.send();q.d[b]={requestStart:q.p(),url:d.m,va:f.timeout,ta:q.Aa(),ua:1};a.la.Ja.push(d.m)}catch(g){this.n(d,g,"try-catch")}},n:function(d,c,b){a.CORSErrors.push({Wb:d,error:c,description:b});d.T&&("ontimeout"===b?d.T(j):d.T(k))}};var z={Sa:3E4,ba:649,
-	Na:k,id:i,V:[],R:i,za:function(a){if("string"===typeof a)return a=a.split("/"),a[0]+"//"+a[2]},g:i,url:i,qb:function(){var d="http://fast.",c="?d_nsid="+a.idSyncContainerID+"#"+encodeURIComponent(v.location.href);this.g||(this.g="nosubdomainreturned");a.loadSSL&&(d=a.idSyncSSLUseAkamai?"https://fast.":"https://");d=d+this.g+".demdex.net/dest5.html"+c;this.R=this.za(d);this.id="destination_publishing_iframe_"+this.g+"_"+a.idSyncContainerID;return d},jb:function(){var d="?d_nsid="+a.idSyncContainerID+
-	"#"+encodeURIComponent(v.location.href);"string"===typeof a.K&&a.K.length&&(this.id="destination_publishing_iframe_"+(new Date).getTime()+"_"+a.idSyncContainerID,this.R=this.za(a.K),this.url=a.K+d)},Ca:i,wa:k,Y:k,H:i,kc:i,Ab:i,lc:i,X:k,I:[],yb:[],zb:[],Fa:p.r?15:100,S:[],wb:[],ra:j,Ia:k,Ha:function(){return!a.idSyncDisable3rdPartySyncing&&(this.wa||a.Ob)&&this.g&&"nosubdomainreturned"!==this.g&&this.url&&!this.Y},P:function(){function a(){e=document.createElement("iframe");e.sandbox="allow-scripts allow-same-origin";
-	e.title="Adobe ID Syncing iFrame";e.id=b.id;e.style.cssText="display: none; width: 0; height: 0;";e.src=b.url;b.Ab=j;c();document.body.appendChild(e)}function c(){m.N(e,"load",function(){e.className="aamIframeLoaded";b.H=j;b.q()})}this.Y=j;var b=this,e=document.getElementById(this.id);e?"IFRAME"!==e.nodeName?(this.id+="_2",a()):"aamIframeLoaded"!==e.className?c():(this.H=j,this.Da=e,this.q()):a();this.Da=e},q:function(d){var c=this;d===Object(d)&&(this.S.push(d),this.Eb(d));if((this.Ia||!p.r||this.H)&&
-	this.S.length)this.J(this.S.shift()),this.q();!a.idSyncDisableSyncs&&this.H&&this.I.length&&!this.X&&(this.Na||(this.Na=j,setTimeout(function(){c.Fa=p.r?15:150},this.Sa)),this.X=j,this.Ka())},Eb:function(a){var c,b,e;if((c=a.ibs)&&c instanceof Array&&(b=c.length))for(a=0;a<b;a++)e=c[a],e.syncOnPage&&this.sa(e,"","syncOnPage")},J:function(a){var c=encodeURIComponent,b,e,f,g,h;if((b=a.ibs)&&b instanceof Array&&(e=b.length))for(f=0;f<e;f++)g=b[f],h=[c("ibs"),c(g.id||""),c(g.tag||""),m.xa(g.url||[],","),
-	c(g.ttl||""),"","",g.fireURLSync?"true":"false"],g.syncOnPage||(this.ra?this.O(h.join("|")):g.fireURLSync&&this.sa(g,h.join("|")));this.wb.push(a)},sa:function(d,c,b){var e=(b="syncOnPage"===b?j:k)?J:L;a.f();var f=a.a(e),g=k,h=k,i=Math.ceil((new Date).getTime()/p.ca);f?(f=f.split("*"),h=this.Fb(f,d.id,i),g=h.mb,h=h.nb,(!g||!h)&&this.ya(b,d,c,f,e,i)):(f=[],this.ya(b,d,c,f,e,i))},Fb:function(a,c,b){var e=k,f=k,g,h,i;for(h=0;h<a.length;h++)g=a[h],i=parseInt(g.split("-")[1],10),g.match("^"+c+"-")?(e=
-	j,b<i?f=j:(a.splice(h,1),h--)):b>=i&&(a.splice(h,1),h--);return{mb:e,nb:f}},xb:function(a){if(a.join("*").length>this.ba)for(a.sort(function(a,b){return parseInt(a.split("-")[1],10)-parseInt(b.split("-")[1],10)});a.join("*").length>this.ba;)a.shift()},ya:function(d,c,b,e,f,g){var h=this;if(d){if("img"===c.tag){var d=c.url,b=a.loadSSL?"https:":"http:",j,k,l;for(e=0,j=d.length;e<j;e++){k=d[e];l=/^\/\//.test(k);var n=new Image;m.N(n,"load",function(b,d,c,e){return function(){h.V[b]=i;a.f();var g=a.a(f),
-	j=[];if(g){var g=g.split("*"),k,l,m;for(k=0,l=g.length;k<l;k++)m=g[k],m.match("^"+d.id+"-")||j.push(m)}h.Ma(j,d,c,e)}}(this.V.length,c,f,g));n.src=(l?b:"")+k;this.V.push(n)}}}else this.O(b),this.Ma(e,c,f,g)},O:function(d){var c=encodeURIComponent;this.I.push((a.Pb?c("---destpub-debug---"):c("---destpub---"))+d)},Ma:function(d,c,b,e){d.push(c.id+"-"+(e+Math.ceil(c.ttl/60/24)));this.xb(d);a.e(b,d.join("*"))},Ka:function(){var d=this,c;this.I.length?(c=this.I.shift(),a.pa.postMessage(c,this.url,this.Da.contentWindow),
-	this.yb.push(c),setTimeout(function(){d.Ka()},this.Fa)):this.X=k},W:function(a){var c=/^---destpub-to-parent---/;"string"===typeof a&&c.test(a)&&(c=a.replace(c,"").split("|"),"canSetThirdPartyCookies"===c[0]&&(this.ra="true"===c[1]?j:k,this.Ia=j,this.q()),this.zb.push(a))},Db:function(d){if(this.url===i||d.subdomain&&"nosubdomainreturned"===this.g)this.g="string"===typeof a.oa&&a.oa.length?a.oa:d.subdomain||"",this.url=this.qb();d.ibs instanceof Array&&d.ibs.length&&(this.wa=j);this.Ha()&&(a.idSyncAttachIframeOnWindowLoad?
-	(l.$||"complete"===v.readyState||"loaded"===v.readyState)&&this.P():this.hb());"function"===typeof a.idSyncIDCallResult?a.idSyncIDCallResult(d):this.q(d);"function"===typeof a.idSyncAfterIDCallResult&&a.idSyncAfterIDCallResult(d)},ib:function(d,c){return a.Qb||!d||c-d>p.Pa},hb:function(){function a(){c.Y||(document.body?c.P():setTimeout(a,30))}var c=this;a()}};a.Nb=z;a.timeoutMetricsLog=[];var q={lb:window.performance&&window.performance.timing?1:0,Ga:window.performance&&window.performance.timing?
-	window.performance.timing:i,Z:i,Q:i,d:{},U:[],send:function(d){if(a.takeTimeoutMetrics&&d===Object(d)){var c=[],b=encodeURIComponent,e;for(e in d)d.hasOwnProperty(e)&&c.push(b(e)+"="+b(d[e]));d="http"+(a.loadSSL?"s":"")+"://dpm.demdex.net/event?d_visid_ver="+a.version+"&d_visid_stg_timeout="+a.loadTimeout+"&"+c.join("&")+"&d_orgid="+b(a.marketingCloudOrgID)+"&d_timingapi="+this.lb+"&d_winload="+this.rb()+"&d_ld="+this.p();(new Image).src=d;a.timeoutMetricsLog.push(d)}},rb:function(){this.Q===i&&(this.Q=
-	this.Ga?this.Z-this.Ga.navigationStart:this.Z-l.kb);return this.Q},p:function(){return(new Date).getTime()},J:function(a){var c=this.d[a],b={};b.d_visid_stg_timeout_captured=c.va;b.d_visid_cors=c.ua;b.d_fieldgroup=a;b.d_settimeout_overriden=c.ta;c.timeout?c.tb?(b.d_visid_timedout=1,b.d_visid_timeout=c.timeout-c.requestStart,b.d_visid_response=-1):(b.d_visid_timedout="n/a",b.d_visid_timeout="n/a",b.d_visid_response="n/a"):(b.d_visid_timedout=0,b.d_visid_timeout=-1,b.d_visid_response=c.Ib-c.requestStart);
-	b.d_visid_url=c.url;l.$?this.send(b):this.U.push(b);delete this.d[a]},Gb:function(){for(var a=0,c=this.U.length;a<c;a++)this.send(this.U[a])},Aa:function(){return"function"===typeof setTimeout.toString?-1<setTimeout.toString().indexOf("[native code]")?0:1:-1}};a.Ub=q;var x={isClientSideMarketingCloudVisitorID:i,MCIDCallTimedOut:i,AnalyticsIDCallTimedOut:i,AAMIDCallTimedOut:i,d:{},La:function(a,c){switch(a){case F:c===k?this.MCIDCallTimedOut!==j&&(this.MCIDCallTimedOut=k):this.MCIDCallTimedOut=c;break;
-	case D:c===k?this.AnalyticsIDCallTimedOut!==j&&(this.AnalyticsIDCallTimedOut=k):this.AnalyticsIDCallTimedOut=c;break;case C:c===k?this.AAMIDCallTimedOut!==j&&(this.AAMIDCallTimedOut=k):this.AAMIDCallTimedOut=c}}};a.isClientSideMarketingCloudVisitorID=function(){return x.isClientSideMarketingCloudVisitorID};a.MCIDCallTimedOut=function(){return x.MCIDCallTimedOut};a.AnalyticsIDCallTimedOut=function(){return x.AnalyticsIDCallTimedOut};a.AAMIDCallTimedOut=function(){return x.AAMIDCallTimedOut};a.idSyncGetOnPageSyncInfo=
-	function(){a.f();return a.a(J)};a.idSyncByURL=function(d){var c,b=d||{};c=b.minutesToLive;var e="";a.idSyncDisableSyncs&&(e=e?e:"Error: id syncs have been disabled");if("string"!==typeof b.dpid||!b.dpid.length)e=e?e:"Error: config.dpid is empty";if("string"!==typeof b.url||!b.url.length)e=e?e:"Error: config.url is empty";if("undefined"===typeof c)c=20160;else if(c=parseInt(c,10),isNaN(c)||0>=c)e=e?e:"Error: config.minutesToLive needs to be a positive number";c={error:e,mc:c};if(c.error)return c.error;
-	var e=d.url,f=encodeURIComponent,b=z,g,e=e.replace(/^https:/,"").replace(/^http:/,"");g=m.xa(["",d.dpid,d.dpuuid||""],",");d=["ibs",f(d.dpid),"img",f(e),c.ttl,"",g];b.O(d.join("|"));b.q();return"Successfully queued"};a.idSyncByDataSource=function(d){if(d!==Object(d)||"string"!==typeof d.dpuuid||!d.dpuuid.length)return"Error: config or config.dpuuid is empty";d.url="//dpm.demdex.net/ibs:dpid="+d.dpid+"&dpuuid="+d.dpuuid;return a.idSyncByURL(d)};a._compareVersions=function(a,c){if(a===c)return 0;var b=
-	a.toString().split("."),e=c.toString().split("."),f;a:{f=b.concat(e);for(var g=0,h=f.length;g<h;g++)if(!p.Ra.test(f[g])){f=k;break a}f=j}if(!f)return NaN;for(;b.length<e.length;)b.push("0");for(;e.length<b.length;)e.push("0");a:{for(f=0;f<b.length;f++){g=parseInt(b[f],10);h=parseInt(e[f],10);if(g>h){b=1;break a}if(h>g){b=-1;break a}}b=0}return b};a._getCookieVersion=function(d){d=d||a.cookieRead(a.cookieName);return(d=p.da.exec(d))&&1<d.length?d[1]:null};a._resetAmcvCookie=function(d){var c=a._getCookieVersion();
-	(!c||m.vb(c,d))&&m.Hb(a.cookieName)};0>s.indexOf("@")&&(s+="@AdobeOrg");a.marketingCloudOrgID=s;a.cookieName="AMCV_"+s;a.sessionCookieName="AMCVS_"+s;a.cookieDomain=a.Wa();a.cookieDomain==n.location.hostname&&(a.cookieDomain="");a.loadSSL=0<=n.location.protocol.toLowerCase().indexOf("https");a.loadTimeout=3E4;a.CORSErrors=[];a.marketingCloudServer=a.audienceManagerServer="dpm.demdex.net";var M={};M[A]=j;M[t]=j;if(w&&"object"==typeof w){for(var H in w)!Object.prototype[H]&&(a[H]=w[H]);a.idSyncContainerID=
-	a.idSyncContainerID||0;a.resetBeforeVersion&&a._resetAmcvCookie(a.resetBeforeVersion);a.ea();a.f();H=a.a(K);var N=Math.ceil((new Date).getTime()/p.ca);!a.idSyncDisableSyncs&&z.ib(H,N)&&(a.j(t,-1),a.e(K,N));a.getMarketingCloudVisitorID();a.getAudienceManagerLocationHint();a.getAudienceManagerBlob();a.ab(a.serverState)}else a.ea();if(!a.idSyncDisableSyncs){z.jb();m.N(window,"load",function(){l.$=j;q.Z=q.p();q.Gb();var a=z;a.Ha()&&a.P()});try{a.pa.W(function(a){z.W(a.data)},z.R)}catch(O){}}}
-	Visitor.getInstance=function(s,w){var y,a=window.s_c_il,n;0>s.indexOf("@")&&(s+="@AdobeOrg");if(a)for(n=0;n<a.length;n++)if((y=a[n])&&"Visitor"==y._c&&y.marketingCloudOrgID==s)return y;return new Visitor(s,w)};(function(){function s(){w.$=y}var w=window.Visitor,y=w.Ta,a=w.Qa;y||(y=!0);a||(a=!1);window.addEventListener?window.addEventListener("load",s):window.attachEvent&&window.attachEvent("onload",s);w.kb=(new Date).getTime()})();
-
-	/******** VISITOR ID SERVICE CONFIG - REQUIRES VisitorAPI.js ********/
-	var visitor = Visitor.getInstance("3A4B7BAF56F01DA67F000101@AdobeOrg", {
-		trackingServer: "westpacbankinggroup.sc.omtrdc.net", // same as s.trackingServer
-		trackingServerSecure: "westpacbankinggroup.sc.omtrdc.net", // same as s.trackingServerSecure
-		cookieDomain: (/[0-9]{1,3}$/i).test(location.hostname)? location.hostname : location.hostname.split('.').slice(1).join('.'),
-		overwriteCrossDomainMCIDAndAID: true //Set overwrite property 
-	});
-
-	var util = window.util || {};
-	util.w_wtT =window.w_wtT || window.testTracking || {};//test environment variables
-	util.pathConcatDelim = ':';
-	util.queryVarsList= '';
-	util.pathExcludeList=''; // elements to exclude from the path - index.html? default.aspx for info?
-	util.pathExcludeDelim = ';'; // portion of the path to exclude - was ;
-	util.siteID= '';  //s.siteID set in doPlugins to allow changing to 'app' based on visitorID cookie from apps
-	util.domainPeriod = function(domain){
-		return ((/.+\.(com\.au|org\.au|co\.nz|co\.uk)$/i).test(domain||location.hostname))? 3 : 2
-	};
-	util.cookieDomain = function(domain){
-	    var host = domain || location.hostname,
-		dp= util.domainPeriod(domain),
-		ln = host.split('.').length;
-		if((/[0-9]{1,3}$/i).test(location.hostname)){
-			host
-		}
-		return '.'+host.split('.').slice(ln-dp).join('.')
-	};
-	util.version = 'U0.04';
-	//util.codeVers="vid"+visitor.version+","+util.version;
-	util.location = window.location;
-	// moved from original responsive CSS function in analytics.js
-	util.isVisible_ex = "util.isVisible(@selector, @element) \nreturn true if the item is not hidded";
-	util.isVisible = function (selector, element) {
-		var elem = selector ? document.querySelector && document.querySelector(selector) : element, ieDisplayNoneBug;
-		// fix for IE bug with inline and block elements stating offsets incorrectly
-		ieDisplayNoneBug = elem && elem.currentStyle && elem.currentStyle.display === 'none' ? true : false;
-		//console.log('tabIndex: '+elem.tabIndex);
-		return elem && ((elem.offsetWidth > 0 && elem.offsetHeight > 0) && elem.tabIndex > -1) && !ieDisplayNoneBug; // other conditions can be added if required
-	};
-	util.random_ex ="util.random() \nreturn an rendom number";
-	util.random = function(){
-		var dd = new Date(); 
-		return Math.round(Math.abs(Math.sin(dd.getTime()))*1000000000)%10000000;
-	};
-	util.loadScript_ex ="util.loadScript(@url,@delay,@random, @idVal) \nload an script async \n@url destination URL, \n@delay is use for setTimeout defauel 4000ms  \n@random supply string which will be replaced by rendom number at runtime\n @idVal any value supplied this will replace {ID} paramer inside the URL  \n@example util.loadScript('//abc.abc.com/pages/scripts/abc.js?id={ID}&g=RAND',4,'RAND','abc123')";
-	util.loadScript = function(url,delay,random,idVal){
-		var d = delay ? d=delay : 4000; //default delay 4000ms
-		url = random ? String(url).replace(new RegExp(random),util.random()) : String(url);
-		url = idVal ? String(url).replace(/\{ID\}/g,idVal) : String(url);
-		setTimeout(function(){
-			var a=document.createElement("script");
-			var b=document.getElementsByTagName("script")[0];
-			a.src=document.location.protocol+url;
-			a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)
-		}, d);
-	};
-	util.loadImgPixel_ex ="util.loadImgPixel(@url,@delay,@random, @idVal) \nload an image \n@url destination URL, \n@delay is use for setTimeout defauel 4000ms  \n@random supply string which will be replaced by rendom number at runtime\n @idVal any value supplied this will replace {ID} paramer inside the URL  \n@example util.loadScript('//abc.abc.com/pages/scripts/abc.js?id={ID}&g=RAND',4,'RAND','abc123')";
-	util.loadImgPixel = function(url,delay,random,idVal){
-		var d = delay ? d=delay : 4000; //default delay 4000ms
-		url = random ? String(url).replace(new RegExp(random),util.random()) : String(url);
-		url = idVal ? String(url).replace(/\{ID\}/g,idVal) : String(url);
-		setTimeout(function(){
-			var ad_image = new Image(1,1);
-			ad_image.src = document.location.protocol+url;
-			document.body.appendChild(ad_image)
-		}, d);
-	};
-	util.getExp_ex="util.getExp() \nreturn responsive experence as mob, tab or desktop\based on css class .analytics-experience .pagedetails-experience";
-	util.getExp = function () {
-		var isVis = util.isVisible,
-		cssExperienceMob = isVis('.pagedetails-experience-mob') || isVis('.analytics-experience-mob'), // responsive site mobile class visible check. name changed to analytics-... to be more relevant
-		cssExperienceTab = isVis('.pagedetails-experience-tab') || isVis('.analytics-experience-tab'), // responsive site tablet class visible check. name changed to analytics-... to be more relevant
-		cssExperienceDesktop = isVis('.analytics-experience-desktop'), // responsive site tablet class visible check. name changed to analytics-... to be more relevant
-		cssNotDetected = cssExperienceMob === null && cssExperienceTab === null && cssExperienceDesktop === null,
-		experienceResult;
-
-		// logic to determine experience based on elements with classes being found/hidden/visible
-		experienceResult = (cssExperienceMob || (cssExperienceMob !== false && cssExperienceDesktop === false && !cssExperienceTab)) ? 'mob' : ((cssExperienceTab || (cssExperienceTab !== false && cssExperienceDesktop === false && !cssExperienceMob)) ? 'tab' : 'desktop'); // TESTING with !desktop options etc.
-
-		// save the experience determined by the logic
-		util.expOrig = util.expOrig || experienceResult;
-
-		// if no elements with classes detected, use the first saved experience
-		if (cssNotDetected) {
-			experienceResult = util.expOrig;
-		}
-
-		return experienceResult;
-	};
-	util.addHandler_ex="util.addHandler(@element, @event, @handler) add event Listener";
-	util.addHandler = function (element, event, handler) {
-		if (element.addEventListener) {
-			element.addEventListener(event, handler, false);
-		} else {
-			if (element.attachEvent) {
-				element.attachEvent('on' + event, handler);
-			}
-		}
-	};
-	util.onReady = function (func) {
-		if (/complete/.test(document.readyState)) { // fire/attach immediately in case window load has already occured
-				func();
-			} else {
-				util.addHandler(win, 'load', function () { // fire/attach when window loads. include a timeout to prevent Chrome/Safari spinner immediately after load
-				setTimeout(func, 4); // should be 4
-			});
-		}
-	};
-	util.cookieRead_ex="util.cookieRead(@sKey) \nreturn the value of a given cookie \@sKey =cookie name";
-	util.cookieRead = function (sKey) {
-		return decodeURIComponent(document.cookie.replace(new RegExp('(?:(?:^|.*;)\\s*' + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, '\\$&') + '\\s*\\=\\s*([^;]*).*$)|^.*$'), '$1')) || '';
-	};
-	util.combinedcookieRead_ex ="util.combinedcookieRead(@sKey,@cKey) \nreturn the value of a given combined cookie rata \@sKey =cookie name \@cKey =Combined cookie name \n\@return as single value or an array of objects";
-	util.combinedcookieRead = function (sKey,cKey) {
-		var temp = decodeURIComponent(util.cookieRead(sKey)).match(new RegExp(cKey+'=(.+?)\\|\\d{13}\\;'),'$1');
-		temp =temp ? temp[1].replace(/\[(\[.*?\])\]/g,'$1'): '';
-		temp = temp.match(/\'(.+?)\'/g)? temp.match(/\'(.+?)\'/g, $1 ): temp;
-		return temp;
-	};
-	util.cookieWrite_ex="util.cookieWrite(@sKey, @sValue, @vEnd, @sPath, @sDomain, @bSecure) \nWrite a cookie with given value \n@sKey =cookie name \n@sValue = cookie value, \n@vEnd = cookie expiry \n@sPath = domain path \n@sDomain = cookie domain \n@bSecure = secure flug";
-	util.cookieWrite = function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
-		if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) {
-			return false;
-		}
-		var sExpires = '';
-		if (vEnd && vEnd.constructor === Date) {
-			sExpires = '; expires=' + vEnd.toUTCString();
-		}
-		document.cookie = encodeURIComponent(sKey) + '=' + encodeURIComponent(sValue) + sExpires + (sDomain ? '; domain=' + sDomain : '') + (sPath ? '; path=' + sPath : '') + (bSecure ? '; secure' : '');
-		return true;
-	};
-
-	util.scriptElement = function (id) {
-		var existing = document.getElementById(id),
-		scripts = document.getElementsByTagName('script')[0],
-		//sibling = scripts[scripts.length - 1],
-		element;
-		
-		if (existing) {
-			return existing;
-		}
-		
-		element = document.createElement('script');
-		element.id = id;
-		//element.type = 'text/javascript';
-		element.async = 1;
-		//element.defer = true;
-		
-		//sibling.parentNode.insertBefore(element, sibling.nextSibling);
-		scripts.parentNode.insertBefore(element, scripts);
-		
-		return element;
-	};
-	util.cloneObject_ex ="util.cloneObject(@oToBeCloned, @clones)";
-	util.cloneObject=function (oToBeCloned, clones) {
-		var oClone,
-		Constr = oToBeCloned && oToBeCloned.constructor ? oToBeCloned.constructor : undefined,
-		lp,
-		len,
-		cloneRef,
-		alreadyCloned,
-		prpty;
-		
-		if (!oToBeCloned || (Constr !== RegExp && Constr !== Date && Constr !== Function && Constr !== Object && Constr !== Array)) {
-			return oToBeCloned;
-		}
-		
-		switch (Constr) {
-			// handle special object types
-		case RegExp:
-			oClone = new Constr(oToBeCloned.source, 'g'.substr(0, Number(oToBeCloned.global)) + 'i'.substr(0, Number(oToBeCloned.ignoreCase)) + 'm'.substr(0, Number(oToBeCloned.multiline)));
-			break;
-		case Date:
-			oClone = new Constr(oToBeCloned.getTime());
-			break;
-		case Function:
-			oClone = oToBeCloned;
-			break;
-		default:
-			// should only be plain objects and arrays that need looping
-			oClone = new Constr();
-		}
-		
-		clones = clones || [];
-		for (lp = 0, len = clones.length; lp < len; lp++) {
-			cloneRef = clones[lp];
-			if (cloneRef[0] === oToBeCloned) {
-				alreadyCloned = cloneRef[1];
-				break;
-			}
-		}
-		if (alreadyCloned) {
-			return alreadyCloned;
-		}
-		clones.push([oToBeCloned, oClone]); // keep track of objects we've cloned
-		for (prpty in oToBeCloned) {
-			if (oToBeCloned.hasOwnProperty(prpty)) {
-				if (oToBeCloned[prpty] === oToBeCloned) {
-					oClone[prpty] = oClone;
-				} else {
-					oClone[prpty] = util.cloneObject(oToBeCloned[prpty], clones);
-				}
-			}
-		}
-		return oClone;
-	};
-	util.qSA_ex ="util.qSA(@doc, @selector, @tag, @attr, @regex) return selected elements \n@doc = document  \n@selector = any selecton \nFor non supported browser: \n@tag, @attr, @regex"; 
-	util.qSA = function (doc, selector, tag, attr, regex) {
-		var lp,
-		len,
-		result = [],
-		target,
-		tempAttr;
-		
-		if (doc && doc.querySelectorAll) {
-			result = doc.querySelectorAll(selector);
-		} else {
-			target = doc && doc.getElementsByTagName(tag);
-			if (attr && regex) {
-				for (lp = 0, len = target.length; lp < len; lp++) {
-					tempAttr = (attr === 'class' ? target[lp].className : target[lp].getAttribute(attr));
-					if (tempAttr && regex.test(tempAttr)) {
-						result.push(target[lp]);
-					}
-				}
-			} else if (regex) {
-				for (lp = 0, len = target.length; lp < len; lp++) {
-					if (regex.test(target[lp].innerHTML)) {
-						result.push(target[lp]);
-					}
-				}
-			} else {
-				return target || 0;
-			}
-		}
-		return result;
-	};
-	util.getText_ex = "util.getText(@elem) \nreturn text of any element"
-	util.getText = function (elem) {
-		var elemText;
-		if (elem) {
-			elemText = elem.innerText || elem.textContent;
-		} else {
-			elemText = '';
-		}
-		return elemText.replace(/^\s+|\s+$/g, ''); // trim
-	};
-	util.removeNumbers_ex = "util.removeNumbers(@str) \nremove number from a given string" 
-	util.removeNumbers = function (str) {
-		return str.replace(/\s+\(\s*\d+\s*\)$/g, ''); // remove numbers and trim
-	};
-	util.addCallback = function (scriptEl, readyCheck, callback) {
-		var thisFunction = helpers.addCallback;
-		thisFunction.q = thisFunction.q || [];
-		
-		if (scriptEl.readyState) {
-			thisFunction.q.push(callback); // ability to add multiple callbacks in IE
-			
-			scriptEl.onreadystatechange = function () {
-				var callbackItem;
-				
-				//console.log('readyState = ' + scriptEl.readyState);
-				//console.log('s = ' + win.s);
-				//console.log('readyCheck IE = ' + readyCheck());
-				
-				if (/loaded|complete/.test(scriptEl.readyState) && readyCheck()) { // readyCheck to verify that all scripts required are actually ready (mainly to confirm IE readystate)
-					scriptEl.onreadystatechange = null;
-					while (thisFunction.q.length) {
-						callbackItem = thisFunction.q.shift();
-						callbackItem();
-					}
-				}
-			};
-		} else {
-			//console.log('readyCheck non-IE = ' + readyCheck());
-			helpers.addHandler(scriptEl, 'load', function () {
-				if (readyCheck()) { // in case the file loaded is not actually s_code
-					callback();
-				}
-			});
-		}
-	};
-	util.guidRgx = /\b\w{8}-\w{4}-\w{4}-\w{4}-\w{12}\b/g;
-	util.cleanJSON_ex = "util.cleanJSON(@JSONdata) \n remove non-printable and other non-valid JSON chars";
-	util.cleanJSON = function (JSONdata) {
-		JSONdata = JSONdata.replace(/\\n/g, "\\n")  
-					   .replace(/\\'/g, "\\'")
-					   .replace(/\\"/g, '\\"')
-					   .replace(/\\&/g, "\\&")
-					   .replace(/\\r/g, "\\r")
-					   .replace(/\\t/g, "\\t")
-					   .replace(/\\b/g, "\\b")
-					   .replace(/\\f/g, "\\f");
-		// remove non-printable and other non-valid JSON chars
-		JSONdata = JSONdata.replace(/[\u0000-\u0019]+/g,""); 
-		return JSONdata = JSON.parse(JSONdata);
-	};
-
-	util.cleanURL_ex = "util.cleanURL(@loc, @locType) \nremove guidRgx,referrer querystring parameter, multiple slashes, session ID,hash or hashbang\@locType = 1 remove cid";
-	util.cleanURL = function (loc, locType) {
-		var cleanedUrl = (loc || '')
-		.replace(/(\w)\/\/+/g, '$1/') // replace multiple slashes after a word char. with single slash (except for ://) for clean pageName (from location)
-		.replace(/((?:&|\?)referrer=.*?(?=&|$))/ig, '') // always remove referrer querystring parameter - it was generated for unica
-		.replace(/(^https?:.+?(?:online|banking).+\/cust\/wps\/(my)?portal\/[pw]ol\/)!ut\/.*/i, '$1oregon-application') // Oregon - portal/pol|wol. remove session ID in path
-		//.replace(/(^https?:.+?(www.)?forms.+\.nsf)(?:.*\w{32}.*)/i,'$1$2'); // Remove session ID only from Domino path $1 adds www. ???
-		.replace(/(^https?:.+?(forms|online)(?:\.|-).*\.nsf.*?)(?:\/\w{32}(?=\?))/i, '$1') // Remove session ID only from Domino path $1 adds www. ???
-		.replace(util.guidRgx, '') // remove OTP user GUID
-		.replace(/#+!*$/, '') // remove hash or hashbang (or multiples of these characters) at end of loc (only) to unify URLs that would otherwise match
-		.replace(/(default|index)(\.html|\.htm)/, '')
-		.replace(/\.html|\.htm/, '')
-	;
-
-		if (locType === 1) {
-			// locType 1 is page location
-			// Keep querystring if it contains cid parameter for paid search detection
-			// remove complete querystring for privacy/security/uniqueness/shorter request if not on Domino/oregon? form (handled separately)
-			//cleanedUrl = cleanedUrl.replace(/\?(?!(?:openform|readform|opendocument|funcreqd)).*/i, '');
-			//cleanedUrl = cleanedUrl.replace(/\?(?!(?:cid=.+|.*&cid=.+|openform|readform|opendocument|funcreqd)).*/i, '');
-			//cleanedUrl = cleanedUrl.replace(/(\?|&)(?!(?:cid=.+|openform|readform|opendocument|funcreqd)).*/i, '');
-			//cleanedUrl = cleanedUrl.replace(/((\?|&)(?!(?:cid=.+|openform|readform|opendocument|funcreqd))|#).*/i, ''); // this regex doesn't work. Still replaces if CID somewhere in querystring
-
-			// if querystring doesn't contain things we want to keep, remove it. Remove hash and append it to eVar only.
-			if (!(/(\?|&)(cid=.+|openform|readform|opendocument|funcreqd)/i).test(cleanedUrl)) {
-				//cleanedUrl = cleanedUrl.replace(/(\?|&).*/, '');
-				cleanedUrl = cleanedUrl.replace(/(\?|&|#).*/, '');
-			}
-		}
-		if (locType === 2) {
-			cleanedUrl = cleanedUrl.replace(/(\?|&|#).*/, '');
-		}
-		//if (locType === 2) {
-		// locType 2 is referrer.
-
-		// truncate to avoid excessive pixel length (2047 IE limit)
-		// trim to 150 chars.
-		//if (cleanedUrl.length > 150) {
-		//	cleanedUrl = cleanedUrl.substring(0, 150) + '...';
-		//}
-
-		// extended to 400 chars. to capture longer search referrers with q=keyword
-		// standard s_code trims to 255...
-		//cleanedUrl = cleanedUrl.length > 400 ? cleanedUrl.substring(0, 400) + '...' : cleanedUrl;
-		//}
-
-		return cleanedUrl;
-	};
-	util.getLoc_ex = "util.getLoc() return full current URL for test or prod"; 
-	util.getLoc = function () {
-		return util.w_wtT.location || window.location;
-	};
-	util.defaultPage = /^\/((default|index)\.html?)?$/.test(util.getLoc().pathname) ? 'home' : ''; // filename to add when none exists (www home page)
-	// default/initialised s.pageURL
-	util.pageURL = util.cleanURL(util.getLoc().href, 1);
-
-	// Use secure on https:
-	util.ssl = util.getLoc().protocol === 'https:';
-	// time parting
-	util.timePart = function () {
-		var dateNow = new Date(),
-		dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-		return dayNames[dateNow.getDay()] + ' ' + ('00' + dateNow.getHours()).slice(-2) + ':' + (dateNow.getMinutes() > 29 ? '30' : '00');
-	};
-
-	util.lCase_ex ="util.lCase(@val, @alt) \nlower case strings or (not set) if empty";
-	util.lCase = function (val, alt) {
-		var altVal = alt ? '(not set)' : '';
-		return String(val || altVal).toLowerCase();
-	};
-	util.clean_ex ="util.clean(@str) \nclean strings - trim and remove multiple spaces for consistency";
-	util.clean = function (str) {
-		return (str ? String(str) : '').replace(/\s+/g, ' ').replace(/^\s|\s$/g, '');
-	};
-
-	util.fixZero_ex = "util.fixZero(@val) return 'zero' for '0' value";
-	util.fixZero = function (val) {
-		return String(val) === '0' ? 'zero' : val;
-	};
-	// return filtered search terms and replace numbers if necessary
-	util.srchTerm = function (val) {
-		var srchTerm = val,
-		lp = 8,
-		hashes = '########'; //,hashes=new Array(lp).join('#')
-
-		if (srchTerm) {
-			//srchTerm=s.w_clean(s.w_lCase(srchTerm));
-			srchTerm = util.lCase(srchTerm);
-			while (lp--) {
-				srchTerm = srchTerm.replace(new RegExp('(\\d{4}.?)\\d{' + (lp + 1) + ',}', 'g'), '$1' + hashes.substring(0, lp + 1));
-			}
-		}
-		//console.log(srchTerm);
-		return srchTerm;
-	};
-	// cap numbers to reduce number of items for classifactions
-	util.cap_ex = "util.cap(@item, @cap) \nif item value is greater than, or equal to cap, append '+'";
-	util.cap = function (item, cap) {
-		return item >= cap ? cap + '+' : item; // if item value is greater than, or equal to cap, append '+'. event50 (page load time) removes the '+', because the event value must be numeric.
-	};
-
-	// Helper function for standard numeric s.apl event call to reduce frequently used code
-	util.addEvt = function (obj,evtName,evtValue){
-		// allow text or numeric events to be passed
-		obj['ev_'+ evtName] = evtValue ? evtValue : 1; 
-		//s2.events = s2.apl(s2.events, isNaN(evt) ? evt || '' : 'event' + evt, ',', 2);
-	};
-	util.addSerialiseEvt = function (obj,evtNumber,evtValue){
-		// allow text or numeric events to be passed
-		obj['&&events'] = evtValue ? evtNumber + ':'+evtValue : evtNumber + ':1'; 
-		//s2.events = s2.apl(s2.events, isNaN(evt) ? evt || '' : 'event' + evt, ',', 2);
-	};
-	util.fl_ex = "util.fl(@str, @len) \nreturn substring of a given length";
-	util.fl = function(x,l){
-	return x?(''+x).substring(0,l):x
-	};
-
-	util.p_c = function (v, c) {
-		var x = v.indexOf('=');
-		return c.toLowerCase() == v.substring(0, x < 0 ? v.length : x).toLowerCase() ? v : 0;
-	};
-
-	util.pt_ex ="pt - runs function in f argument against list of \nvariables declared in x (delimited by d), with a as an optional \nargument to be included in f function call";
-	util.pt=function(x,d,f,a){
-		var t=x,
-		z=0,
-		y,
-		r;
-		while (t){
-			y = t.indexOf(d);
-			y = y < 0 ? t.length : y;
-			t = t.substring(0, y);
-			r = util.p_c(t, a);
-			if (r)
-				return r;
-			z += y + d.length;
-			t = x.substring(z, x.length);
-			t = z < x.length ? t : ''
-		}
-		return '';
-	};
-	util.isPageHidden_ex ="check if whole page is hidden/visible";
-	util.isPageHidden = function (u) {
-		return document.hidden || (document.msHidden || document.webkitHidden);
-	};
-	util.isHomePage_ex ="check if the page is home page";
-	util.isHomePage = function (u) {
-		return /^\/((default|index)\.html?)?$/.test(util.getLoc().pathname);
-	};
-	util.getPageName = function (u) {
-		var v = u || String(util.pageURL),
-		x = v.indexOf(':'),
-		y = v.indexOf('/', x + 4),
-		z = v.indexOf('?'),
-		c = util.pathConcatDelim,
-		e = util.pathExcludeDelim,
-		g = util.queryVarsList,
-		d = util.siteID,
-		n = d || '',
-		q = z < 0 ? '' : v.substring(z + 1),
-		p = v.substring(y + 1, q ? z : v.length);
-		z = p.indexOf('#');
-		p = z < 0 ? p : util.fl(p, z);
-		x = e ? p.indexOf(e) : -1;
-		p = x < 0 ? p : util.fl(p, x);
-		p += !p || p.charAt(p.length - 1) == '/' ? util.defaultPage : '';
-		y = c || '/';
-		while (p) {
-			x = p.indexOf('/');
-			x = x < 0 ? p.length : x;
-			z = util.fl(p, x);
-			if (!util.pt(util.pathExcludeList, ',', 'p_c', z)) {
-				n += n ? y + z : z;
-			}
-			p = p.substring(x + 1);
-		}
-		y = c || '?';
-		while (g) {
-			x = g.indexOf(',');
-			x = x < 0 ? g.length : x;
-			z = util.fl(g, x);
-			z = util.pt(q, '&', 'p_c', z);
-			if (z) {
-				n += n ? y + z : z;
-				y = c || '&';
-			}
-			g = g.substring(x + 1);
-		}
-		return n;
-	};
-
-	/*
-	 * Plugin: getValOnce_v1.1
-	 */
-	util.getValOnce = function (v, c, e, t) {
-		// value, cookie, time amount, time type (mins/days)
-		var a = new Date(),
-		vv = v || '',
-		cc = c || 'u_gvo',
-		ee = e || 0,
-		i = t == 'm' ? 60000 : 86400000,
-		cd = util.cookieDomain(),
-		k;
-		k = util.cookieRead(c);
-		if (vv) {
-			a.setTime(a.getTime() + ee * i);
-			util.cookieWrite(cc, vv, ee == 0 ? 0 : a,'/', cd);
-		}
-		return vv == k ? '' : vv;
-	};
-	/*
-	 * Plugin: getVisitNum - version 3.0
-	 */
-	util.getVisitNum = function (tp, c, c2) {
-		var e = new Date,
-		cval,
-		cvisit,
-		cd = util.cookieDomain(),
-		ct = e.getTime(),
-		d;
-		if (!tp) {
-			tp = 'm';
-		}
-		if (tp == 'm' || tp == 'w' || tp == 'd') {
-			eo = util.endof(tp),
-			y = eo.getTime();
-			e.setTime(y);
-		} else {
-			d = tp * 86400000;
-			e.setTime(ct + d);
-		}
-		if (!c) {
-			c = 's3_vnum';
-		}
-		if (!c2) {
-			c2 = 's3_invisit';
-		}
-		cval = util.cookieRead(c);
-		if (cval) {
-			var i = cval.indexOf('&vn='),
-			str = cval.substring(i + 4, cval.length),
-			k;
-		}
-		cvisit = util.cookieRead(c2);
-		if (cvisit) {
-			if (str) {
-				e.setTime(ct + 1800000);
-				util.cookieWrite(c2, 'true', e, '/', cd);
-				return str;
-			} else {
-				return 'unknown visit number';
-			}
-		} else {
-			if (str) {
-				str++;
-				k = cval.substring(0, i);
-				e.setTime(k);
-				util.cookieWrite(c, k + '&vn=' + str, e, '/', cd);
-				e.setTime(ct + 1800000);
-				util.cookieWrite(c2, 'true', e,'/', cd);
-				return str;
-			} else {
-				util.cookieWrite(c, e.getTime() + '&vn=1', e,'/', cd);
-				e.setTime(ct + 1800000);
-				util.cookieWrite(c2, 'true', e, '/', cd);
-				return 1;
-			}
-		}
-	};
-	util.dimo = function (m, y) {
-		var d = new Date(y, m + 1, 0);
-		return d.getDate();
-	};
-	util.endof = function (x) {
-		var t = new Date;
-		t.setHours(0);
-		t.setMinutes(0);
-		t.setSeconds(0);
-		if (x == 'm') {
-			d = util.dimo(t.getMonth(), t.getFullYear()) - t.getDate() + 1;
-		} else if (x == 'w') {
-			d = 7 - t.getDay();
-		} else {
-			d = 1;
-		}
-		t.setDate(t.getDate() + d);
-		return t;
-	};
-
-	// serialisation value for events
-	util.serial = function () {
-		var serial = ('0000000' + Math.floor(Math.random() * (268435455 + 1)).toString(16)).slice(-7) + String(+new Date());
-		//console.log('serial = ' + serial + ' ....... length ==== ' + serial.length);
-		return String(serial).length === 20 ? serial : '';
-	};
-
-	// maintain serialisation for the same form/product/any item and reset after complete of same form
-	util.serialise = function (serialKey, formStep) {
-		var lStorKey = 'appmeasurement_aoSerials',
-		keyName = serialKey && String(serialKey).replace(/\W/g, ''),
-		serialStore = util.lStor('get', lStorKey),
-		dateStamp = new Date(),
-		serialDay = String(dateStamp.getFullYear()) + (dateStamp.getMonth() + 1) + dateStamp.getDate(), // serial memory persists for current day
-		serialVisit = util.getVisitNum(365), // serial memory persists for current visit
-		//serialRange = serialVisit >= 1 ? serialVisit : serialDay, // persist for visit if number returned, else day
-		serialRange = serialDay + (serialVisit >= 1 ? serialVisit : 0), // persist for visit per day if number returned, else day + 0
-		newSerial = util.serial(),
-		setSerial = '';
-
-		//console.log('serialStore = ' + serialStore);
-		//console.log('newSerial = ' + newSerial);
-		//console.log('serialDay = ' + serialDay);
-		//console.log('serialVisit = ' + serialVisit);
-
-		if (keyName && (formStep === 'start' || formStep === 'complete')) {
-			if (serialStore.indexOf(serialRange + ',') !== 0) {
-				// reset the store each day or if incorrect format
-				util.lStor('set', lStorKey, serialRange + ',' + keyName + '=' + newSerial + formStep);
-			}
-
-			// check if localStorage is working
-			serialStore = util.lStor('get', lStorKey);
-
-			if (serialStore) {
-				// if storage found, check if this thing has been hit already and get the serial
-				setSerial = serialStore.match(new RegExp(',' + keyName + '=(.{20}(start|complete)?)(?=,|$)'));
-				setSerial = setSerial && setSerial[1] ? setSerial[1] : '';
-
-				//console.log('setSerial 1 = ' + setSerial);
-
-				if (!setSerial) {
-					// if this thing is not serialised yet, add the details
-					util.lStor('set', lStorKey, serialStore + ',' + keyName + '=' + newSerial + formStep);
-					setSerial = newSerial;
-				} else {
-					// if complete step of a serialised form, set to complete if was previously start
-					if (formStep === 'complete' && setSerial.indexOf('start') === 20) {
-						util.lStor('set', lStorKey, serialStore.replace(new RegExp('(,' + keyName + '=.{20})(start)(?=,|$)'), '$1' + formStep));
-					}
-					// if start step of a previously completed serial form, set a new serial
-					if (formStep === 'start' && setSerial.indexOf('complete') === 20) {
-						util.lStor('set', lStorKey, serialStore.replace(new RegExp('(,' + keyName + '=)(.{20})(complete)(?=,|$)'), '$1' + newSerial + formStep));
-						setSerial = newSerial;
-					}
-
-					// if start/start or complete/complete, just trim the serial taken from the storage
-					setSerial = setSerial.slice(0, 20);
-
-					//console.log('setSerial 2 = ' + setSerial);
-				}
-			}
-		}
-		console.log('setSerial 3 = ' + setSerial);
-		//console.log('length = ' + setSerial.length);
-		return String(setSerial).length === 20 ? setSerial : '';
-	};
-	util.lStor = function (action, key, data) {
-		try {
-			if (action === 'set') {
-				if (/^reset$/i.test(data)) {
-					localStorage.removeItem(key);
-					//sessionStorage.removeItem(key); // zzzzz consider session storage only
-				} else {
-					if (typeof data !== 'string') {
-						try {
-							data = JSON.stringify(data);
-						} catch (err) {
-							//s.w_log(err);
-							data = '';
-						}
-					}
-					localStorage.setItem(key, data);
-					//sessionStorage.setItem(key, data);
-				}
-				return true;
-			}
-			if (action === 'get') {
-				return localStorage.getItem(key) || '';
-				//return sessionStorage.getItem(key);
-			}
-		} catch (err) {
-			//console.log(err);
-			return '';
-		}
-	};
-	util.valReplace = function (initialVal, replaceDetails) {
-		//console.log('initialVal = ' + initialVal);
-		var prpty,
-		//replaceSet = s.w_lStor('get', replaceDetails) || '[]',
-		replaceSet = replaceDetails || [],
-		replaceSetLength,
-		replaceItem,
-		resultName = initialVal;
-
-		try {
-			if (typeof replaceSet === 'string') {
-				replaceSet = JSON.parse(replaceSet);
-			}
-		} catch (err) {
-			//s.w_log(err);
-			replaceSet = [];
-		}
-		//console.log('replaceSet = ' + replaceSet);
-		//console.log(replaceSet);
-
-		replaceSetLength = replaceSet.length;
-
-		for (prpty = 0; prpty < replaceSetLength; prpty++) {
-			//replaceItem = replaceSet[prpty].split('\r');
-			replaceItem = replaceSet[prpty];
-
-			//console.log('replaceItem = ' + replaceItem);
-			//console.log('replaceItem.length = ' + replaceItem.length);
-
-			//if (replaceItem.length === 3) {
-			if (replaceItem.exp) {
-				//resultName = resultName.replace(new RegExp(replaceItem[0], replaceItem[1]), replaceItem[2]);
-				resultName = resultName.replace(new RegExp(replaceItem.exp, replaceItem.flags || ''), replaceItem.subs || '');
-
-				//console.log('new RegExp(replaceItem[0], replaceItem[1]) = ' + new RegExp(replaceItem[0], replaceItem[1]));
-				//console.log('re = ' + new RegExp(replaceItem.exp, replaceItem.flags || '') + ', repl = ' + replaceItem.subs || '');
-				//console.log('resultName = ' + resultName);
-			}
-		}
-
-		//console.log('resultName = ' + resultName);
-		return resultName;
-	};
-	util.getQueryParam ="util.getQueryParam(@parameters, @delimiter, @url, @startFromHash) \nReturn a Query Param value(s)";
-	util.getQueryParam = function (parameters, delimiter, url, startFromHash) {
-		var params = parameters.split(','),
-		delim = delimiter || '',
-		//ABU loc = String(url === 'f' ? s2.gtfs().location : url || (s2.w_getLoc().href || (s2.pageURL || s2.wd.location))), // 'f' from original function - used in case of frames?
-		loc = String(url|| (util.getLoc().href || window.location)),
-		lp = 0,
-		len = params.length,
-		rgx,
-		rgxStart = startFromHash === 1 ? '#(?:.*?&)?' : '(?:\\?|&|;|#)',
-		val,
-		values = [];
-
-		//console.log('delim = ' + delim);
-		//console.log('loc = ' + loc);
-		//console.log('startFromHash = ' + startFromHash);
-
-		if (parameters) {
-			for (lp = 0; lp < len; lp++) {
-				rgx = new RegExp(rgxStart + params[lp] + '=(.*?)(?=\\?|&|;|#|/|$)', 'i');
-				val = rgx.exec(loc);
-
-				//console.log(params[lp] + ' = ' + (val && val[1]));
-
-				if (val) {
-					values.push(decodeURIComponent(val[1].replace(/\+/g, '%20')));
-				}
-			}
-		}
-		return values.join(delim);
-	};
-	// convert prodVal into an array if it was only a string (single product or comma separated)
-	util.prodArr = function (prodVal) {
-		var prodTemp,
-		prodArr,
-		lp = 0,
-		len;
-
-		if (prodVal && typeof prodVal !== 'object') {
-			//prodTemp = String(prodVal).replace(/^,+|,+$/g,'').split(',');
-			prodTemp = String(prodVal).split(',');
-			prodArr = [];
-			for (len = prodTemp.length; lp < len; lp++) {
-				// push individual product objects into prodArr array
-				if (prodTemp[lp]) {
-					prodArr.push({
-						'prod' : prodTemp[lp]
-					});
-				}
-			}
-		} else {
-			prodArr = prodVal || [];
-		}
-		return prodArr;
-	};
-	util.moduleLookup = function (mods, modKey) {
-		// may be simpler if lookup could be passed directly as object, but following code will turn a string (key=name[,key=name]) into an object
-		//var modKey = (pageDetails.moduleKey || '').split(','),
-		var lp,
-		len,
-		moduleFriendlyLookup = {},
-		moduleFriendlyNames = [];
-
-		for (lp = 0, len = modKey.length; lp < len; lp++) {
-			moduleFriendlyLookup[modKey[lp].split('=')[0]] = modKey[lp].split('=')[1];
-		}
-		for (lp = 0, len = mods.length; lp < len; lp++) {
-			// dont add module if value is blank (key=,key=...)
-			//if (moduleFriendlyLookup[mods[lp]] !== '') {
-			// if key has value or is undefined, use value or default to key name
-			//	moduleFriendlyNames.push(moduleFriendlyLookup[mods[lp]] || mods[lp]);
-			// track modules by moduleKey opt-in only. (previously module name captured by default for modeuls without key)
-			if (moduleFriendlyLookup[mods[lp]]) {
-				moduleFriendlyNames.push(moduleFriendlyLookup[mods[lp]]);
-			}
-		}
-		moduleFriendlyNames = moduleFriendlyNames.join(',');
-		//console.log('moduleFriendlyNames = '+moduleFriendlyNames);
-		// add ',+' to indicate more than 100 chars of module string was detected (including 'list,'/'grid,') to avoid truncating when many values
-		if (moduleFriendlyNames.length > 95 && moduleFriendlyNames.indexOf(',') > -1) {
-			moduleFriendlyNames = moduleFriendlyNames.substring(0, moduleFriendlyNames.lastIndexOf(',', 93)) + ',+';
-		}
-		return moduleFriendlyNames;
-	};
-	util.amntBnds_ex = "util.amntBnds(@type, @Value) \nReturns bands of any value";
-	util.amntBnds = function (type, transactionValue) { // type not required? all use the same bands
-		var bands,
-		band = {
-			'range' : type +':NaN', // default to unknown currency/value
-			'avg' : 0 // default
-		},
-		lp;
-		//transactionDetails=(transactionValue||'').match(/(^\D*)(.*)/), // Values may be like '1200', '$123.45' ($=AUD), 'USD123.45', 'EUR123' etc.
-		//currency,
-		//amount;
-
-		//currency=(transactionDetails[1]||'AUD').toUpperCase(); // default to AUD if currency missing
-		//if(currency==='$'){ // default to AUD if currency prefix = $
-		//	currency='AUD';
-		//}
-		//s.currencyCode=currency; // how to ensure reverts to AUD and any currency specified is used for all/appropriate items in request? i.e. not overwritten if set
-
-		//amount=(transactionDetails[2]||'x'); // make amount 'x' (NaN - Not a Number) and exit function if no value set, instead of defaulting to zero and looping through bands
-		//if(isNaN(amount)){
-		if (isNaN(transactionValue)) {
-			//band.range=type+':'+currency+':'+'NaN';
-			//band.range=type+':NaN';
-			//band.avg=0;
-			return band;
-		}
-		//amount=Math.round(amount)/1000;
-		transactionValue = Math.round(transactionValue) / 1000;
-
-		bands = {
-			'0' : {
-				min : -1,
-				max : 0,
-				avg : 0
-			},
-			'0-100' : {
-				min : 0,
-				max : 0.1,
-				avg : 0.05
-			},
-			'100-500' : {
-				min : 0.1,
-				max : 0.5,
-				avg : 0.3
-			},
-			'500-1K' : {
-				min : 0.5,
-				max : 1,
-				avg : 0.75
-			},
-			'1K-2K' : {
-				min : 1,
-				max : 2,
-				avg : 1.5
-			},
-			'2K-5K' : {
-				min : 2,
-				max : 5,
-				avg : 3.5
-			},
-			'5K-10K' : {
-				min : 5,
-				max : 10,
-				avg : 7.5
-			},
-			'10K-20K' : {
-				min : 10,
-				max : 20,
-				avg : 15
-			},
-			'20K-30K' : {
-				min : 20,
-				max : 30,
-				avg : 25
-			},
-			'30K-50K' : {
-				min : 30,
-				max : 50,
-				avg : 40
-			},
-			'50K-100K' : {
-				min : 50,
-				max : 100,
-				avg : 75
-			},
-			'100K-150K' : {
-				min : 100,
-				max : 150,
-				avg : 125
-			},
-			'150K-200K' : {
-				min : 150,
-				max : 200,
-				avg : 175
-			},
-			'200K-250K' : {
-				min : 200,
-				max : 250,
-				avg : 225
-			},
-			'250K-300K' : {
-				min : 250,
-				max : 300,
-				avg : 275
-			},
-			'300K-400K' : {
-				min : 300,
-				max : 400,
-				avg : 350
-			},
-			'400K-500K' : {
-				min : 400,
-				max : 500,
-				avg : 450
-			},
-			'500K-600K' : {
-				min : 500,
-				max : 600,
-				avg : 550
-			},
-			'600K-700K' : {
-				min : 600,
-				max : 700,
-				avg : 650
-			},
-			'700K-800K' : {
-				min : 700,
-				max : 800,
-				avg : 750
-			},
-			'800K-1M' : {
-				min : 800,
-				max : 1000,
-				avg : 900
-			},
-			'1M+' : {
-				min : 1000,
-				max : '+',
-				avg : 1000
-			}
-		};
-
-		//}
-		// determine band
-		for (lp in bands) {
-			if (bands.hasOwnProperty(lp)) {
-				//if(amount>bands[lp][0] && (bands[lp][1]==='+'?true:amount<=bands[lp][1])){
-				//if(amount>bands[lp][0][0] && (bands[lp][0][1]==='+'?true:amount<=bands[lp][0][1])){
-				if (transactionValue > bands[lp].min && (bands[lp].max === '+' ? true : transactionValue <= bands[lp].max)) {
-					//band.range=type+':'+currency+lp.replace(/-/,'-$');
-					//band.range=type+':'+currency+':'+lp;
-					band.range = type + ':' + lp;
-					band.avg = bands[lp].avg * 1000;
-					break;
-				}
-			}
-		}
-		return band;
-	};
-	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-	util.appStatusSetup = function (status) {
-		var formStatusArray = status,
-			finalVal = [],
-			formStatusDetail;
-		for (var _i = 0, formStatusArray_1 = formStatusArray; _i < formStatusArray_1.length; _i++) {
-			var items = formStatusArray_1[_i],
-				frmStVal;
-			frmStVal = 'accStatus:' + items.accountStatus + '|' + 'proStatus:' + items.profileStatus + '|' + 'verStatus:' + items.verificationStatus + '|' + 'exceCode:' + items.exceptionCode;
-			finalVal.push(frmStVal);
-		}
-		//console.info(finalVal);
-		formStatusDetail = finalVal.join(';');
-		return formStatusDetail;
-		//console.info('stringVal = ', formStatusDetail);
-	};
-
-	util.createTransID = function (prodArray) {
-		var transIDArray = prodArray,
-			finalVal = [],
-			combinedtransID;
-		for (var _i = 0, transIDArray_1 = transIDArray; _i < transIDArray_1.length; _i++) {
-			var items = transIDArray_1[_i],
-				transIDVal;
-			transIDVal = items.prod + '_' + items.Id;
-			finalVal.push(transIDVal);
-		}
-		//console.info(finalVal);
-		combinedtransID = finalVal.join(';');
-		return combinedtransID;
-	};
-	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-
-
-	/******** Don't set any variables after this line ********/
-
-	// for success messages etc. option to use pageDetails process, but send as link
-	//if(pageDetails.trackAsLink==='true'){
-	/*
-	if (/true/i.test(pageDetails.trackAsLink)) {
-		//console.log('Tracking as link - '+sPageNameTemp);
-		// prevent looping
-		delete pageDetails.trackAsLink;
-
-		// make tracking request as link instead of page
-		// filtered pageURL or custom passed property into href of custom link 'location' object
-		s2.lnk = {
-			href : pageDetails.s_linkUrl || s2.pageURL
-		};
-		s2.w_trackLinkCustom(true, 'D="page:"+pageName', 'o', s2); // default values if no overrides set in pageDetails
-
-		// abort initial page tracking
-		s2.abort = true;
-	}
-
-	// set override values for trackLinkCustom and 'trackAsLink' calls, before final s_ overrides
-	for (prpty in pageDetails) {
-		if (pageDetails.hasOwnProperty(prpty)) {
-			if (/^temp_/.test(prpty)) {
-				//ABU sq[prpty.replace(/^temp_/, '')] = pageDetails[prpty];
-				s2[prpty.replace(/^temp_/, '')] = pageDetails[prpty];
-				// always remove all temp_ overrides - they are only for s.w_trackLinkCustom and shouldnt persist on the page (in s.w_tempPageDetails)
-				delete pageDetails[prpty]; // only allow overrides to fire once, otherwise they persist to all subsequent calls (links, single-page-form pages etc.) // may not need to delete these as obj is temp, not on page... Needed to delete these for normal links following full custom links (the custom _temp details remain in the temp object for page name etc.) zzzzz test this change
-			}
-		}
-	}
-	for (prpty in pageDetails) {
-		if (pageDetails.hasOwnProperty(prpty)) {
-			if (/^s_/.test(prpty)) {
-				s2[prpty.replace(/^s_/, '')] = pageDetails[prpty];
-				if (prpty !== 's_pageName') {
-					// remove all overrides except s_pageName (to identify page name for custom links). Other valus may impact link tracking vars. zzzzz test this change
-					delete pageDetails[prpty]; // only allow overrides (e.g. s_abort) to fire once, otherwise they persist to all subsequent calls (links, single-page-form pages etc.) // may not need to delete these as obj is temp, not on page
-				}
-				trackingOverrideEnabled = true;
-			}
-		}
-	}
-	if (trackingOverrideEnabled) {
-		// append override when in use
-		s2.prop39 += '+" (with override)"';
-	}
-
-	// set timers based on events being set/passed by logic or overrides (moved to this block to capture ALL overrides)
-	s2.eVar31 = getTimeToCmplt(evtTimer(21, 22), 's_app_s_c', 365); // app start - complete
-	//s.eVar32 = getTimeToCmplt(evtTimer(22, 47), 's_app_c_l', 365); // app complete - first login ... first login event removed...
-	s2.eVar33 = getTimeToCmplt(evtTimer(46, 22), 's_app_l_c', 365); // login - app complete. eVar33 not required to be set - use events to determine timers
-
-	// getTimeToComplete functions like getValOnce and will clear the timers as soon as the respective events are seen in s.events. The values should only be retrieved if they will actually be sent (i.e. not dom click or s.abort)
-	//console.log('s.events = ' + s.events);
-	//console.log('s.eVar32 = ' + s.eVar32);
-
-	//s.prop31 = s.eVar31 ? 'D=v31' : '';
-	//s.prop32 = s.eVar32 ? 'D=v32' : '';
-	//s.prop33 = s.eVar33 ? 'D=v33' : '';
-	s2.prop31 = dVar(31);
-	//s.prop32 = dVar(32);
-	s2.prop33 = dVar(33);
-
-	// set logged in status based on event being set/passed by logic or override
-	if (/\bevent46\b/i.test(s2.events)) {
-		s2.eVar40 = 'logged in';
-	}
-	*/
-	// change any s object values async (in order of calls)
-	//s.w_changeIf(pageDetails, true); // zzzzz enable to change any values with replace etc. for weird issues that may come up.
-
 	/******** initial config ********/
 	var digital={},
 		util = window.util || {},
-		pageBrand ='',
-		pageSite ='',
 		pdInSession = false; // if page is in secure/unsecure area
 		
 
-	// ABU Moving it to analytics.js
+	/* ABU Moving it to analytics.js
 	// Brand specific
 	if (/(?:^|\.)banksa\.com\.au$/i.test(util.getLoc().hostname)) {
 		pageBrand = 'bsa';
@@ -1212,7 +71,7 @@
 				pageDetails.subSiteSeparator = ':';
 			}
 
-	}//*/
+	}*/
 		
 	//initialize AppMeasurement
 	var s3_account="wbg-banking-dev"
@@ -1267,8 +126,8 @@
 	var trackingPage = (!s3.linkObject)||(s3.linkObject=='');
 		//pageDetails = trackingPage ? pageDetails : s3.w_queue.shift(); // links need to get details from any previous page call if available. In OTP window.pageDetails is not necessarily what was passed to trackPage()	
 	var notSet = '(not set)', // to identify missing values
-	//pageBrand = s3.w_config.brand || notSet, //notSet,
-	//pageSite = s3.w_config.site || notSet, //notSet,
+	pageBrand = s3.w_config.brand || notSet, //notSet,
+	pageSite = s3.w_config.site || notSet, //notSet,
 	lowerCaseVal = util.lCase,
 	fullLocObj = util.getLoc(), // update each call
 	cleanText = util.clean,
@@ -2731,8 +1590,8 @@
 	s3.campaign = util.getValOnce(util.lCase(util.getQueryParam('cid', '', util.getLoc().href)), 's3_cid', 30, 'm'); // getValueOnce only if data will be sent, else value may not be sent
 	//}
 	if (s3.campaign) {
-		//s3.eVar16 = 'D=v0';
-		//s3.eVar17 = 'D=v0';
+		s3.eVar16 = 'D=v0';
+		s3.eVar17 = 'D=v0';
 		s3.eVar18 = s3.crossVisitParticipation(s3.campaign, 's3_ev18', '30', '5', '>', 'event22'); // this is cleared every time event22 fires. i.e. Application Complete step
 	}
 
@@ -2869,85 +1728,17 @@
 	
 	//serialise events
 	if (digital['ev_appStart']){
-		s3.events = s3.apl(s3.events, 'event26' + ':' + util.serialise(eventSerialisationKey, pdPageStep), ',', 1);
+		s3.events = s3.apl(s3.events, 'event26' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
 	}
 	if (digital['ev_appComplete']){
-		s3.events = s3.apl(s3.events, 'event27' + ':' + util.serialise(eventSerialisationKey, pdPageStep), ',', 1);
+		s3.events = s3.apl(s3.events, 'event27' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
 	}
 	if (digital['ev_enqStart']){
-		s3.events = s3.apl(s3.events, 'event28' + ':' + util.serialise(eventSerialisationKey, pdPageStep), ',', 1);
+		s3.events = s3.apl(s3.events, 'event28' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
 	}
 	if (digital['ev_enqComplete']){
-		s3.events = s3.apl(s3.events, 'event29' + ':' + util.serialise(eventSerialisationKey, pdPageStep), ',', 1);
+		s3.events = s3.apl(s3.events, 'event29' + ':' + util.serialise(eventSerialisationKey, pdPageStep), '', 1);
 	}
-		//ABU zzz Try Dynamic value 'D=mid' or capture mid manual
-	/*if(typeof visitor != 'undefined'){
-		s3.eVar25 = s3.prop25 = visitor.getMarketingCloudVisitorID(visitor.cookieName);
-	}*/
-	s3.eVar25 = 'D=mid'; //s3.prop25 =
-
-	//ABU: Analytics ID tracking 
-	var ctid ={};
-	//STG ID
-	/*if (s3.c_r("s_stg_ti")){ctid.stgid = {"id" : s3.c_r("s_stg_ti"), "authState": (s3.c_r("s_stg_auth") === '1' ? Visitor.AuthState.AUTHENTICATED:Visitor.AuthState.UNKNOWN)}}
-	if (s3.c_r("s_bom_ti")){ctid.bomid = {"id" : s3.c_r("s_bom_ti"), "authState": (s3.c_r("s_bom_auth") === '1' ? Visitor.AuthState.AUTHENTICATED:Visitor.AuthState.UNKNOWN)}}
-	if (s3.c_r("s_bsa_ti")){ctid.bsaid = {"id" : s3.c_r("s_bsa_ti"), "authState": (s3.c_r("s_bsa_auth") === '1' ? Visitor.AuthState.AUTHENTICATED:Visitor.AuthState.UNKNOWN)}}
-	if (s3.c_r("s_wbc-ti")){ctid.wbcid = {"id" : s3.c_r("s_wbc-ti"), "authState": Visitor.AuthState.UNKNOWN}}
-	if (s3.c_r("s_wbc-gi")){ctid.wbcgid = {"id" : s3.c_r("s_wbc-gi"), "authState": Visitor.AuthState.UNKNOWN}}*/
-
-	if (s3.c_r("s_stg_ti")){ctid.stgid = {"id" : s3.c_r("s_stg_ti")}}
-	if (s3.c_r("s_bom_ti")){ctid.bomid = {"id" : s3.c_r("s_bom_ti")}}
-	if (s3.c_r("s_bsa_ti")){ctid.bsaid = {"id" : s3.c_r("s_bsa_ti")}}
-	if (s3.c_r("s_wbc-ti")){ctid.wbcid = {"id" : s3.c_r("s_wbc-ti")}}
-	if (s3.c_r("s_wbc-gi")){ctid.wbcgid = {"id" : s3.c_r("s_wbc-gi")}}
-
-	//Multiple IDs with a single authentication state
-	console.log(ctid);
-	s3.visitor.setCustomerIDs(ctid);
-
-	if (pageBrand === 'wbc'){
-		// === WESTPAC == //
-		// generic account ID - value in cookie should have a prefix like 'corp_'. These will get overwritten through different sites, but could be tied together with visitor ID etc.
-		// included for CORP and other sites that require tracking ID
-		s3.eVar34 = s3.c_r("s_wbc-gi"); //s3.prop34 =
-		// customer tracking ID
-		s3.eVar35 =  s3.c_r("s_wbc-ti"); //s3.prop35 =// cookie is set at .westpac.com.au
-		// customer otp profile
-		s3.eVar47 = s3.c_r("s_wbc-pi"); //s3.prop47 =
-		// Webseal ID proxy
-		s3.eVar48  = s3.c_r("s_wbc-ses"); //= s3.prop48
-		// customer type segment
-		s3.eVar50 = s3.c_r("s_wbc-seg"); //s3.prop50 = // if values are short capture as-is, else use dynamic value to get value server-side.
-	}
-	// === STG == //
-	pageBrand === 'stg'? s3.eVar34 = s3.c_r("s_stg_ti") : '';//s3.prop34 =
-	// === BOM == //
-	pageBrand === 'bom'? s3.eVar34 = s3.c_r("s_bom_ti") : ''; //s3.prop34 =
-	// === BSA == //
-	pageBrand === 'bsa'? s3.eVar34 = s3.c_r("s_bsa_ti"): ''; //s3.prop34 =
-
-	// detect OTP/online banking profile switching
-	custTrackingId = s3.c_rr('s_wbc-ti');
-	if (custTrackingId) {
-		custTrackingIdPrevious = s3.c_r('temp-ti');
-		s3.c_w('temp-ti', custTrackingId); // update to current
-	}
-	custProfileId = s3.c_rr('s_wbc-pi');
-	if (custProfileId) {
-		custProfileIdPrevious = s3.c_r('temp-pi');
-		s3.c_w('temp-pi', custProfileId); // update to current
-	}
-	if (custTrackingId && custTrackingId === custTrackingIdPrevious && custProfileId && custProfileIdPrevious && custProfileId !== custProfileIdPrevious) {
-		userSwitchedProfile = true;
-		s3.prop59 = '(switch profile)';
-		console.log('Profile switched'); // detect when only switching profiles and landing on dashboard vs. a new login to dashboard
-	}
-
-	// capture user-agent
-	s3.eVar27 = 'D=User-Agent'; // capture with proc rule to increase capture (non-JS), reduce JS size and reduce pixel length
-	s3.eVar26 = 'D=Referer+"' + util.getLoc().hash.replace(util.guidRgx, '(GUID)') + '"'; // this is the full unprocessed page URL from HTTP header (includes hash)
-	s3.prop26 = 'D=g'; // this is the filtered page URL from JS document (will include hash if any)
-	
 	if (typeof util.w_wtT.complete === 'function') {
 		util.w_wtT.complete(s3);
 	}
@@ -4446,7 +3237,77 @@
 		}, 1000);
 		//return lastPixelLength;
 	};
+	//ABU zzz Try Dynamic value 'D=mid' or capture mid manual
+	/*if(typeof visitor != 'undefined'){
+		s3.eVar25 = s3.prop25 = visitor.getMarketingCloudVisitorID(visitor.cookieName);
+	}*/
+	s3.eVar25 = 'D=mid'; //s3.prop25 =
 
+	//ABU: Analytics ID tracking 
+	var ctid ={};
+	//STG ID
+	/*if (s3.c_r("s_stg_ti")){ctid.stgid = {"id" : s3.c_r("s_stg_ti"), "authState": (s3.c_r("s_stg_auth") === '1' ? Visitor.AuthState.AUTHENTICATED:Visitor.AuthState.UNKNOWN)}}
+	if (s3.c_r("s_bom_ti")){ctid.bomid = {"id" : s3.c_r("s_bom_ti"), "authState": (s3.c_r("s_bom_auth") === '1' ? Visitor.AuthState.AUTHENTICATED:Visitor.AuthState.UNKNOWN)}}
+	if (s3.c_r("s_bsa_ti")){ctid.bsaid = {"id" : s3.c_r("s_bsa_ti"), "authState": (s3.c_r("s_bsa_auth") === '1' ? Visitor.AuthState.AUTHENTICATED:Visitor.AuthState.UNKNOWN)}}
+	if (s3.c_r("s_wbc-ti")){ctid.wbcid = {"id" : s3.c_r("s_wbc-ti"), "authState": Visitor.AuthState.UNKNOWN}}
+	if (s3.c_r("s_wbc-gi")){ctid.wbcgid = {"id" : s3.c_r("s_wbc-gi"), "authState": Visitor.AuthState.UNKNOWN}}*/
+
+	if (s3.c_r("s_stg_ti")){ctid.stgid = {"id" : s3.c_r("s_stg_ti")}}
+	if (s3.c_r("s_bom_ti")){ctid.bomid = {"id" : s3.c_r("s_bom_ti")}}
+	if (s3.c_r("s_bsa_ti")){ctid.bsaid = {"id" : s3.c_r("s_bsa_ti")}}
+	if (s3.c_r("s_wbc-ti")){ctid.wbcid = {"id" : s3.c_r("s_wbc-ti")}}
+	if (s3.c_r("s_wbc-gi")){ctid.wbcgid = {"id" : s3.c_r("s_wbc-gi")}}
+
+	//Multiple IDs with a single authentication state
+	console.log(ctid);
+	s3.visitor.setCustomerIDs(ctid);
+
+	if (pageBrand === 'wbc'){
+	// === WESTPAC == //
+	// generic account ID - value in cookie should have a prefix like 'corp_'. These will get overwritten through different sites, but could be tied together with visitor ID etc.
+	// included for CORP and other sites that require tracking ID
+	s3.eVar34 = s3.c_r("s_wbc-gi"); //s3.prop34 =
+	// customer tracking ID
+	s3.eVar35 =  s3.c_r("s_wbc-ti"); //s3.prop35 =// cookie is set at .westpac.com.au
+	// customer otp profile
+	s3.eVar47 = s3.c_r("s_wbc-pi"); //s3.prop47 =
+	// Webseal ID proxy
+	s3.eVar48  = s3.c_r("s_wbc-ses"); //= s3.prop48
+	// customer type segment
+	s3.eVar50 = s3.c_r("s_wbc-seg"); //s3.prop50 = // if values are short capture as-is, else use dynamic value to get value server-side.
+	}
+	// === STG == //
+	pageBrand === 'stg'? s3.eVar34 = s3.c_r("s_stg_ti") : '';//s3.prop34 =
+
+	// === BOM == //
+	pageBrand === 'bom'? s3.eVar34 = s3.c_r("s_bom_ti") : ''; //s3.prop34 =
+
+	// === BSA == //
+	pageBrand === 'bsa'? s3.eVar34 = s3.c_r("s_bsa_ti"): ''; //s3.prop34 =
+
+	// detect OTP/online banking profile switching
+	custTrackingId = s3.c_rr('s_wbc-ti');
+	if (custTrackingId) {
+		custTrackingIdPrevious = s3.c_r('temp-ti');
+		s3.c_w('temp-ti', custTrackingId); // update to current
+	}
+	custProfileId = s3.c_rr('s_wbc-pi');
+	if (custProfileId) {
+		custProfileIdPrevious = s3.c_r('temp-pi');
+		s3.c_w('temp-pi', custProfileId); // update to current
+	}
+	if (custTrackingId && custTrackingId === custTrackingIdPrevious && custProfileId && custProfileIdPrevious && custProfileId !== custProfileIdPrevious) {
+		userSwitchedProfile = true;
+		s3.prop59 = '(switch profile)';
+		console.log('Profile switched'); // detect when only switching profiles and landing on dashboard vs. a new login to dashboard
+	}
+
+	// capture user-agent
+	s3.eVar27 = 'D=User-Agent'; // capture with proc rule to increase capture (non-JS), reduce JS size and reduce pixel length
+	
+	
+	s3.eVar26 = 'D=Referer+"' + util.getLoc().hash.replace(util.guidRgx, '(GUID)') + '"'; // this is the full unprocessed page URL from HTTP header (includes hash)
+	s3.prop26 = 'D=g'; // this is the filtered page URL from JS document (will include hash if any)
 	/*s3.ActivityMap.link = function(ele, linkName) {
 		if (ele) {
 			var objectId = ele.getAttribute('data-s-object-id');
@@ -4715,7 +3576,3 @@
 	/*(2047 IE limit) is changed t 4047 to avoid htr request*/
 	function s3_gi(a){var h,n=window.s_c_il,p,l,r=a.split(","),s,q,u=0;if(n)for(p=0;!u&&p<n.length;){h=n[p];if("s_c"==h._c&&(h.account||h.oun))if(h.account&&h.account==a)u=1;else for(l=h.account?h.account:h.oun,l=h.allAccounts?h.allAccounts:l.split(","),s=0;s<r.length;s++)for(q=0;q<l.length;q++)r[s]==l[q]&&(u=1);p++}u||(h=new AppMeasurement);h.setAccount?h.setAccount(a):h.sa&&h.sa(a);return h}AppMeasurement.getInstance=s3_gi;window.s_objectID||(window.s_objectID=0);
 	function s_pgicq(){var a=window,h=a.s_giq,n,p,l;if(h)for(n=0;n<h.length;n++)p=h[n],l=s3_gi(p.oun),l.setAccount(p.un),l.setTagContainer(p.tagContainerName);a.s_giq=0}s_pgicq();
-
-	//s3.w_trackPage(digitalData);
-	//s3.w_trackPage(digital);
-	//s3.t();
