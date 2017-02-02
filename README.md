@@ -12,11 +12,12 @@ Forms in WBG are classified into following category
 7. Survey forms
 8. Quote forms
 
-## Getting Started
+## FormName (evar23) Conventions
 
-These instructions will get you up and running on your local machine for development and testing purposes.
+Listed below is the conventions used for populating form name value (eVar23) various type of forms. 
+This will be consistent acorss all the WBG brands. 
 
-### new form name convention
+### Application forms
 
 The new form name convention will have the following structure 
 
