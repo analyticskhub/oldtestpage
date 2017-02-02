@@ -29,7 +29,7 @@ Examples by platform & Brand
 
 | Brand         | Platform      | Form Type    | Prod segment | Prod category/name       | new formname(eVar23)     |
 | ------------- |:-------------:|:------------:|:------------:|:------------------------:|:------------------------:| 
-| Westpac       | oneclick      | application  | consumer     | savings & transaction    |**_wbc:wow:app:cons:st_** |
+| Westpac       | oneclick      | application  | consumer     | savings & transaction    | _wbc:wow:app:cons:st_ |
 | Westpac       | oneclick      | application  | business     | savings & transaction    | **wbc:wow:app: bus:st**  |
 | Westpac       | oregon        | application  | consumer     | Credit card              | wbc:wow:app:cons:cc      |
 | Westpac       | oregon        | application  | business     | Credit card              | wbc:wow:app: bus:cc      |
