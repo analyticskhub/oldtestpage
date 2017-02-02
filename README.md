@@ -3,10 +3,14 @@
 This repo consists details and documentation of changes made to form tracking. 
 Forms in WBG are classified into following category
 
-1. First ordered list item
-1. First ordered list item
-1. First ordered list item
-1. First ordered list item
+1. Application forms
+2. Enquiry forms
+3. Self service forms
+4. Payment forms
+5. Registration forms
+6. Login forms
+7. Survey forms
+8. Quote forms
 
 ## Getting Started
 
