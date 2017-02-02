@@ -21,7 +21,7 @@ This will be consistent acorss all the WBG brands.
 
 The new form name convention will have the following structure 
 
-**application and enquiry convention**
+**application, quote and enquiry convention**
 
 **_Brand: Platform: Form Type : Product segment: Product name_**
 
@@ -41,6 +41,13 @@ Examples by platform & Brand
 | BankSA        | oneclick      | application  | business     | savings & transaction    | bsa:wow:app: bus:st      |
 | BOM           | oneclick      | application  | consumer     | savings & transaction    | bom:wow:app:cons:cc      |
 | BOM           | oneclick      | application  | business     | savings & transaction    | bom:wow:app: bus:cc      |
+| wbc           | oneclick      | quote        | consumer     | Insurance                | wbc:wow:quo:cons:in      |
+| stg           | oneclick      | quote        | consumer     | Insurance                | stg:wow:quo:cons:in      |
+| bom           | oneclick      | quote        | consumer     | Insurance                | bom:wow:quo:cons:in      |
+| stg           | oneclick      | enquiry      | consumer     | Home loan                | stg:wow:enq:cons:hl      |
+| wbc           | oneclick      | enquiry      | consumer     | Home loan                | wbc:wow:enq:cons:hl      |
+| bom           | oneclick      | enquiry      | consumer     | Home loan                | bom:wow:enq:cons:hl      |
+| bsa           | oneclick      | enquiry      | business     | super                    | bom:wow:enq: bus:sl      |
 
 
 
