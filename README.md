@@ -20,6 +20,7 @@ This will be consistent acorss all the WBG brands.
 ### 1. Application forms
 
 The new form name convention will have the following structure 
+
 **_brand:platform:pageType:product segment: product name_**
 
 **application and enquiry convention**
