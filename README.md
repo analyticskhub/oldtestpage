@@ -17,10 +17,9 @@ Forms in WBG are classified into following category
 Listed below is the conventions used for populating form name value (eVar23) various type of forms. 
 This will be consistent acorss all the WBG brands. 
 
-### Application forms
+1. ### Application forms
 
 The new form name convention will have the following structure 
-
 ##### brand:platform:pageType:product segment
 
 Examples by platform & Brand
@@ -71,15 +70,14 @@ bsa:wow:app:bus:td
 
 ### new variables and events
 
-eVars
+new eVars
 
-```
-eVar41: Journey-type
-eVar42: Form-type
-eVar43: Account-type
-
-eVar72: Account status
-```
+| Variables       | Name           |
+| ------------- |:-------------:|
+| eVar41     | Journey-type |
+| eVar42      | Form-type      |
+| eVar43 | Account status      |
+| eVar72 | Account-type     |
 
 Props
 
