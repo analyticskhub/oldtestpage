@@ -61,6 +61,7 @@ Examples by platform & Brand
 | eVar42        | Form-type     |
 | eVar43        | Account status|
 | eVar72        | Account-type  |
+| eVarXX        | Prod Description  |
 
 **new Props**
 
@@ -190,7 +191,7 @@ digitalData = {
 Form name depends on siteID which will either come from analytics or siteID code in s_code.js
 
 # Change Log
-All notable changes to this project will be documented in this file.
+All notable changes to this project will be documented below
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) 
 and this project adheres to [Semantic Versioning](http://semver.org/).
@@ -198,24 +199,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [Unreleased]
 ## [0.0.4] - 2017-02-02
 ### Added
-- Better explanation of the difference between the file ("CHANGELOG")
-and its function "the change log".
+
 
 ### Changed
-- Refer to a "change log" instead of a "CHANGELOG" throughout the site
-to differentiate between the file and the purpose of the file — the
-logging of changes.
+
 
 ### Removed
 - Remove redundant/old SDD variables.
 
 ## [0.0.3] - 2014-08-26
 ### Added
-- New BT variable added.
+- New BT variable added, Product Description - eVarXX
+- Product description will be populated only for application and enquiry if "prodDescription" property exists in datalayer
 
 ## [0.0.2] - 2017-01-20
 ### Added
-- Added SEMVER tracking of form related changes.
+- Added SEMVER tracking of form related changes within the doPlugin
 
 ## 0.0.1 - 2016-12-15
 ### Added
@@ -240,4 +239,7 @@ logging of changes.
 ### Changed
 - Changed s.products code to reflect primary, secondary and cross sell product
 - Changed formCompleteStatus to application status and to be tracked for all oneclick forms with STP
+- Changed journey type from long-short to pub-auth
+- Removed journey information (long, short, long-short) from the formname structure
+
 

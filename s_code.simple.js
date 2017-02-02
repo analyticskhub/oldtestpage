@@ -1259,6 +1259,10 @@
 	/* uncomment below to use doPlugins */
 	s3.usePlugins=true
 	function s_doPlugins(s3) {
+	/*
+	do not delete used to track newformupdates version 
+	newformupdates:version:0.03
+	*/
 
 	//var _tempContext = {},
 	//digital={},
