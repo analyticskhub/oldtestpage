@@ -70,31 +70,31 @@ bsa:wow:app:bus:td
 
 ### new variables and events
 
-new eVars
+**new eVars**
 
-| Variables       | Name           |
+| eVars       | Name           |
 | ------------- |:-------------:|
 | eVar41     | Journey-type |
-| eVar42      | Form-type      |
-| eVar43 | Account status      |
+| eVar42      | Form-type   |
+| eVar43 | Account status   |
 | eVar72 | Account-type     |
 
-Props
+**new Props**
 
-```
-prop41: product-count
-prop42: business-type
-```
+| Props       | Name           |
+| ------------- |:-------------:|
+| prop41     | product-count |
+| prop42      | business-type   |
 
-Events
+**new Events**
 
-```
-event17: Application welcome
-event73: Quote save
-event74: Quote retrieve
-event86: Quote start
-event87: Quote complete
-```
+| Events       | Name           |
+| ------------- |:-------------:|
+| event17     | Application welcome |
+| event73      | Quote save  |
+| event74 | Quote retrieve   |
+| event86 | Quote start     |
+| event87 | Quote complete    |
 
 ## Other changes
 
