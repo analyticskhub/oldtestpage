@@ -51,42 +51,66 @@ Examples by platform & Brand
 
 
 
-### new variables and events
+### New Variables and Events added
 
 **new eVars**
 
-| eVars       | Name           |
+| eVars         | Name          |
 | ------------- |:-------------:|
-| eVar41     | Journey-type |
-| eVar42      | Form-type   |
-| eVar43 | Account status   |
-| eVar72 | Account-type     |
+| eVar41        | Journey-type  |
+| eVar42        | Form-type     |
+| eVar43        | Account status|
+| eVar72        | Account-type  |
 
 **new Props**
 
-| Props       | Name           |
+| Props         | Name          |
 | ------------- |:-------------:|
-| prop41     | product-count |
-| prop42      | business-type   |
+| prop41        | product-count |
+| prop42        | business-type |
 
 **new Events**
 
-| Events       | Name           |
+| Events        | Name          |
 | ------------- |:-------------:|
-| event17     | Application welcome |
-| event73      | Quote save  |
-| event74 | Quote retrieve   |
-| event86 | Quote start     |
-| event87 | Quote complete    |
+| event17       | App welcome   |
+| event73       | Quote save    |
+| event74       | Quote retrieve|
+| event86       | Quote start   |
+| event87       | Quote complete|
 
-## Other changes
+
+### Additonal Requirements from business 
+
+1. Multiiple transactionID: Ability to capture unique transaction id when multiple products are sold in the same application
+2. ProductID Updates: Ability to identify if a product is sold as primary, secondary or as a cross sell
+3. Application status: formerly knows as formCompleteStatus will now be updated to application status to be used only on oneclick STP forms. 
+
+
+
+## Code changes/reference
+* eVars
+    * eVar41:Journey-type - wbg|form|rq1
+    * eVar42:Form-type
+    * eVar43:Account status
+    * eVar72:Account-type
+* Props
+    * prop41:product-count
+    * prop42:business-type
+* Events
+    * event17:Application welcome
+    * event73:Quote save
+    * event74:Quote retrieve
+    * event86:Quote start
+    * event87:Quote complete
+
+## changeLog
 
 * The transaction ID (evar39 and s.transactionID) will now be  combined value of multiple transaction with product id prefix
 * the productID will have additional property to emphasize the primary product (primaryProduct : 'true'), in additon the tracking will contain a "1-" prefix to productID
 * the productID will have additional property to emphasize the secondary product (secondaryProduct : 'true'), in additon the tracking will contain a "2-" prefix to productID
 * in additon to already existing property for cross sell,  the tracking will contain a "X-" prefix (instead of suffix) to productID
 * Application Status (old property: formCompleteStatus): Updated code to read new property, and new conditions to work only if it's a STP Form with status information
-
 
 ## DataLayer Properties - WBG & WBC
 
