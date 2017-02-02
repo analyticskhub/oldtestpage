@@ -17,10 +17,19 @@ Forms in WBG are classified into following category
 Listed below is the conventions used for populating form name value (eVar23) various type of forms. 
 This will be consistent acorss all the WBG brands. 
 
-1. ### Application forms
+### 1. Application forms
 
 The new form name convention will have the following structure 
-##### brand:platform:pageType:product segment
+ _brand:platform:pageType:product segment: product name_**
+
+**application and enquiry convention**
+
+| Brand         | Platform      | Form Type    | Prod segment | Prod category/name       | new formname(eVar23)     |
+| ------------- |:-------------:|:------------:|:------------:|:------------------------:|:------------------------:| 
+| Westpac       | oneclick      | application  | consumer     | savings & transaction    | wbc:wow:app:cons:st      |
+| Westpac       | oneclick      | application  | business     | savings & transaction    | wbc:wow:app:bus:st       |
+| Westpac       | oregon        | application  | consumer     | Credit card              | wbc:wow:app:cons:cc      |
+| Westpac       | oregon        | application  | business     | Credit card              | wbc:wow:app:bss:cc       |
 
 Examples by platform & Brand
 
