@@ -27,9 +27,9 @@ The new form name convention will have the following structure
 | Brand         | Platform      | Form Type    | Prod segment | Prod category/name       | new formname(eVar23)     |
 | ------------- |:-------------:|:------------:|:------------:|:------------------------:|:------------------------:| 
 | Westpac       | oneclick      | application  | consumer     | savings & transaction    | wbc:wow:app:cons:st      |
-| Westpac       | oneclick      | application  | business     | savings & transaction    | wbc:wow:app:bus:st       |
+| Westpac       | oneclick      | application  | business     | savings & transaction    | wbc:wow:app: bus:st       |
 | Westpac       | oregon        | application  | consumer     | Credit card              | wbc:wow:app:cons:cc      |
-| Westpac       | oregon        | application  | business     | Credit card              | wbc:wow:app:bss:cc       |
+| Westpac       | oregon        | application  | business     | Credit card              | wbc:wow:app: bus:cc       |
 
 Examples by platform & Brand
 
