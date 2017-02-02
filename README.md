@@ -87,24 +87,6 @@ Examples by platform & Brand
 2. ProductID Updates: Ability to identify if a product is sold as primary, secondary or as a cross sell
 3. Application status: formerly knows as formCompleteStatus will now be updated to application status to be used only on oneclick STP forms. 
 
-
-
-## Code changes/reference
-* eVars
-    * eVar41:Journey-type - wbg|form|rq1
-    * eVar42:Form-type
-    * eVar43:Account status
-    * eVar72:Account-type
-* Props
-    * prop41:product-count
-    * prop42:business-type
-* Events
-    * event17:Application welcome
-    * event73:Quote save
-    * event74:Quote retrieve
-    * event86:Quote start
-    * event87:Quote complete
-
 ## DataLayer Properties - WBG & WBC
 
 datalayer for applications compatible to both wbc and wbg tracking. 
@@ -209,37 +191,37 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.0.3] - 2014-08-26
 ### Added
-- New BT variable added, Product Description - eVarXX
+- New BT variable added, Product Description - eVarXX **wbg|form|rq18**
 - Product description will be populated only for application and enquiry if "prodDescription" property exists in datalayer
 
 ## [0.0.2] - 2017-01-20
 ### Added
-- Added SEMVER tracking of form related changes within the doPlugin
+- Added SEMVER tracking of form related changes within the doPlugin **wbg|form|rq17**
 
 ## 0.0.1 - 2016-12-15
 ### Added
 - Added the code for following new evar, props and events 
     * eVars
-        * eVar41:Journey-type
-        * eVar42:Form-type
-        * eVar43:Account status
-        * eVar72:Account-type
+        * eVar41:Journey-type - **wbg|form|rq1**
+        * eVar42:Form-type - **wbg|form|rq2**
+        * eVar43:Account status - **wbg|form|rq3**
+        * eVar72:Account-type - **wbg|form|rq4**
     * Props
-        * prop41:product-count
-        * prop42:business-type
+        * prop41:product-count - **wbg|form|rq5**
+        * prop42:business-type - **wbg|form|rq6**
     * Events
-        * event17:Application welcome
-        * event73:Quote save
-        * event74:Quote retrieve
-        * event86:Quote start
-        * event87:Quote complete
-- Added new method to track multiple transaction ID for WBG
+        * event17:Application welcome - **wbg|form|rq7**
+        * event73:Quote save - **wbg|form|rq8**
+        * event74:Quote retrieve - **wbg|form|rq9**
+        * event86:Quote start - **wbg|form|rq10**
+        * event87:Quote complete - **wbg|form|rq11**
+- Added new method to track multiple transaction ID for WBG - **wbg|form|rq12**
 
 
 ### Changed
-- Changed s.products code to reflect primary, secondary and cross sell product
-- Changed formCompleteStatus to application status and to be tracked for all oneclick forms with STP
-- Changed journey type from long-short to pub-auth
-- Removed journey information (long, short, long-short) from the formname structure
+- Changed s.products code to reflect primary, secondary and cross sell product **wbg|form|rq13**
+- Changed formCompleteStatus to application status and to be tracked for all oneclick forms with STP **wbg|form|rq14**
+- Changed journey type from long-short to pub-auth **wbg|form|rq15**
+- Removed journey information (long, short, long-short) from the formname structure **wbg|form|rq16**
 
 
