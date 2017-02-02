@@ -1030,7 +1030,10 @@
 		}
 		return band;
 	};
-	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+		/*---- wbg|form|rq14 ----
+			Application Status: used to track the formcomplete status
+			used only for STP form when applicationStatus array is available on complete step			
+		*/
 	util.appStatusSetup = function (status) {
 		var formStatusArray = status,
 			finalVal = [],
@@ -1046,7 +1049,12 @@
 		return formStatusDetail;
 		//console.info('stringVal = ', formStatusDetail);
 	};
-
+		/*---- wbg|form|rq12 ----
+			TransactionID:multiple transactionID
+			Convention: new property in dataLayr "appReference" is an array captures multiple tranactionID, 
+			This array is passed into util.createTransID function to concatenate transID to create a single transactionID
+			Used in application|enquiry|quote start or complete steps
+		*/
 	util.createTransID = function (prodArray) {
 		var transIDArray = prodArray,
 			finalVal = [],
@@ -1061,7 +1069,6 @@
 		combinedtransID = finalVal.join(';');
 		return combinedtransID;
 	};
-	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 
 
 	/******** Don't set any variables after this line ********/
@@ -1259,7 +1266,7 @@
 	/* uncomment below to use doPlugins */
 	s3.usePlugins=true
 	function s_doPlugins(s3) {
-	/*
+	/* ----wbg|form|rq16---
 	do not delete used to track newformupdates version 
 	newformupdates:version:0.03
 	*/
@@ -1288,7 +1295,6 @@
 	paymentProduct, // for products string where required
 	pdFormName = lowerCaseVal(cleanText(pageDetails.formName)),
 	pdFormType = lowerCaseVal(cleanText(pageDetails.formType)),
-	//---- wbg|form|app|*au ---- 
 	pdnewFormName = lowerCaseVal(cleanText(pageDetails.newFormName)),
 	pdJourneyType = lowerCaseVal(cleanText(pageDetails.journeyType)),
 	pdAccountType = lowerCaseVal(cleanText(pageDetails.accountType)),
@@ -1296,9 +1302,7 @@
 	pdFormIsStp = lowerCaseVal(cleanText(pageDetails.formIsSTP)),
 	pdFormVariant = lowerCaseVal(cleanText(pageDetails.formVariant)),
 	journeyTypeOverride,
-	pdProductCount,
 	pdAppStatus = pageDetails.applicationStatus,
-	//--- wbg|form|app|*au ----
 	//pdInSession = false, // if page is in secure/unsecure area
 	pdEexternalSiteName = lowerCaseVal(cleanText(pageDetails.externalSiteName)),
 	pdSelfserviceDetails = lowerCaseVal(cleanText(pageDetails.selfserviceDetail)), // for selfservice details tracking
@@ -1397,7 +1401,11 @@
 			}
 		}
 	}*/
-	//---- wbg|form|app|*au ---- 
+	/*---- wbg|form|rq1 ----
+		eVar41:Journey Type(pdJourneyType)
+		Convention: Updated code to capture journey type via dataLayer property journeyType(new)
+		sampleValues: pub, pub-auth, auth, concise
+	*/ 
 	if (pdPageType && pdnewFormName) {
 		//if (pdPageStep === 'start') {
 		//if (pdPageStep === 'start' && pdPageType !== 'login') { // login form start step breaks long-short formType setting in the middle of other form journeys
@@ -1421,7 +1429,7 @@
 			}
 		}
 	}
-	//---- wbg|form|app|*au ---- 
+
 		
 	//console.log('pdFormType = ' + pdFormType);
 
@@ -1432,10 +1440,7 @@
 	// Payments use pdTransactionType as part of page and form name, instead of formName
 	//formNameAlt = pdFormName || pdTransactionType;
 	//formNameAlt = pdFormName ? (pdFormName + (pdFormType ? ':' + pdFormType : '')) : pdTransactionType; // to switch short/long form type when required
-	//---- wbg|form|app|*au ---- 
 	formNameAlt = pdnewFormName || pdTransactionType; // to switch short/long form type when required
-	//---- wbg|form|app|*au ---- 
-
 
 	// set pageName syntax for forms
 	if (formNameAlt || (/^(?:tool|survey|selfservice|registration|payment|login|enquiry|application)$/).test(pdPageType)) { // pageType considered to be a form, use form syntax for pageName
@@ -1955,34 +1960,48 @@
 			//s2.transactionID = pdPageStep + '_' + pdTransactionId;
 			//s2.eVar39 = 'D=xact';
 		}
-		// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-		if (pdJourneyType) {
-			digital['dd.journeyType'] = lowerCaseVal(pdJourneyType);
-		}
-		// form-type
+
+		/*---- wbg|form|rq2 ----
+			eVar41:Form-Type(pdFormIsStp & pdFormVariant)
+			Convention: captured on all STP form application steps , 
+			sampleValues: stp_na, stp_unlock, stp_activate, non-stp
+		*/
 		if (pdFormIsStp) {
 			digital['dd.formType'] = 'stp' + '_' + (lowerCaseVal(pdFormVariant) || 'na');
 		} else {
 			digital['dd.formType'] = 'non-stp';
 		}
-		// account-type
+
+		// ---- wbg|form|rq1 ----
+		if (pdJourneyType) {
+			digital['dd.journeyType'] = lowerCaseVal(pdJourneyType);
+		}
+		/*---- wbg|form|rq4 ----
+			eVar72:Form-Type(pdAccountType)
+			Convention: captured on all application steps , 
+			sampleValues: single, joint or multiple
+		*/
 		if(pdAccountType){
 			digital['dd.accountType'] = lowerCaseVal(pdAccountType);
 		}
-		//business-type
+		/*---- wbg|form|rq6 ----
+			eVar43:Form-Type(pdBusinessType)
+			Convention: captured on all application steps , 
+			sampleValues: sole-trader, director
+		*/
 		if(pdBusinessType){
 			digital['dd.businessType'] = lowerCaseVal(pdBusinessType);
 		}
 
-		// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-
 		switch (pdPageStep) {
-			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+			/*---- wbg|form|rq7 ----
+				event17:Application Welcome
+				Convention: only for applications, used on step where visitor choose to login or continue to public forms
+			*/
 			case 'welcome':
 				appendEvent(digital, 'welcome');
 
 				break;
-			// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 			case 'start':
 				appendEvent(digital,'appStart');
 				//appendEvent(21);
@@ -2014,11 +2033,9 @@
 				//appendEvent('event27' + util.serialise(eventSerialisationKey, pdPageStep));
 				//console.log(eventSerialisationKey);
 				//digital['dd.transactionID'] = pdTransactionId;
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 				if (pdTransactionId) {
 					digital['dd.transactionID'] =  digital['dd.applicationID'] = util.createTransID(pdTransactionId);
 				}
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 				//s2.transactionID = pdTransactionId;
 				//s.eVar39 = 'D=xact'; // if multiple transacation ID's, what happens on forms without productID? are there any without products? Have form txn ID + multi prod IDs?
 				//s.purchaseID = 'D=v39';
@@ -2051,12 +2068,11 @@
 					//pdProductID[0].events=lowerCaseVal(pdTransactionType,1)+'='+pdTransactionAmount; // generic pdFormStatus applied during prod string processing
 					pdProductID[0].events = (pdTransactionType || notSet) + '=' + pdTransactionAmount; // generic pdFormStatus applied during prod string processing
 				}
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+				// - - - - - - - - -  wbg|form|rq14 - - - - - - - - - - -
 				if (pdFormIsStp && pdAppStatus) {
 					// call applicationStatus function here with pdAppStatus as argument
 					digital['dd.applicationStatus'] = util.appStatusSetup(pdAppStatus);
 				}
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 
 				// track status of whole form submission (even though form may include multiple products)
 				// pdFormStatus is applied directly to merchandising with every transaction amount band
@@ -2097,9 +2113,15 @@
 				break;
 		}
 		break;
-	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - - *change commenting convention
 	case 'quote':
-		// *au
+		/*
+		  ---- wbg|form|rq8 ----
+		  ---- wbg|form|rq9 ----
+		  ---- wbg|form|rq10 ----
+		  ---- wbg|form|rq11 ----
+		event73,74,86,& 87:Quote start, complete, save and retrive
+		Convention:added new events, in addition capture transactionID/applicationID on start/save and complete quote
+		*/
 		switch (pdPageStep) {
 			case 'start':
 				appendEvent(digital, 'quoteStart');
@@ -2127,7 +2149,6 @@
 				break;
 		}
 		break;
-	// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 		case 'servererror':
 			// 404, 500 etc. on page load
 			// align pageName for errors to correspond to similar section details of other pages
@@ -2249,6 +2270,11 @@
 
 		// standard form name details
 		//formNameAlt=(pdFormName||pdTransactionType); // Payments use pdTransactionType as part of form name, not the formName from pageDetails
+		/*---- wbg|form|rq15 ----
+			eVar23:made changes as part of new form name convention
+			removed the journey information from form name
+			pageType (or formtype) is now shorter (app|enq|quo) instead of application|enquiry etc
+		*/
 		if (pdPageType && formNameAlt) {
 			//s.eVar23 = s.eVar6+':'+pdPageType+':'+formNameAlt; // excludes sub-domain, e.g. - wbc:application
 			var newPageType;
@@ -3889,21 +3915,28 @@
 				} //else {
 				//crossSellProduct = validProductCount > 1 ? true : false; // if nothing specified, anything after first valid product is assumed to be cross-sell
 				//}
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
-				// commented default crossell for second product without crossel property
-				// append primaryProduct or secondaryProduct prefix (1- or 2-) in product string
+				/*---- wbg|form|rq13 ----
+					s.products :product-count(primaryProduct & secondaryProd)
+					commented default crossell for second product without crossel property
+					append primaryProduct or secondaryProduct prefix (1- or 2-) in product string
+					changed crosssell from suffix to prefix X-
+					updated the prodSyntax code which creates the s.products string to reflect primary, secondary and crosssell changes
+				*/
+
 				if (prodArr[lp1].primaryProd === 'true') {
 					primaryProduct = true;
-					console.info('primaryProduct', primaryProduct);
+					//console.info('primaryProduct', primaryProduct);
 				}
 				if (prodArr[lp1].secondaryProd === 'true') {
 					secondaryProduct = true;
-					console.info('secondaryProduct', secondaryProduct);
+					//console.info('secondaryProduct', secondaryProduct);
 				}
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 
-
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
+				/*---- wbg|form|rq5 ----
+					Prop41:product-count(productCount)
+					Convention: Only for application and step complete, populate total products sold 
+					sampleValues: 1, 2, 3
+				*/
 				if (prodArr[lp1].qty) {
 					var totalProductsSold = 0;
 					pCount.push(prodArr[lp1].qty);
@@ -3915,10 +3948,8 @@
 					productCount = totalProductsSold;
 				}
 				if (productCount && pdPageStep === 'complete' && pdPageType === 'application') {
-					pdProductCount = productCount;
 					digital['dd.productCount'] = productCount;
 				}
-				// - - - - - - - - -  wbg|form|app|*au - - - - - - - - - - -
 
 				prodEvents = prodArr[lp1].events;
 				prodMerch = prodArr[lp1].merch;
