@@ -21,7 +21,7 @@ This will be consistent acorss all the WBG brands.
 
 The new form name convention will have the following structure 
 
-**_brand:platform:pageType:product segment: product name_**
+**_Brand: Platform: Form Type : Product segment: Product name_**
 
 **application and enquiry convention**
 
