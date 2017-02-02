@@ -21,61 +21,27 @@ This will be consistent acorss all the WBG brands.
 
 The new form name convention will have the following structure 
 
-**_Brand: Platform: Form Type : Product segment: Product name_**
-
 **application and enquiry convention**
 
-| Brand         | Platform      | Form Type    | Prod segment | Prod category/name       | new formname(eVar23)     |
-| ------------- |:-------------:|:------------:|:------------:|:------------------------:|:------------------------:| 
-| Westpac       | oneclick      | application  | consumer     | savings & transaction    | wbc:wow:app:cons:st      |
-| Westpac       | oneclick      | application  | business     | savings & transaction    | wbc:wow:app: bus:st       |
-| Westpac       | oregon        | application  | consumer     | Credit card              | wbc:wow:app:cons:cc      |
-| Westpac       | oregon        | application  | business     | Credit card              | wbc:wow:app: bus:cc       |
+**_Brand: Platform: Form Type : Product segment: Product name_**
 
 Examples by platform & Brand
 
-WBC
+| Brand         | Platform      | Form Type    | Prod segment | Prod category/name       | new formname(eVar23)     |
+| ------------- |:-------------:|:------------:|:------------:|:------------------------:|:------------------------:| 
+| Westpac       | oneclick      | application  | consumer     | savings & transaction    | **wbc:wow:app:cons:st**  |
+| Westpac       | oneclick      | application  | business     | savings & transaction    | wbc:wow:app: bus:st      |
+| Westpac       | oregon        | application  | consumer     | Credit card              | wbc:wow:app:cons:cc      |
+| Westpac       | oregon        | application  | business     | Credit card              | wbc:wow:app: bus:cc      |
+| StGeorge      | oneclick      | application  | consumer     | savings & transaction    | stg:wow:app:cons:st      |
+| StGeorge      | oneclick      | application  | business     | savings & transaction    | stg:wow:app: bus:st      |
+| StGeorge      | oaf           | application  | consumer     | Credit card              | stg:oaf:app:cons:cc      |
+| StGeorge      | ace           | application  | business     | Credit card              | stg:ace:app: bus:cc      |
+| BankSA        | oneclick      | application  | consumer     | savings & transaction    | bsa:wow:app:cons:st      |
+| BankSA        | oneclick      | application  | business     | savings & transaction    | bsa:wow:app: bus:st      |
+| BOM           | oneclick      | application  | consumer     | savings & transaction    | bom:wow:app:cons:cc      |
+| BOM           | oneclick      | application  | business     | savings & transaction    | bom:wow:app: bus:cc      |
 
-Application
-```
-wbc:ore:app:cons:cc
-wbc:wow:app:cons:st
-wbc:dom:app:cons:td
-wbc:voy:app:bus:td
-wbc:ein:app:cons:in
-```
-Enquiry
-```
-wbc:wow:enq:cons:st
-wbc:dom:enq:cons:td
-wbc:voy:enq:bus:td
-```
-
-STG
-
-```
-stg:oaf:app:cons:cc
-stg:ace:app:cons:st
-stg:wow:app:bus:td
-stg:wap:app:bus:st
-```
-
-BOM
-
-```
-bom:oaf:app:bus:cc
-bom:ace:app:bus:st
-bom:wow:app:cons:td
-bom:wap:app:cons:st
-```
-
-BSA
-
-```
-bsa:oaf:app:cons:cc
-bsa:ace:app:cons:st
-bsa:wow:app:bus:td
-```
 
 
 ### new variables and events
