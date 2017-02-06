@@ -2832,20 +2832,23 @@
 	if (s3.campaign) {
 		s3.eVar19 = s3.crossVisitParticipation(s3.campaign, 's3_ev19', '30', '10', '>', 'event22');
 	}
-
+	/*---- wbg|form|rq18 ----
+	prop18: commented out s3.prop18 since no more part of new WBG sdd
+	*/
 	// Paid/Natural Search Keyword
-	s3.prop18 = pageNameDynamicVariable; // set to just pageName as default
+	//s3.prop18 = pageNameDynamicVariable; // set to just pageName as default
 	s3._channelParameter = 'Campaign|cid';
 	s3.channelManager('cid','','s3_c_m');
 
 	//channelManagerKeywords = cleanText(s._keywords || ''); // filter search keywords a bit - strip multiple spaces etc.
 	channelManagerKeywords = util.clean(s3._keywords); // filter search keywords a bit - strip multiple spaces etc.
-
+	/*
 	if (s3._channel === 'Natural Search') {
 		channelManagerSearchType = 'NS';
 		// prop18 seo keywords and entry page
 		s3.prop18 = 'D="' + channelManagerKeywords + '|"+pageName';
 	}
+	*/
 	//if(s._channel==='Campaign'&&/^sem:/i.test(s._campaign)){ // if cid param, and value starts with 'sem:' (just check for any CID). confirm identifier for PPC tracking codes
 	if (s3._channel === 'Campaign' && channelManagerKeywords !== 'n/a') { // only if cid param exists and keywords are found, it's paid search. We may not have keywords if they are not passed by the search engine (usually for NS)
 		channelManagerSearchType = 'PS';

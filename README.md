@@ -180,17 +180,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-## [0.0.4] - 2017-02-02
-### Added
-
-
-### Changed
-
-
+## [0.0.4] - 2017-02-06
 ### Removed
-- Remove redundant/old SDD variables.
+- Commented prop18 in s_code, no more part of new WBG solution design, Product Description - eVarXX - **wbg|form|rq18**
 
-## [0.0.3] - 2014-08-26
+## [0.0.3] - 2016-12-24
 ### Added
 - New BT variable added, Product Description - eVarXX - **wbg|form|rq17**
 - Product description will be populated only for application and enquiry if "prodDescription" property exists in datalayer
