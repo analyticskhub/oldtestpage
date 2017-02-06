@@ -1312,6 +1312,7 @@
 	pdTransactionQty = pageDetails.transactionQty || '', // for transactions - multiple payments quantity
 	pdTransactionDetails = lowerCaseVal(cleanText(pageDetails.transactionDetails || '')), // for transactions - multiple payments quantity
 	formNameAlt, // Payments use pdTransactionType as part of form name, instead of formName
+	pdProdDescription = lowerCaseVal(cleanText(pageDetails.prodDescription)),
 	//pdTransactionId = pageDetails.transactionID || '', // for transactions - confirm uniqueness - '[CID:...]' on Domino
 	//prchId = pdTransactionId || '', // local copy for purchaseID manipulation
 	//Anil new appReference
@@ -2277,7 +2278,10 @@
 		*/
 		if (pdPageType && formNameAlt) {
 			//s.eVar23 = s.eVar6+':'+pdPageType+':'+formNameAlt; // excludes sub-domain, e.g. - wbc:application
-			var newPageType;
+			var newPageType,
+				newFormName,
+				prodDescriptionRequired,
+				prodDescription = pdProdDescription;
 			newPageType = pdPageType;
 
 			newPageType = lowerCaseVal(
@@ -2289,16 +2293,26 @@
 					.replace(/payment/i, 'pay')
 					.replace(/survey/i, 'sur')
 			);
-			digital['dd.formName'] = util.siteID + ':' + newPageType + ':' + formNameAlt; // includes sub-domain, e.g. - wbc:online:application // if this matches v3, D=v3 could be used here
+
+			newFormName = util.siteID + ':' + newPageType + ':' + formNameAlt; // includes sub-domain, e.g. - wbc:online:application // if this matches v3, D=v3 could be used here
+			digital['dd.formName'] = newFormName;
+			/*---- wbg|form|rq17 ----
+			eVar16: product description new eVar for BT requirement
+			concatenate formName and product description from data layer, only populate for quote/enquiry/application pages. 
+			*/
+			prodDescriptionRequired = /(app|enq|quo)/i.test(newPageType);
+			if (prodDescriptionRequired && prodDescription) {
+				digital['dd.prodDescription'] = newFormName + ':' + prodDescription
+			}
 			//s2.eVar23 = util.siteID + ':' + pdPageType + ':' + formNameAlt; // includes sub-domain, e.g. - wbc:online:application // if this matches v3, D=v3 could be used here
 			//s2.prop23 = dVar(23);
 
 			if (pdPageStep === 'start') {
-				appendEvent(digital,'formStart');
+				appendEvent(digital, 'formStart');
 				//appendEvent(55);
 			}
 			if (pdPageStep === 'complete') {
-				appendEvent(digital,'formComplete');
+				appendEvent(digital, 'formComplete');
 				//appendEvent(56);
 			}
 		}

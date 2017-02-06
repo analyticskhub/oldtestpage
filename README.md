@@ -121,6 +121,7 @@ digitalData = {
     'eventKey' : 'mob:wbc_oregon_app_cc_thank-you', // unique eventKey for spa-page|dialog|popup only
     'pageStep': 'complete', // welcome|start|save|retrieve|complete
     'pageType': 'application',
+    'prodDescription' : 'low-rate-card',
     'productID': [{
         'prod': 'WBC03PL005',
         'qty': '2',
